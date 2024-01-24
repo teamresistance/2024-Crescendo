@@ -14,6 +14,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
+import frc.util.PIDXController;
 
 
 public class IO {
@@ -67,6 +69,7 @@ public class IO {
     public static Encoder_Neo backRightEnc = new Encoder_Neo(backRightLd, backRightTPF);
     public static boolean resetEnc = false; 
 
+
     // Kinematics for Drive Train.
     // Locations of the wheels relative to the robot center.
     private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
@@ -75,36 +78,11 @@ public class IO {
     private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
     // Creating kinematics object using the wheel locations.
     public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
-    frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
+        frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
     );
     
     public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
-
-    // SNORFLER (solenoid, 3 motors, banner sensor)
-    public static Victor snorflerFwd_R = new Victor(0); //Fwd intake motor (follows Left)
-    public static Victor snorflerFwd_L = new Victor(9); //Fwd intake motor
-    public static Victor snorflerRear  = new Victor(1); //Rear intake motor
-    public static Solenoid snorflerBar = new Solenoid(modID, modType, 2);
-    public static InvertibleDigitalInput snorfHasGP = new InvertibleDigitalInput(0, true);  //Signals a GP is on the porch
-
-    //LEDS
-    public static Solenoid ledGrn = new Solenoid(modID, modType, 8);
-    public static Solenoid ledRed = new Solenoid(modID, modType, 9);
-    public static Solenoid ledBlu = new Solenoid(modID, modType, 10);
-
-    // ARM game piece scoring system - slider (up/down), forearm, claw (3 SV's)
-    public static Solenoid sliderExt = new Solenoid(modID, modType, 4);
-    public static Solenoid forearmExt = new Solenoid(modID, modType, 1);
-    public static InvertibleSolenoid forearmRel = new InvertibleSolenoid(modID, modType, 5, true);
-
-    // Claw
-    public static Solenoid claw = new Solenoid(modID, modType, 0);
-
-    
-    //Thumper - used to lower the Charging Station
-    public static Solenoid thmprExt_SV = new Solenoid(modID, modType, 3);
-
     /**
      * Initialize any hardware
      */
@@ -144,17 +122,16 @@ public class IO {
         // LEAVE COMMENTED OUT UNTIL MOTORS ARE CHECKED FOR ROTATION AND ASSIGNMENT!!!
         //-------- No CAN motors are inverted this year! -------------------
 
-        frontLeftLg.follow(frontLeftLd);
-        backLeftLg.follow(backLeftLd);
-        frontRightLg.follow(frontRightLd);
-        backRightLg.follow(backRightLd);
+        // frontLeftLg.follow(frontLeftLd);
+        // backLeftLg.follow(backLeftLd);
+        // frontRightLg.follow(frontRightLd);
+        // backRightLg.follow(backRightLd);
 
-        frontRightLd.setInverted(true);
-        backRightLd.setInverted(true);
+        // frontRightLd.setInverted(true);
+        // backRightLd.setInverted(true);
 
         drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
         drvMec.setDeadband(0.1);
-
     }
 
     /**
@@ -224,22 +201,7 @@ public class IO {
     }
 
     public static void sdbUpdPCH(){
-        SmartDashboard.putBoolean("PCH/0 - claw closed", claw.get());
-        SmartDashboard.putBoolean("PCH/1 - forearm ext'ed", forearmExt.get());
-        SmartDashboard.putBoolean("PCH/2 - snor bar dn", snorflerBar.get());
-        SmartDashboard.putBoolean("PCH/3 - thumper down", thmprExt_SV.get());
-        SmartDashboard.putBoolean("PCH/4 - slide ext'ed", sliderExt.get());
-        SmartDashboard.putBoolean("PCH/5 - nc", false);
-        SmartDashboard.putBoolean("PCH/6 - nc", false);
-        SmartDashboard.putBoolean("PCH/7 - nc", false);
-        SmartDashboard.putBoolean("PCH/8 - nc", false);
-        SmartDashboard.putBoolean("PCH/9 - nc", false);
-        SmartDashboard.putBoolean("PCH/10 - nc", false);
-        SmartDashboard.putBoolean("PCH/11 - nc", false);
-        SmartDashboard.putBoolean("PCH/12 - nc", false);
-        SmartDashboard.putBoolean("PCH/13 - nc", false);
-        SmartDashboard.putBoolean("PCH/14 - nc", false);
-        SmartDashboard.putBoolean("PCH/15 - nc", false);
+
     }
 
 }
