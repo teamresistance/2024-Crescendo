@@ -26,7 +26,7 @@ import frc.util.Timer;
 
 public class Drive {
     // hdw defintions:
-    private static MecanumDrive mecDrv = IO.drvMec;
+    // private static MecanumDrive mecDrv = IO.drvMec;
     private static NavX navX = IO.navX;
 
     // joystick:
@@ -97,8 +97,7 @@ public class Drive {
      */
     public static void init() {
         sdbInit();
-        cmdUpdate(0.0, 0.0, 0.0, false); // select goal, left trigger, right trigger
-        state = 0; // Start at state 0, 0=robotOriented, 2=fieldOriented
+        state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold
         drvBrake(true);    //set motors to coast        
@@ -129,10 +128,10 @@ public class Drive {
         state = isFieldOriented ? 1 : 0;
 
         if (btnGyroReset.isDown()) {
-            botHold_SP = null;
-            hdgHold_SP = null;
+            // botHold_SP = null;
+            // hdgHold_SP = null;
             IO.navX.reset();
-            IO.coorXY.reset();
+            // IO.coorXY.reset();
         }
         
         smUpdate();
@@ -197,9 +196,14 @@ public class Drive {
      * State Machine Update
      */
     private static void smUpdate() {
+        // System.out.println(state);
+        fwdSpd = jsX.getRaw();
+        rlSpd = jsY.getRaw();
+        rotSpd = jsRot.getRaw();
+        
         switch (state) {
             case 0: // Robot oriented
-                cmdUpdate(fwdSpd, rlSpd, rotSpd, false);
+                cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
                 break;
             case 1: // Field oriented
                 cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
@@ -229,22 +233,17 @@ public class Drive {
          * Custom velocity contrl class feeds joystick inputs into a calculator that outputs four wheel velociites
          * Each wheel has a PID controller that is then updated to match that speed.
          */
-        
-        //Check if updates were made in SDB
-        frontLeftLdPID.update();
-        backLeftLdPID.update();
-        frontRightLdPID.update();
-        backRightLdPID.update();
+    
         
         if (!isFieldOriented) 
         {
             //Robot
-            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpd, rlSpd, rotSpd);
+            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpd, -rlSpd, rotSpd);
         }
         else
         {
             //Field
-            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpd, rlSpd, rotSpd, navX.getAngle());
+            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpd, -rlSpd, rotSpd, navX.getAngle());
         }
     
         
@@ -252,6 +251,12 @@ public class Drive {
         frontRightLdPID.updateSetpoint(inputs[1] * maxRPM);
         backLeftLdPID.updateSetpoint(inputs[2] * maxRPM);
         backRightLdPID.updateSetpoint(inputs[3] * maxRPM);
+        
+        //Check if updates were made in SDB
+        frontLeftLdPID.update();
+        backLeftLdPID.update();
+        frontRightLdPID.update();
+        backRightLdPID.update();
     }
 
     /**
@@ -263,14 +268,14 @@ public class Drive {
         // rotSpd = chk_jsRot(rotSpd);  //Keep bot on last driver heading using jsRot
         chkHdgHold();       //If ena. mod jsRot to hold a heading
         chkScale();
-        chkFwdHold();
-        chkRlHold();
+        // chkFwdHold();
+        // chkRlHold();
         //chkgoToTarget();
     }
 
     /**Check for scaling.  Set the max output of the diffDrv else set to 1.0 */
     private static void chkScale(){
-        mecDrv.setMaxOutput(isScaled() ? wkgScale : 1.0);
+        // mecDrv.setMaxOutput(isScaled() ? wkgScale : 1.0);
     }
 
     /**
@@ -321,32 +326,32 @@ public class Drive {
     /**
      * modify global var fwdSpd to move the robot to fwdHold_SP.
      */
-    private static void chkFwdHold() {
-        if (fwdHold_SP != null) {
-            fwdSpd = calcFwdHold(fwdHold_SP);  //Calc rotation
-        }
-    } 
+    // private static void chkFwdHold() {
+    //     if (fwdHold_SP != null) {
+    //         fwdSpd = calcFwdHold(fwdHold_SP);  //Calc rotation
+    //     }
+    // } 
     /**
      * 
      * calculate movement, fwdSpd, responce to move towards fwd_SP.
      * @param fwd_SP setpoint to hold
      * @return movemntY, fwdSpd
      */
-    private static double calcFwdHold(Double fwd_SP) {
-        if (fwd_SP != null) {
-            return pidHdg.calculateX(IO.coorXY.getY(), fwd_SP);  //Calc movement
-        }else{
-            return 0.0;
-        }
-    }
+    // private static double calcFwdHold(Double fwd_SP) {
+    //     if (fwd_SP != null) {
+    //         return pidHdg.calculateX(IO.coorXY.getY(), fwd_SP);  //Calc movement
+    //     }else{
+    //         return 0.0;
+    //     }
+    // }
     /**
      * modify global var rlSpd to move the robot to rlHold_SP.
      */
-    private static void chkRlHold() {
-        if (rlHold_SP != null) {
-            rlSpd = calcRlHold(rlHold_SP);  //Calc rotation
-        }
-    }
+    // private static void chkRlHold() {
+    //     if (rlHold_SP != null) {
+    //         rlSpd = calcRlHold(rlHold_SP);  //Calc rotation
+    //     }
+    // }
 
     /**
      * 
@@ -354,13 +359,13 @@ public class Drive {
      * @param rl_SP setpoint to hold
      * @return movemntX, rlSpd
      */
-    private static double calcRlHold(Double rl_SP) {
-        if (rl_SP != null) {
-            return pidHdg.calculateX(IO.coorXY.getX(), rl_SP);  //Calc movement
-        }else{
-            return 0.0;
-        }
-    }
+    // private static double calcRlHold(Double rl_SP) {
+    //     if (rl_SP != null) {
+    //         return pidHdg.calculateX(IO.coorXY.getX(), rl_SP);  //Calc movement
+    //     }else{
+    //         return 0.0;
+    //     }
+    // }
 
     //-------------------------  SDB Stuff --------------------------------------
     /**Initialize sdb */
@@ -391,18 +396,23 @@ public class Drive {
         SmartDashboard.putNumber("Gyro", IO.navX.getNormalizedAngle());
 		SmartDashboard.putBoolean("robot", isFieldOriented);
 
-        SmartDashboard.putNumber("Drv/coorX", IO.coorXY.getX());
-        SmartDashboard.putNumber("Drv/coorY", IO.coorXY.getY());
+        SmartDashboard.putNumber("SP/FrontLeft SP", inputs[0] * maxRPM);
+        SmartDashboard.putNumber("SP/FrontRight SP", inputs[1] * maxRPM);
+        SmartDashboard.putNumber("SP/BackLeft SP", inputs[2] * maxRPM);
+        SmartDashboard.putNumber("SP/BackRight SP", inputs[3] * maxRPM);
+        
+        // SmartDashboard.putNumber("Drv/coorX", IO.coorXY.getX());
+        // SmartDashboard.putNumber("Drv/coorY", IO.coorXY.getY());
 
-        SmartDashboard.putNumber("Drv/frontLeftEncft", IO.frontLeftEnc.feet());
-        SmartDashboard.putNumber("Drv/frontRightEncft", IO.frontRightEnc.feet());
-        SmartDashboard.putNumber("Drv/backLeftEncft", IO.backLeftEnc.feet());
-        SmartDashboard.putNumber("Drv/backRightEncft", IO.backRightEnc.feet());
+        // SmartDashboard.putNumber("Drv/frontLeftEncft", IO.frontLeftEnc.feet());
+        // SmartDashboard.putNumber("Drv/frontRightEncft", IO.frontRightEnc.feet());
+        // SmartDashboard.putNumber("Drv/backLeftEncft", IO.backLeftEnc.feet());
+        // SmartDashboard.putNumber("Drv/backRightEncft", IO.backRightEnc.feet());
     
-        SmartDashboard.putNumber("Drv/frontLeftEnc", IO.frontLeftEnc.rotations());
-        SmartDashboard.putNumber("Drv/frontRightEnc", IO.frontRightEnc.rotations());
-        SmartDashboard.putNumber("Drv/backLeftEnc", IO.backLeftEnc.rotations());
-        SmartDashboard.putNumber("Drv/backRightEnc", IO.backRightEnc.rotations());
+        // SmartDashboard.putNumber("Drv/frontLeftEnc", IO.frontLeftEnc.rotations());
+        // SmartDashboard.putNumber("Drv/frontRightEnc", IO.frontRightEnc.rotations());
+        // SmartDashboard.putNumber("Drv/backLeftEnc", IO.backLeftEnc.rotations());
+        // SmartDashboard.putNumber("Drv/backRightEnc", IO.backRightEnc.rotations());
         
         SmartDashboard.putNumber("Drv/Auto/DistX", IO.getmecDistX());
         SmartDashboard.putNumber("Drv/Auto/DistY", IO.getmecDistY());

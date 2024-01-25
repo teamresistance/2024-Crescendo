@@ -57,31 +57,31 @@ public class IO {
     public static MecanumDrive drvMec;  // = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
 
     // Ticks Per Foot??
-    public static double tpfAll = 12.7; //37 rotations for 10 ft
-    public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    // Encoders
-    public static Encoder_Neo frontLeftEnc = new Encoder_Neo(frontLeftLd, frontLeftTPF);
-    public static Encoder_Neo backLeftEnc = new Encoder_Neo(backLeftLd, backLeftTPF);
-    public static Encoder_Neo frontRightEnc = new Encoder_Neo(frontRightLd, frontRightTPF);
-    public static Encoder_Neo backRightEnc = new Encoder_Neo(backRightLd, backRightTPF);
-    public static boolean resetEnc = false; 
+    // public static double tpfAll = 12.7; //37 rotations for 10 ft
+    // public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    // public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    // public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    // public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    // // Encoders
+    // public static Encoder_Neo frontLeftEnc = new Encoder_Neo(frontLeftLd, frontLeftTPF);
+    // public static Encoder_Neo backLeftEnc = new Encoder_Neo(backLeftLd, backLeftTPF);
+    // public static Encoder_Neo frontRightEnc = new Encoder_Neo(frontRightLd, frontRightTPF);
+    // public static Encoder_Neo backRightEnc = new Encoder_Neo(backRightLd, backRightTPF);
+    // public static boolean resetEnc = false; 
 
 
-    // Kinematics for Drive Train.
-    // Locations of the wheels relative to the robot center.
-    private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
-    private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
-    private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    // Creating kinematics object using the wheel locations.
-    public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
-        frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
-    );
+    // // Kinematics for Drive Train.
+    // // Locations of the wheels relative to the robot center.
+    // private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
+    // private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    // private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
+    // private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    // // Creating kinematics object using the wheel locations.
+    // public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
+    //     frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
+    // );
     
-    public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
+    // public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
     /**
      * Initialize any hardware
@@ -103,7 +103,7 @@ public class IO {
         //Resets navX, angle offset, coorXY & offsets to zero.  
         //Also set scaled driving for climbing
            
-        coorXY.update();
+        // coorXY.update();
         calcXY();
         sdbUpdate();
     }
@@ -130,8 +130,8 @@ public class IO {
         // frontRightLd.setInverted(true);
         // backRightLd.setInverted(true);
 
-        drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
-        drvMec.setDeadband(0.1);
+        // drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
+        // drvMec.setDeadband(0.1);
     }
 
     /**
@@ -164,10 +164,10 @@ public class IO {
      * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.
      */
     private static void calcXY(){
-        mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
-        /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
-        mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
-        /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
+        // mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
+        // /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
+        // mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
+        // /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
     }
 
     /**Get the sideways movement on a mec Drive.  Right is positive. */

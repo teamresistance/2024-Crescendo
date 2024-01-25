@@ -59,9 +59,11 @@ public class Drv_Teleop extends Drive {
      * <p>Added sdb chooser to select.  Can chg from btn or chooser.
      */
     public static void update() {
-        if(teleDrvChoice != teleDrvChsr.getSelected()){ //If sdb chgs switch states to sdb choice
-            state = teleDrvChsr.getSelected();
-            teleDrvChoice = state;
+        if (teleDrvChsr.getSelected() != null){
+            if(teleDrvChoice != teleDrvChsr.getSelected()){ //If sdb chgs switch states to sdb choice
+                state = teleDrvChsr.getSelected();
+                teleDrvChoice = state;
+            }
         }
 
         smUpdate();

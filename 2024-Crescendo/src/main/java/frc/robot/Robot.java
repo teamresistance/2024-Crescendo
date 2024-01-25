@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import frc.io.hdw_io.IO;
+import frc.io.joysticks.JS_IO;
+import frc.robot.subsystem.Drive.Drive;
+import frc.robot.subsystem.Drive.Drv_Teleop;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -52,11 +58,21 @@ public class Robot extends TimedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        
+        IO.navX.reset();
+        IO.init();
+        JS_IO.init();
+        Drive.init();
+        Drv_Teleop.init();
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
+        IO.update();
+        JS_IO.update();
+        Drive.update();
+        Drv_Teleop.update();
     }
 
     /** This function is called once when the robot is disabled. */
