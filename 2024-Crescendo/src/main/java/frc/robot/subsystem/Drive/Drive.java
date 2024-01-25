@@ -225,21 +225,25 @@ public class Drive {
         
         //Check any safeties, mod passed cmds if needed.
         chkInput();
-
-
-        //Send commands to hardware
-        // if (isFieldOriented){
-        //     mecDrv.driveCartesian(-fwdSpd, rlSpd, rotSpd, heading);
-        // } else {
-        //     mecDrv.driveCartesian(-fwdSpd, rlSpd, rotSpd);
-        // }
+        /*
+         * Custom velocity contrl class feeds joystick inputs into a calculator that outputs four wheel velociites
+         * Each wheel has a PID controller that is then updated to match that speed.
+         */
+        
+        //Check if updates were made in SDB
+        frontLeftLdPID.update();
+        backLeftLdPID.update();
+        frontRightLdPID.update();
+        backRightLdPID.update();
         
         if (!isFieldOriented) 
         {
+            //Robot
             inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpd, rlSpd, rotSpd);
         }
         else
         {
+            //Field
             inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpd, rlSpd, rotSpd, navX.getAngle());
         }
     
@@ -402,6 +406,8 @@ public class Drive {
         
         SmartDashboard.putNumber("Drv/Auto/DistX", IO.getmecDistX());
         SmartDashboard.putNumber("Drv/Auto/DistY", IO.getmecDistY());
+
+        
     }
 
     /**
