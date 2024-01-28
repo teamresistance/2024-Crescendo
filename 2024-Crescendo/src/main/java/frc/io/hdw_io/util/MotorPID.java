@@ -7,13 +7,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 public class MotorPID {
     private int deviceID;
     private CANSparkMax m_motor, m_lagMotor;
     public SparkPIDController m_pidController;
-    private RelativeEncoder m_encoder;
+    private RelativeEncoder m_encoder; //This may say it's unused, it absolutely IS used
     private double setPoint = 0.0;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
     private boolean m_isInverted, m_isLagInverted;
