@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
@@ -53,8 +54,10 @@ public class IO {
      */
     public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
-    public static MecanumDrive drvMec;  // = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
+    public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
 
+    //Temp allocation to stop Drive.java from breaking, get rid of this later
+    public static MecanumDriveKinematics kinematics = null;
 
     //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
