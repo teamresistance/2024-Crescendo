@@ -43,16 +43,12 @@ public class IO {
     public static Relay compressorRelay = new Relay(0);
 
     // Drive Motors
-    public static CANSparkMax frontLeftLd  = new CANSparkMax(11, MotorType.kBrushless);
-    public static CANSparkMax frontLeftLg  = new CANSparkMax(12, MotorType.kBrushless);
-    public static CANSparkMax backLeftLd   = new CANSparkMax(13, MotorType.kBrushless);    
-    public static CANSparkMax backLeftLg   = new CANSparkMax(14, MotorType.kBrushless);
-    public static CANSparkMax frontRightLd = new CANSparkMax(15, MotorType.kBrushless) ;
-    public static CANSparkMax frontRightLg = new CANSparkMax(16, MotorType.kBrushless);
-    public static CANSparkMax backRightLd  = new CANSparkMax(17, MotorType.kBrushless);
-    public static CANSparkMax backRightLg  = new CANSparkMax(18, MotorType.kBrushless);
-    public static CANSparkMax[] driveMotors = new CANSparkMax[] {frontLeftLd, frontLeftLg, backLeftLd, backLeftLg, 
-                                                                 frontRightLd, frontRightLg, backRightLd, backRightLg};
+    //There is only 4 motors controlling wheels this year, not 2 per
+    public static CANSparkMax motorFrontLeft  = new CANSparkMax(11, MotorType.kBrushless);
+    public static CANSparkMax motorBackLeft   = new CANSparkMax(13, MotorType.kBrushless);    
+    public static CANSparkMax motorFrontRight = new CANSparkMax(15, MotorType.kBrushless) ;
+    public static CANSparkMax motorBackRight  = new CANSparkMax(17, MotorType.kBrushless);
+    public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
     public static MecanumDrive drvMec;  // = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
 
