@@ -31,14 +31,23 @@ import frc.util.PIDXController;
 public class IO {
     
     // navX
+    /**
+     * Object that talks to the navX module on the roboRIO
+     */
     public static NavX navX = new NavX(SPI.Port.kMXP);
 
     // PDH Power
+    /**
+     * Object that talks to the Power Distribution Hub
+     */
     public static PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
     // PCH Air
     private static PneumaticsModuleType modType = PneumaticsModuleType.REVPH;
     private static int modID = 2;   //CAN adr, ID, of PDH
+    /**
+     * Object tat talks to the Pneumatic Control Hub
+     */
     public static Compressor pch = new Compressor(modID, modType);
     public static Relay compressorRelay = new Relay(0);
 
@@ -48,9 +57,15 @@ public class IO {
     public static CANSparkMax motorBackLeft   = new CANSparkMax(13, MotorType.kBrushless);    
     public static CANSparkMax motorFrontRight = new CANSparkMax(15, MotorType.kBrushless) ;
     public static CANSparkMax motorBackRight  = new CANSparkMax(17, MotorType.kBrushless);
+    /**
+     * Array that contains all the drive motors for certain logic
+     */
     public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
     public static MecanumDrive drvMec;  // = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
+
+
+    //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
     // public static double tpfAll = 12.7; //37 rotations for 10 ft
@@ -87,8 +102,6 @@ public class IO {
         navX.reset();
 
         drvsInit();
-        motorsInit();
-        sdbInit();
     }
 
     /**Update items not handled elsewhere */
@@ -100,8 +113,6 @@ public class IO {
         //Also set scaled driving for climbing
            
         // coorXY.update();
-        calcXY();
-        sdbUpdate();
     }
 
     /**
@@ -109,67 +120,12 @@ public class IO {
      */
     public static void drvsInit() {
         // -------- Configure Lead drive motors ---------
-        for(CANSparkMax mtr : driveMotors){
-            mtr.restoreFactoryDefaults();
-            mtr.setIdleMode(IdleMode.kCoast);
-            // mtr.clearFaults();
+        for(CANSparkMax motor : driveMotors){
+            motor.restoreFactoryDefaults();
+            motor.setIdleMode(IdleMode.kCoast);
+            // motor.clearFaults();
         }
-
-        // LEAVE COMMENTED OUT UNTIL MOTORS ARE CHECKED FOR ROTATION AND ASSIGNMENT!!!
-        //-------- No CAN motors are inverted this year! -------------------
-
-        // frontLeftLg.follow(frontLeftLd);
-        // backLeftLg.follow(backLeftLd);
-        // frontRightLg.follow(frontRightLd);
-        // backRightLg.follow(backRightLd);
-
-        // frontRightLd.setInverted(true);
-        // backRightLd.setInverted(true);
-
-        // drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
-        // drvMec.setDeadband(0.1);
     }
-
-    /**
-     * Initialize other motors besides the drive motors.
-     */
-    private static void motorsInit() {
-
-        // example for closed loop velocity control:
-        // double maxRPM = 5700;
-        // double setPoint = JS_Left.getY()*maxRPM;
-        // var frontLeftPid = frontLeft.getPIDController();
-        // frontLeftPid.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
-        //--------------------------------------//
-    }
-
-    /**Initialize sdb with any vars that need to be updated from the sdb */
-    public static void sdbInit() {
-    }
-
-    /**Upd any hdw readings on the sdb */
-    public static void sdbUpdate() {
-        // sdbUpdPDH();    //Comment out after checkout
-        // sdbUpdPCH();    //Comment out after checkout
-    }
-
-    private static double mecDistX = 0.0;
-    private static double mecDistY = 0.0;
-    /**
-     * Calc distance on a Mecanum drive for single direction movement.
-     * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.
-     */
-    private static void calcXY(){
-        // mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
-        // /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
-        // mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
-        // /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
-    }
-
-    /**Get the sideways movement on a mec Drive.  Right is positive. */
-    public static double getmecDistX(){ return mecDistX; }
-    /**Get the fwd movement on a mec Drive.  Fwd is positive. */
-    public static double getmecDistY(){ return mecDistY; }
 
     /**Place all PDH channels on sdb and display amps for checkout. */
     public static void sdbUpdPDH() {
@@ -196,8 +152,5 @@ public class IO {
         SmartDashboard.putNumber("PDH/19 - front Left Ld", pdh.getCurrent(19));
     }
 
-    public static void sdbUpdPCH(){
-
-    }
 
 }
