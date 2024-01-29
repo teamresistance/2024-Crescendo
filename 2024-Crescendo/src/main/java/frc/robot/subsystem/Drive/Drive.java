@@ -71,10 +71,10 @@ public class Drive {
     
     //Velocity Controlled Mecanum
     public static final double maxRPM = 5700;
-    public static MotorPID frontLeftLdPID = new MotorPID(IO.frontLeftLd, IO.frontLeftLg, false, false, IO.frontLeftLd.getPIDController());
-    public static MotorPID backLeftLdPID = new MotorPID(IO.backLeftLd, IO.backLeftLg, false, false, IO.backLeftLd.getPIDController());
-    public static MotorPID frontRightLdPID = new MotorPID(IO.frontRightLd, IO.frontRightLg, true, false, IO.frontRightLd.getPIDController());
-    public static MotorPID backRightLdPID = new MotorPID(IO.backRightLd, IO.backRightLg, true, false, IO.backRightLd.getPIDController());
+    public static MotorPID frontLeftLdPID = new MotorPID(IO.motorFrontLeft, null, false, false, IO.motorFrontLeft.getPIDController());
+    public static MotorPID backLeftLdPID = new MotorPID(IO.motorBackLeft, null, false, false, IO.motorBackLeft.getPIDController());
+    public static MotorPID frontRightLdPID = new MotorPID(IO.motorFrontRight, null, true, false, IO.motorFrontRight.getPIDController());
+    public static MotorPID backRightLdPID = new MotorPID(IO.motorBackRight, null, true, false, IO.motorBackRight.getPIDController());
 
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -144,14 +144,14 @@ public class Drive {
     }
 
     private static void reset(){
-        navX.reset();
-        IO.frontLeftLd.getEncoder().setPosition(0.0);
-        IO.frontRightLd.getEncoder().setPosition(0.0);
-        IO.backLeftLd.getEncoder().setPosition(0.0);
-        IO.backRightLd.getEncoder().setPosition(0.0);
-        var wheelPositions = new MecanumDriveWheelPositions(
-            IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
-        IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition());
+        // navX.reset();
+        // IO.frontLeftLd.getEncoder().setPosition(0.0);
+        // IO.frontRightLd.getEncoder().setPosition(0.0);
+        // IO.backLeftLd.getEncoder().setPosition(0.0);
+        // IO.backRightLd.getEncoder().setPosition(0.0);
+        // var wheelPositions = new MecanumDriveWheelPositions(
+        //     IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
+        // IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition());
 
         // Get the rotation of the robot from the gyro.
         var gyroAngle = navX.getRotation2d();

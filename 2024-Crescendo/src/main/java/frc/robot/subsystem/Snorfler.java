@@ -1,23 +1,40 @@
 package frc.robot.subsystem;
 
+import com.revrobotics.CANSparkMax;
+
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.util.Timer;
-
 /**
  * Enter a description of this subsystem.
  */
 public class Snorfler {
     // hdw defintions:
+    public static CANSparkMax snorflerMotor = IO.snorflerMotor;
+    public static DigitalInput hasgpSensor = IO.snorflerHasgamePiece; 
+    // used to sense gp in snorfler
+
 
     // joystick buttons:
+    private static Button enable = JS_IO.btnSnorflerEnable;
+    private static Button reject = JS_IO.btnSnorflerEject; 
+    
 
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
+    private static boolean snorflerEnable = false; 
+    private static double frwdspeed = 0.85;
+    private static double reversespeed = -.35;
+    private static double unloadspeed = -.15;
+    public static Boolean frwdspeedreq = null;
+    private static Integer reverseTimer = 6; //in milliseconds
+    private static Integer unloadTimer = 6; // in milliseconds
+
 
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
@@ -39,6 +56,16 @@ public class Snorfler {
         //Add code here to start state machine or override the sm sequence
         smUpdate();
         sdbUpdate();
+        if (enable.onButtonPressed || autosnorfreq = true()) snorflerEnable = !snorflerEnable;
+        //snorfler is enabled to pick up note
+        if(reject.onButtonPressed()) state = 10;
+        // starts rejecting the note, hold down on button 
+        if(reject.onButtonReleased()) state = 0; 
+        // finished rejecting the note , button is not held anymore 
+        if(frwdspeedreq == true) state = 20;
+        //passes the note from snorfler to shooter
+        if(frwdspeedreq == false) state = 30; 
+        //rejects note from shooter back to snorfler
     }
 
     /**
@@ -51,19 +78,45 @@ public class Snorfler {
 
         switch (state) {
             case 0: // Everything is off
-                cmdUpdate(0.0, false, false);
-                stateTmr.hasExpired(0.05, state); // Initialize timer for covTrgr. Do nothing.
+                cmdUpdate(0.0);
+                stateTmr.clearTimer(); // Initialize timer for snorfler
+                if (snorflerEnable == true)
+                {
+                    state++;
+                }
                 break;
-            case 1: // Do sumpthin and wait for action
-                cmdUpdate(100.0, true, false);
-                if (stateTmr.hasExpired(0.05, state)) state++;
+            case 1: // snorfling for a note 
+                cmdUpdate(frwdspeed);
+                //replace with variable fwrdspeed
+                if (hasgpSensor.get()) state++;
                 break;
-            case 2: // Shutdown and wait for action then go to 0
-                cmdUpdate(50.0, false, true);
-                if (stateTmr.hasExpired(0.05, state)) state = 0;
+            case 2: // found note 
+                cmdUpdate(frwdspeed);
+                if (stateTmr.hasExpired(0.05, state)) state++; //Center note
+                break;
+            case 3:// Reverse to hold note
+                cmdUpdate(reversespeed);
+                if (stateTmr.hasExpired(reverseTimer, state)) state = 0; 
+                snorflerEnable = false; // done , everything off 
+                break;
+            case 10:// rejecting note 
+                cmdUpdate(unloadspeed);
+                snorflerEnable = true;
+                break;
+            case 20: //shooter request update 
+                cmdUpdate(frwdspeed);
+                if (stateTmr.hasExpired(0.05, state))
+                frwdspeedreq = null;
+                state = 0; 
+                break;
+            case 30: //sends note from shooter back to snorfler
+                cmdUpdate(unloadspeed);
+                if (stateTmr.hasExpire(unloadTimer, state))
+                frwdspeedreq= null; 
+                state = 0; 
                 break;
             default: // all off
-                cmdUpdate(0.0, false, false);
+                cmdUpdate(0.0);
                 System.out.println("Bad sm state:" + state);
                 break;
 
@@ -78,20 +131,32 @@ public class Snorfler {
      * @param right_trigger - triggers the right catapult
      * 
      */
-    private static void cmdUpdate(double dblSig, boolean trigger1, boolean trigger2) {
+    private static void cmdUpdate(double dblSig) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
+        snorflerMotor.set(dblSig);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
     /**Initialize sdb */
     private static void sdbInit() {
+        SmartDashboard.putNumber("snorfler/frwdspeed", frwdspeed);
+        SmartDashboard.putNumber("snorfler/reversespeed", reversespeed);
+        SmartDashboard.putNumber("snorfler/unloadspeed", unloadspeed);
+        SmartDashboard.putNumber("snorfler/reverseTimer.mS", unloadspeed);
+        SmartDashboard.putNumber("snorfler/unloadTimer.mS", unloadspeed);
+
         //Put stuff here on the sdb to be retrieved from the sdb later
         // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
+        frwdspeed = SmartDashboard.getNumber("snorfler/frwdspeed", frwdspeed); 
+        reversespeed = SmartDashboard.getNumber("snorfler/reversespeed", reversespeed); 
+        frwdspeed = SmartDashboard.getNumber("snorfler/unloadspeed", unloadspeed); 
+        frwdspeed = SmartDashboard.getNumber("snorfler/reverseTimer.mS", reverseTimer); 
+        frwdspeed = SmartDashboard.getNumber("snorfler/unloadTimer.mS", unloadTimer); 
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
 

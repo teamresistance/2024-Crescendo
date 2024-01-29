@@ -52,13 +52,17 @@ public class JS_IO {
     private static boolean costickExists = false;
     private static boolean gamePadExists = false;
     private static boolean neopadExists = false;
+    //snorfler
+
 
     //Kewl 2024 stuff
     public static Button autoBtn = new Button();
     public static Button headingHoldBtn = new Button();
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
-
+    //snorfler
+    public static Button btnSnorflerEnable = new Button();
+    public static Button btnSnorflerEject = new Button(); 
     // Constructor not needed, bc
     public JS_IO() {
         init();
@@ -144,7 +148,11 @@ public class JS_IO {
         headingHoldBtn.setButton(leftJoystick, 12);
         lookAtNote.setButton(leftJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
+        //snorfler
+        btnSnorflerEnable.setButton(coJoystick,7);
+        btnSnorflerEject.setButton(coJoystick,8);
     }
+
 
     // ----- gamePad only --------
     private static void a_GP() {
@@ -181,5 +189,8 @@ public class JS_IO {
         headingHoldBtn.setButton(leftJoystick, 12);
         lookAtNote.setButton(leftJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
+        //snorfler
+        btnSnorflerEnable.setButton();
+        btnSnorflerEject.setButton();
     }
 }

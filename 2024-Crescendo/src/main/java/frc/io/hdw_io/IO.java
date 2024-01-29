@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -14,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
@@ -84,7 +86,16 @@ public class IO {
     // );
     
     // public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
-    
+    //snorfler 
+    public static CANSparkMax snorflerMotor  = new CANSparkMax(43, MotorType.kBrushless);
+    public static DigitalInput snorflerHasgamePiece = new DigitalInput(0);
+    //shooter
+    public static CANSparkMax shooterA   = new CANSparkMax(41, MotorType.kBrushless);    
+    public static CANSparkMax shooterB = new CANSparkMax(42, MotorType.kBrushless) ;
+    //climber 
+    public static Solenoid climberExtSolenoid = new Solenoid(modID,modType,1);
+
+
     /**
      * Initialize any hardware
      */
