@@ -131,8 +131,8 @@ public class IO {
         // frontRightLg.follow(frontRightLd);
         // backRightLg.follow(backRightLd);
 
-        // frontRightLd.setInverted(true);
-        // backRightLd.setInverted(true);
+        frontRightLd.setInverted(true);
+        backRightLd.setInverted(true);
 
         // drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
         // drvMec.setDeadband(0.1);

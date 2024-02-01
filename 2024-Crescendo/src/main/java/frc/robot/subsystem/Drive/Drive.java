@@ -1,16 +1,36 @@
 package frc.robot.subsystem.Drive;
 
+import java.io.IOException;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
+
 import com.revrobotics.CANSparkMax;
 // import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.MecanumDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,6 +46,7 @@ import frc.util.MecanumDriveCalculator;
 // import frc.util.Apriltags;
 import frc.util.PIDXController;
 import frc.util.Timer;
+import edu.wpi.first.math.VecBuilder;
 
 public class Drive {
     // hdw defintions:
@@ -41,6 +62,7 @@ public class Drive {
     // public static Button autoBtn = new Button();
     public static Button headingHoldBtn = JS_IO.headingHoldBtn;
     public static Button lookAtNote = JS_IO.lookAtNote;
+    public static Button btnAuto = JS_IO.autoBtn;
 
     
     // variables:
@@ -83,20 +105,47 @@ public class Drive {
     private static NetworkTableEntry ta = table.getEntry("ta");
     private static NetworkTableEntry tv = table.getEntry("tv");
 
+    //Photonvision
+    private static AprilTagFieldLayout aprilTagFieldLayout;
+
+    private static PhotonCamera cam = new PhotonCamera("photonvision");
+
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+    // Construct PhotonPoseEstimator
+    private static PhotonPoseEstimator photonPoseEstimator;
     //Odometry
     // Creating my odometry object from the kinematics object and the initial wheel positions.
     // Here, our starting pose is 5 meters along the long end of the field and in the
     // center of the field along the short end, facing the opposing alliance wall.
-    private static MecanumDriveOdometry odometry = new MecanumDriveOdometry(
-    IO.kinematics,
-    navX.getRotation2d(),
-    new MecanumDriveWheelPositions(
-        IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
-        IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition()
-    ),
-    new Pose2d(0.0, 0.0, new Rotation2d())
+    // private static MecanumDriveOdometry odometry = new MecanumDriveOdometry(
+    // IO.kinematics,
+    // navX.getRotation2d(),
+    // new MecanumDriveWheelPositions(
+    //     IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
+    //     IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition()
+    // ),
+    // new Pose2d(0.0, 0.0, new Rotation2d())
+    // );
+
+    private static final double tpf = 12.7;
+
+    private static MecanumDrivePoseEstimator poseEstimator = 
+        new MecanumDrivePoseEstimator(
+            IO.kinematics, 
+            navX.getRotation2d(), 
+            new MecanumDriveWheelPositions(
+            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+            ),
+            new Pose2d(Units.inchesToMeters(137.0), 0.0, new Rotation2d())
     );
-    private static Pose2d pose;
+
+    //Setpoints for alignement
+    private static final double setPoint1X = 3.5;
+    private static final double setPoint1Y = 0.0;
+
+
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
     public static void hdgRst() { IO.navX.reset(); }
@@ -141,7 +190,26 @@ public class Drive {
         backRightLdPID.init();
 
         reset();
+
+        try{
+        aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+        }
+        catch (IOException thisIsDumb){
+            //Do nothing bc this is dumb
+        }
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam, robotToCam);
+        
+        
+        // Create a vector with 3 elements, all initialized to zero
+        var visionMeasurementStdDevs = VecBuilder.fill(0.0, 0.0, 0.0);
+        poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+        photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
     }
+
+    // public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    //     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+    //     return photonPoseEstimator.update();
+    // }
 
     private static void reset(){
         navX.reset();
@@ -155,15 +223,17 @@ public class Drive {
 
         // Get the rotation of the robot from the gyro.
         var gyroAngle = navX.getRotation2d();
-
-        pose = odometry.update(gyroAngle, wheelPositions);
-
-        odometry.resetPosition(
-        navX.getRotation2d(), 
-        wheelPositions,
-        pose);
         
-        pose = odometry.update(gyroAngle, wheelPositions);
+        poseEstimator = 
+        new MecanumDrivePoseEstimator(
+            IO.kinematics, 
+            navX.getRotation2d(), 
+            new MecanumDriveWheelPositions(
+            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+            ),
+            new Pose2d(Units.inchesToMeters(137.0), 0.0, new Rotation2d())
+        );
     }
 
     /**
@@ -188,21 +258,35 @@ public class Drive {
             // IO.coorXY.reset();
         }
 
+        // // Update the drivetrain pose
+
+        poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
+            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+        ));
+
+        // TODO: test
+        // Get target
+        var res = cam.getLatestResult();
+        if (res.hasTargets() && photonPoseEstimator.getReferencePose() != null){
+            // Store camera estimated pose, and calculated it based on current drivetrain position
+            var update = photonPoseEstimator.update();
+            var imageCaptureTime = res.getTimestampSeconds();
+            
+            Pose3d estimatedPose3d = update.get().estimatedPose;
+            Pose2d estimatedPose = estimatedPose3d.toPose2d();
+
+            // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
+            
+            System.out.println("Estimated pose: " + estimatedPose);
+            poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+        }
+
         
+        System.out.println(poseEstimator.getEstimatedPosition());
+
         smUpdate();
         sdbUpdate();
-          // Get my wheel positions
-        var wheelPositions = new MecanumDriveWheelPositions(
-            IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
-        IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition());
-
-        // Get the rotation of the robot from the gyro.
-        var gyroAngle = navX.getRotation2d();
-
-        // Update the pose
-        pose = odometry.update(gyroAngle, wheelPositions);
-
-        System.out.println(pose.getTranslation());
     }
 
     /**If wkgScale is greater then 0.0, limit mecDrv max output else 1.0. */
@@ -268,6 +352,19 @@ public class Drive {
         rlSpd = jsY.getRaw();
         rotSpd = jsRot.getRaw();
         
+        //Northstar stuff
+
+
+        //Autoalign stuff
+        if (btnAuto.isDown()){
+            //Calculate based on where setpoint is
+            // stuff is reversed cus confusing
+            double pidOutputX = -pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
+            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint1Y);
+            rlSpd = pidOutputX;
+            fwdSpd = pidOutputY;
+        }
+
         //Limelight stuff
         double x = tx.getDouble(0.0);
         double y = ty.getDouble(0.0);
@@ -277,7 +374,6 @@ public class Drive {
 
         
         if (lookAtNote.isDown() && x != 0.0){
-          
             double pidOutputZ = pidControllerZ.calculate(0.0, x);
             rotSpd = -pidOutputZ;
             rlSpd = 0;

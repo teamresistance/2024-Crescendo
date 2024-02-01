@@ -155,6 +155,12 @@ public class JS_IO {
         axLeftY.setAxis(gamePad, 1);
         axRightX.setAxis(gamePad, 4);
         axRightY.setAxis(gamePad, 5);
+
+        
+        autoBtn.setButton(gamePad, 1);
+        headingHoldBtn.setButton(gamePad, 2);
+        lookAtNote.setButton(gamePad, 3);
+        btnGyroReset.setButton(gamePad, 4);
     }
 
     // ----------- Normal 2 Joysticks -------------
