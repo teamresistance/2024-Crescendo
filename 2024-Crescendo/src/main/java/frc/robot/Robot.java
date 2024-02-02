@@ -11,6 +11,10 @@ import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
+import frc.robot.subsystem.Shooter;
+import frc.robot.subsystem.Climber;
+import frc.robot.subsystem.Shooter;
+import frc.robot.subsystem.Snorfler;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -64,6 +68,9 @@ public class Robot extends TimedRobot {
         JS_IO.init();
         Drive.init();
         Drv_Teleop.init();
+        Snorfler.init();
+        Shooter.init();
+        Climber.init();
     }
 
     /** This function is called periodically during operator control. */
@@ -73,6 +80,9 @@ public class Robot extends TimedRobot {
         JS_IO.update();
         Drive.update();
         Drv_Teleop.update();
+        Snorfler.update();
+        Shooter.update();
+        Climber.update();
     }
 
     /** This function is called once when the robot is disabled. */

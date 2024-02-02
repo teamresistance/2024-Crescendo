@@ -89,6 +89,7 @@ public class IO {
 
     //Climber
     public static Solenoid climberExtSV = new Solenoid(1, PneumaticsModuleType.REVPH, 1);
+    public static Solenoid arm = new Solenoid(2,PneumaticsModuleType.REVPH, 2);
 
     /**
      * Initialize any hardware

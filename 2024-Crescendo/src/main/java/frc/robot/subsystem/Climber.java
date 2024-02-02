@@ -61,8 +61,9 @@ public class Climber {
         switch (state) {
             case 0: // Everything is off
                 cmdUpdate(false);
+                if(btnClimberEna.onButtonPressed())state++;
                 break;
-            case 1: // Do sumpthin and wait for action
+            case 1: // run 
                 cmdUpdate(true);
                 break;
             default: // all off
@@ -90,6 +91,7 @@ public class Climber {
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
+        SmartDashboard.putNumber("Climber/state", state);
     }
 
     /**Update the Smartdashboard. */

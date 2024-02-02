@@ -2,6 +2,7 @@ package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.hdw_io.IO;
@@ -16,6 +17,8 @@ public class Shooter {
     // hdw defintions:
     private static CANSparkMax shooterMtrL;
     private static CANSparkMax shooterMtrR;
+    private static Solenoid arm = IO.arm;
+    //private static Solenoid ShooterSV;
 
     // joystick buttons:
     private static Button btnLoadForSpkr; //Shooter up to high speed
@@ -32,8 +35,9 @@ public class Shooter {
     private static double loSpd = 0.3; // Speed to run the snorfler at
 
     private static boolean targetAmp = false;
-    private static boolean btnSpeakerRq = null;
-    private static boolean btnAmpRq = null;
+    private static boolean btnSpeakerRq;
+    private static boolean btnAmpRq; 
+    private static boolean shtrSpeakerRq;
 
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
@@ -53,8 +57,14 @@ public class Shooter {
      * of a JS button but can be caused by other events.
      */
     public static void update() {//Determine if button or sensor needs to overide state machine sequence
-        
         //Add code here to start state machine or override the sm sequence
+        if(btnLoadForSpkr.onButtonPressed()){
+            state = 3;
+        }
+        else if(btnLoadForAmp.onButtonPressed()){
+            state = 10;
+        }else if(btnShoot.onButtonPressed())
+            state = 3;
         smUpdate();
         sdbUpdate();
     }
@@ -69,41 +79,49 @@ public class Shooter {
     
         switch (state) {
             case 0: // Everything is off
-                cmdUpdate(0.0, false);
+                cmdUpdate(0.0, true);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 break;
             case 1: // Get shooters up to speed
-                cmdUpdate(hiSpd, false);
+                cmdUpdate(hiSpd, true);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
             case 2: // Shutdown and wait for action then go to 0
-                cmdUpdate(hiSpd, false);
+                cmdUpdate(hiSpd, true);
                 //Snorfler.loadShooter;     //TO DO: Require to release Note
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
-            case 3:
-                cmdUpdate(hiSpd);
-                //Request Snorfler to fwd hi Speed
-                shtrSpeakerRq = null;
+            case 3: //Shoot
+                cmdUpdate(hiSpd, true);
+                Snorfler.snorfFwdRq = true;
+                shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
             case 10:
-                cmdUpdate(loadSpd, false);
-                //Signal snorfler fwd
+                cmdUpdate(loSpd, true);
+                Snorfler.snorfFwdRq = true; //please improve this line; not entirely sure how to properly rq subsystems
                 if (stateTmr.hasExpired(0.33, state)) state++;
                 break;
-            case 11: //Stop Shooter % Snorfler, Raise Arm.
-                cmdUpdate(0.0, true);
-                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right
+            case 11: //Stop Shooter & Snorfler, Raise Arm.
+                cmdUpdate(0.0, false);
+                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // 
                 break;
             case 12: //Wait for Arm to Position
-                cmdUpdate(hiSpd, true);
-                if (btnShoot.isDown() || shtrAmpRq == true)
+                cmdUpdate(hiSpd, false);
+                if (btnShoot.isDown() || btnAmpRq == true) state++;
+            case 13: //Wait for trigger to shoot Amp
+                cmdUpdate(hiSpd, false);
+                Snorfler.snorfFwdRq = true;
+                if (stateTmr.hasExpired(0.35, state)) state = 0;
+            case 30: //Unload
+                cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
+                Snorfler.snorfFwdRq = false;
+                if (stateTmr.hasExpired(0.22, state)) state = 0;
             default: // all off
-                cmdUpdate(0.0, false); //Is it really false??
+                cmdUpdate(0.0, true); //Is it really false??
                 System.out.println("Bad sm state:" + state);
-                break;
                 if (stateTmr.hasExpired(0.25, state)) state++;
+                break;
         }
     }
 
@@ -116,21 +134,26 @@ public class Shooter {
      * 
      */
     private static void cmdUpdate(double mtr_rpm, boolean Arm_down) {
+        
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
+        shooterMtrL.set(mtr_rpm);
+        shooterMtrR.follow(shooterMtrL);
+        arm.set(Arm_down);
+        
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
+        // SmartDashboard.putBoolean("Shooter/Sumpthin", sumpthin.get()); y
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
+        // sumpthin = SmartDashboard.getBoolean("Shooter/Sumpthin", sumpthin.get());
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("ZZ_Template/state", state);

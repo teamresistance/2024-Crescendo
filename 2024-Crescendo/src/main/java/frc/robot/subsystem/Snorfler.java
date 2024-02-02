@@ -1,3 +1,4 @@
+//Skibdi toilet, inc.
 package frc.robot.subsystem;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,10 +41,11 @@ public class Snorfler {
     public static boolean snorflerEnable = false;  // Sno
     private static double fwdMtrSpd = 0.8;      // Snorfling speed
     private static double rejMtrSpd = -0.35;    // Reject Snorfling speed
+    private static double loadMtrSpd = 0.05;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
-    private static Boolean snorfFwdRq = null;   // Request from Shooter, true load, false unload, null ignor
+    public static Boolean snorfFwdRq = null;   // Request from Shooter subsystem, true = load, false = unload, null = ignore
 
     public static boolean hasGP;
     private static OnDly hasGPOnDly = new OnDly(0.35);
@@ -116,7 +118,7 @@ public class Snorfler {
                 cmdUpdate(rejMtrSpd);
                 break;
             case 20: // Shooter request to Snorfler to load
-                cmdUpdate(fwdMtrSpd);
+                cmdUpdate(loadMtrSpd);
                 if(stateTmr.hasExpired(0.1, state)) state++;
                 break;
             case 21:
