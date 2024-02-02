@@ -1,6 +1,6 @@
-package frc.robot.subsystem.drive.trajFunk;
+package frc.robot.subsystem.Drive.trajFunk;
 
-import frc.robot.subsystem.drive.Drive;
+import frc.robot.subsystem.Drive.Drive;
 
 /**
  * This ATrajFunction turns on motor braking else else coast.

@@ -1,11 +1,7 @@
-package frc.robot.subsystem.drive;
+package frc.robot.subsystem.Drive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystem.Arm;
-import frc.robot.subsystem.Claw;
-import frc.robot.subsystem.Snorfler;
-import frc.robot.subsystem.Tusk;
-import frc.robot.subsystem.drive.trajFunk.*;
+import frc.robot.subsystem.Drive.trajFunk.*;
 import frc.util.PIDXController;
 
 public class Drv_Auto extends Drive {
@@ -33,11 +29,6 @@ public class Drv_Auto extends Drive {
         // IO.coorXY.drvFeetRst();
         setDriveCmds(0.0, 0.0, 0.0, true);  //Set to Field oriented.
         setHdgHold(null);
-        Snorfler.coneBarDnARq = false;
-        Claw.clawCloseARq = null;
-        Arm.lvlSelected = 1; 
-        Arm.stepSelected = 0;
-        Tusk.setTuskARqRel();
         drvBrake(true);
 
         //                      PIDX,   SP,      PB,     DB,   Mn,  Mx, Exp, Clamp

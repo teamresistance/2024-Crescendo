@@ -7,11 +7,11 @@ History:
 7/11    - JCH - Chgd to PIDX from TSteer and some cleanup
 */
 
-package frc.robot.subsystem.drive.trajFunk;
+package frc.robot.subsystem.Drive.trajFunk;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
-import frc.robot.subsystem.drive.Drive;
+import frc.robot.subsystem.Drive.Drive;
 import frc.util.PIDXController;
 import frc.util.Timer;
 
@@ -27,11 +27,11 @@ public abstract class ATrajFunction {
     public static PIDXController pidDist = Drive.pidDist;
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}
-    public static double distFB() {return IO.coorXY.drvFeet();}
-    public static double distFBX() {return IO.getmecDistX();}   //Mec fwd movement
-    public static double distFBY() {return IO.getmecDistY();}   //Mec side movement
+    // public static double distFB() {return IO.coorXY.drvFeet();}
+    // public static double distFBX() {return IO.getmecDistX();}   //Mec fwd movement
+    // public static double distFBY() {return IO.getmecDistY();}   //Mec side movement
     public static double distFPS() {return 0.0;}  //IO.coorXY.drvFPS();}
-    public static void resetDist() {IO.coorXY.reset();}
+    // public static void resetDist() {IO.coorXY.reset();}
     public static void setHdgHold(Double hdg) {Drive.setHdgHold(hdg);}
 
     public static double[] trajCmd = new double[2];
