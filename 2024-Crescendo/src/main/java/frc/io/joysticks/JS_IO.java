@@ -55,6 +55,7 @@ public class JS_IO {
 
     //Kewl 2024 stuff
     public static Button autoBtn = new Button();
+    public static Button auto1Btn = new Button();
     public static Button headingHoldBtn = new Button();
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
@@ -141,8 +142,9 @@ public class JS_IO {
 
         //2024 Stuff
         autoBtn.setButton(leftJoystick, 11);
+        auto1Btn.setButton(leftJoystick, 9);
         headingHoldBtn.setButton(leftJoystick, 12);
-        lookAtNote.setButton(leftJoystick, 1);
+        lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
     }
 
@@ -184,8 +186,9 @@ public class JS_IO {
 
         //2024 Stuff
         autoBtn.setButton(leftJoystick, 11);
+        auto1Btn.setButton(leftJoystick, 9);
         headingHoldBtn.setButton(leftJoystick, 12);
-        lookAtNote.setButton(leftJoystick, 1);
+        lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
     }
 }

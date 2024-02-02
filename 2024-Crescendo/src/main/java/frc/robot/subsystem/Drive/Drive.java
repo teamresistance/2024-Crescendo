@@ -63,6 +63,7 @@ public class Drive {
     public static Button headingHoldBtn = JS_IO.headingHoldBtn;
     public static Button lookAtNote = JS_IO.lookAtNote;
     public static Button btnAuto = JS_IO.autoBtn;
+    public static Button btnAuto1 = JS_IO.auto1Btn;
 
     
     // variables:
@@ -83,9 +84,9 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDController pidControllerX = new PIDController(0.15, 0.000, 0.01);
-    private static PIDController pidControllerY = new PIDController(5.0, 0.000, 0.00);
-    private static PIDController pidControllerZ = new PIDController(0.015, 0.00, 0.006);
+    private static PIDXController pidControllerX = new PIDXController(1.0, 0.000, 0.01);
+    private static PIDXController pidControllerY = new PIDXController(0.5, 0.000, 0.055);
+    private static PIDController pidControllerZ = new PIDController(0.02, 0.00, 0.0);
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
 
@@ -138,12 +139,14 @@ public class Drive {
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(Units.inchesToMeters(137.0), 0.0, new Rotation2d())
+            new Pose2d(12.8, 5.5, new Rotation2d())
     );
 
     //Setpoints for alignement
-    private static final double setPoint1X = 3.5;
-    private static final double setPoint1Y = 0.0;
+    private static final double setPoint1X = 15.0;
+    private static final double setPoint1Y = 5.5;
+    private static final double setPoint2X = 12.8;
+    private static final double setPoint2Y = 5.5;
 
 
 
@@ -180,8 +183,11 @@ public class Drive {
         drvBrake(true);    //set motors to coast        
 
         //            name    SP,   P,      DB,  mn, mx,  exp, clamp
-        pidHdg.setExt(pidHdg, 0.0, 1.0/70, 3.0, 0.05, 0.5, 2.0, true);
+        pidHdg.setExt(pidHdg, 0.0, 1.0/30, 1.0, 0.05, 0.5, 2.0, true);
         pidHdg.enableContinuousInput(-180, 180);
+        
+        pidControllerX.setTolerance(0.01);
+        pidControllerY.setTolerance(0.01);
 
         
         frontLeftLdPID.init();
@@ -232,7 +238,7 @@ public class Drive {
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(Units.inchesToMeters(137.0), 0.0, new Rotation2d())
+            new Pose2d(12.8, 5.5, new Rotation2d())
         );
     }
 
@@ -271,15 +277,18 @@ public class Drive {
         if (res.hasTargets() && photonPoseEstimator.getReferencePose() != null){
             // Store camera estimated pose, and calculated it based on current drivetrain position
             var update = photonPoseEstimator.update();
-            var imageCaptureTime = res.getTimestampSeconds();
-            
-            Pose3d estimatedPose3d = update.get().estimatedPose;
-            Pose2d estimatedPose = estimatedPose3d.toPose2d();
+            if (!update.isEmpty()){
 
-            // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
-            
-            System.out.println("Estimated pose: " + estimatedPose);
-            poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+                var imageCaptureTime = res.getTimestampSeconds();
+                
+                Pose3d estimatedPose3d = update.get().estimatedPose;
+                Pose2d estimatedPose = estimatedPose3d.toPose2d();
+
+                // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
+                
+                System.out.println("Estimated pose: " + estimatedPose);
+                poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+            }
         }
 
         
@@ -359,8 +368,16 @@ public class Drive {
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            double pidOutputX = -pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
+            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
             double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint1Y);
+            rlSpd = pidOutputX;
+            fwdSpd = pidOutputY;
+        }
+        if (btnAuto1.isDown()){
+            //Calculate based on where setpoint is
+            // stuff is reversed cus confusing
+            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
+            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
             rlSpd = pidOutputX;
             fwdSpd = pidOutputY;
         }
@@ -374,9 +391,9 @@ public class Drive {
 
         
         if (lookAtNote.isDown() && x != 0.0){
-            double pidOutputZ = pidControllerZ.calculate(0.0, x);
+            double pidOutputZ = -pidControllerZ.calculate(0.0, x);
             rotSpd = -pidOutputZ;
-            rlSpd = 0;
+            // rlSpd = 0;
         }
         if (lookAtNote.isUp()){
             // robotOriented = false;
