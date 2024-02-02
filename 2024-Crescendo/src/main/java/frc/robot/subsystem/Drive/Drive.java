@@ -95,10 +95,10 @@ public class Drive {
     //Velocity Controlled Mecanum
     public static final double maxRPM = 5700;
 
-    public static MotorPID frontLeftLdPID = new MotorPID(IO.motorFrontLeft, false, false, IO.motorFrontLeft.getPIDController());
-    public static MotorPID backLeftLdPID = new MotorPID(IO.motorBackLeft, false, false, IO.motorBackLeft.getPIDController());
-    public static MotorPID frontRightLdPID = new MotorPID(IO.motorFrontRight, true, false, IO.motorFrontRight.getPIDController());
-    public static MotorPID backRightLdPID = new MotorPID(IO.motorBackRight, true, false, IO.motorBackRight.getPIDController());
+    public static MotorPID frontLeftLdPID = new MotorPID(IO.frontLeftLd, false, false, IO.frontLeftLd.getPIDController());
+    public static MotorPID backLeftLdPID = new MotorPID(IO.backLeftLd, false, false, IO.backLeftLd.getPIDController());
+    public static MotorPID frontRightLdPID = new MotorPID(IO.frontRightLd, true, false, IO.frontRightLd.getPIDController());
+    public static MotorPID backRightLdPID = new MotorPID(IO.backRightLd, true, false, IO.backRightLd.getPIDController());
 
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -137,8 +137,8 @@ public class Drive {
             IO.kinematics, 
             navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
             new Pose2d(12.8, 5.5, new Rotation2d())
     );
@@ -220,13 +220,13 @@ public class Drive {
 
     private static void reset(){
         navX.reset();
-        IO.motorFrontLeft.getEncoder().setPosition(0.0);
-        IO.motorFrontRight.getEncoder().setPosition(0.0);
-        IO.motorBackLeft.getEncoder().setPosition(0.0);
-        IO.motorBackRight.getEncoder().setPosition(0.0);
+        IO.frontLeftLd.getEncoder().setPosition(0.0);
+        IO.frontRightLd.getEncoder().setPosition(0.0);
+        IO.backLeftLd.getEncoder().setPosition(0.0);
+        IO.backRightLd.getEncoder().setPosition(0.0);
         var wheelPositions = new MecanumDriveWheelPositions(
-            IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
-        IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
+            IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
+        IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition());
 
         // Get the rotation of the robot from the gyro.
         var gyroAngle = navX.getRotation2d();
@@ -236,8 +236,8 @@ public class Drive {
             IO.kinematics, 
             navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
             new Pose2d(12.8, 5.5, new Rotation2d())
         );
@@ -268,8 +268,8 @@ public class Drive {
         // // Update the drivetrain pose
 
         poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
         ));
 
         // TODO: test

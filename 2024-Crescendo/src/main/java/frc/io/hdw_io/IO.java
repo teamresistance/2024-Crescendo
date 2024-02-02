@@ -45,17 +45,20 @@ public class IO {
     public static Relay compressorRelay = new Relay(0);
 
     // Drive Motors
-    //There is only 4 motors controlling wheels this year, not 2 per
-    public static CANSparkMax motorFrontLeft  = new CANSparkMax(11, MotorType.kBrushless);
-    public static CANSparkMax motorBackLeft   = new CANSparkMax(13, MotorType.kBrushless);    
-    public static CANSparkMax motorFrontRight = new CANSparkMax(15, MotorType.kBrushless) ;
-    public static CANSparkMax motorBackRight  = new CANSparkMax(17, MotorType.kBrushless);
+    public static CANSparkMax frontLeftLd  = new CANSparkMax(11, MotorType.kBrushless);
+    public static CANSparkMax frontLeftLg  = new CANSparkMax(12, MotorType.kBrushless);
+    public static CANSparkMax backLeftLd   = new CANSparkMax(13, MotorType.kBrushless);    
+    public static CANSparkMax backLeftLg   = new CANSparkMax(14, MotorType.kBrushless);
+    public static CANSparkMax frontRightLd = new CANSparkMax(15, MotorType.kBrushless) ;
+    public static CANSparkMax frontRightLg = new CANSparkMax(16, MotorType.kBrushless);
+    public static CANSparkMax backRightLd  = new CANSparkMax(17, MotorType.kBrushless);
+    public static CANSparkMax backRightLg  = new CANSparkMax(18, MotorType.kBrushless);
+    public static CANSparkMax[] driveMotors = new CANSparkMax[] {frontLeftLd, frontLeftLg, backLeftLd, backLeftLg, 
+                                                                 frontRightLd, frontRightLg, backRightLd, backRightLg};
     /**
      * Array that contains all the drive motors for certain logic
      */
-    public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
-
-    public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
+    public static MecanumDrive drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
 
     //Temp allocation to stop Drive.java from breaking, get rid of this later
     // public static MecanumDriveKinematics kinematics = null;
@@ -69,10 +72,10 @@ public class IO {
     public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     // Encoders
-    public static Encoder_Neo frontLeftEnc = new Encoder_Neo(motorFrontLeft, frontLeftTPF);
-    public static Encoder_Neo backLeftEnc = new Encoder_Neo(motorBackLeft, backLeftTPF);
-    public static Encoder_Neo frontRightEnc = new Encoder_Neo(motorFrontRight, frontRightTPF);
-    public static Encoder_Neo backRightEnc = new Encoder_Neo(motorBackRight, backRightTPF);
+    public static Encoder_Neo frontLeftEnc = new Encoder_Neo(frontLeftLd, frontLeftTPF);
+    public static Encoder_Neo backLeftEnc = new Encoder_Neo(backLeftLd, backLeftTPF);
+    public static Encoder_Neo frontRightEnc = new Encoder_Neo(frontRightLd, frontRightTPF);
+    public static Encoder_Neo backRightEnc = new Encoder_Neo(backRightLd, backRightTPF);
     public static boolean resetEnc = false; 
 
 
@@ -89,6 +92,22 @@ public class IO {
     
     public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
+    
+    private static double mecDistX = 0.0;
+    private static double mecDistY = 0.0;
+    
+    private static void calcXY(){
+        mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
+        /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
+        mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
+        /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
+    }
+
+    /**Get the sideways movement on a mec Drive.  Right is positive. */
+    public static double getmecDistX(){ return mecDistX; }
+    /**Get the fwd movement on a mec Drive.  Fwd is positive. */
+    public static double getmecDistY(){ return mecDistY; }
+
     /**
      * Initialize any hardware
      */
