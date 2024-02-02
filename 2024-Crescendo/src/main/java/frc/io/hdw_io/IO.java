@@ -1,4 +1,4 @@
-  package frc.io.hdw_io;
+package frc.io.hdw_io;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -7,58 +7,59 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
-import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
-import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
-import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
-import frc.util.PIDXController;
 
 
 public class IO {
     
     // navX
+    /**
+     * Object that talks to the navX module on the roboRIO
+     */
     public static NavX navX = new NavX(SPI.Port.kMXP);
 
     // PDH Power
+    /**
+     * Object that talks to the Power Distribution Hub
+     */
     public static PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
     // PCH Air
     private static PneumaticsModuleType modType = PneumaticsModuleType.REVPH;
     private static int modID = 2;   //CAN adr, ID, of PDH
+    /**
+     * Object tat talks to the Pneumatic Control Hub
+     */
     public static Compressor pch = new Compressor(modID, modType);
     public static Relay compressorRelay = new Relay(0);
 
     // Drive Motors
-    public static CANSparkMax frontLeftLd  = new CANSparkMax(11, MotorType.kBrushless);
-    public static CANSparkMax frontLeftLg  = new CANSparkMax(12, MotorType.kBrushless);
-    public static CANSparkMax backLeftLd   = new CANSparkMax(13, MotorType.kBrushless);    
-    public static CANSparkMax backLeftLg   = new CANSparkMax(14, MotorType.kBrushless);
-    public static CANSparkMax frontRightLd = new CANSparkMax(15, MotorType.kBrushless) ;
-    public static CANSparkMax frontRightLg = new CANSparkMax(16, MotorType.kBrushless);
-    public static CANSparkMax backRightLd  = new CANSparkMax(17, MotorType.kBrushless);
-    public static CANSparkMax backRightLg  = new CANSparkMax(18, MotorType.kBrushless);
-    public static CANSparkMax[] driveMotors = new CANSparkMax[] {frontLeftLd, frontLeftLg, backLeftLd, backLeftLg, 
-                                                                 frontRightLd, frontRightLg, backRightLd, backRightLg};
+    //There is only 4 motors controlling wheels this year, not 2 per
+    public static CANSparkMax motorFrontLeft  = new CANSparkMax(11, MotorType.kBrushless);
+    public static CANSparkMax motorBackLeft   = new CANSparkMax(13, MotorType.kBrushless);    
+    public static CANSparkMax motorFrontRight = new CANSparkMax(15, MotorType.kBrushless) ;
+    public static CANSparkMax motorBackRight  = new CANSparkMax(17, MotorType.kBrushless);
+    /**
+     * Array that contains all the drive motors for certain logic
+     */
+    public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
-    public static MecanumDrive drvMec;  // = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
+    public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
+
+    //Temp allocation to stop Drive.java from breaking, get rid of this later
+    public static MecanumDriveKinematics kinematics = null;
+
+    //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
     // public static double tpfAll = 12.7; //37 rotations for 10 ft
@@ -76,14 +77,14 @@ public class IO {
 
     // // Kinematics for Drive Train.
     // // Locations of the wheels relative to the robot center.
-    private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
-    private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
-    private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    // Creating kinematics object using the wheel locations.
-    public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
-        frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
-    );
+    // private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
+    // private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    // private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
+    // private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    // // Creating kinematics object using the wheel locations.
+    // public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
+        //     frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
+    // );
     
     // public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
@@ -95,8 +96,6 @@ public class IO {
         navX.reset();
 
         drvsInit();
-        motorsInit();
-        sdbInit();
     }
 
     /**Update items not handled elsewhere */
@@ -108,8 +107,6 @@ public class IO {
         //Also set scaled driving for climbing
            
         // coorXY.update();
-        calcXY();
-        sdbUpdate();
     }
 
     /**
@@ -117,67 +114,12 @@ public class IO {
      */
     public static void drvsInit() {
         // -------- Configure Lead drive motors ---------
-        for(CANSparkMax mtr : driveMotors){
-            mtr.restoreFactoryDefaults();
-            mtr.setIdleMode(IdleMode.kCoast);
-            // mtr.clearFaults();
+        for(CANSparkMax motor : driveMotors){
+            motor.restoreFactoryDefaults();
+            motor.setIdleMode(IdleMode.kCoast);
+            // motor.clearFaults();
         }
-
-        // LEAVE COMMENTED OUT UNTIL MOTORS ARE CHECKED FOR ROTATION AND ASSIGNMENT!!!
-        //-------- No CAN motors are inverted this year! -------------------
-
-        // frontLeftLg.follow(frontLeftLd);
-        // backLeftLg.follow(backLeftLd);
-        // frontRightLg.follow(frontRightLd);
-        // backRightLg.follow(backRightLd);
-
-        // frontRightLd.setInverted(true);
-        // backRightLd.setInverted(true);
-
-        // drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
-        // drvMec.setDeadband(0.1);
     }
-
-    /**
-     * Initialize other motors besides the drive motors.
-     */
-    private static void motorsInit() {
-
-        // example for closed loop velocity control:
-        // double maxRPM = 5700;
-        // double setPoint = JS_Left.getY()*maxRPM;
-        // var frontLeftPid = frontLeft.getPIDController();
-        // frontLeftPid.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
-        //--------------------------------------//
-    }
-
-    /**Initialize sdb with any vars that need to be updated from the sdb */
-    public static void sdbInit() {
-    }
-
-    /**Upd any hdw readings on the sdb */
-    public static void sdbUpdate() {
-        // sdbUpdPDH();    //Comment out after checkout
-        // sdbUpdPCH();    //Comment out after checkout
-    }
-
-    private static double mecDistX = 0.0;
-    private static double mecDistY = 0.0;
-    /**
-     * Calc distance on a Mecanum drive for single direction movement.
-     * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.
-     */
-    private static void calcXY(){
-        // mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
-        // /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
-        // mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
-        // /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
-    }
-
-    /**Get the sideways movement on a mec Drive.  Right is positive. */
-    public static double getmecDistX(){ return mecDistX; }
-    /**Get the fwd movement on a mec Drive.  Fwd is positive. */
-    public static double getmecDistY(){ return mecDistY; }
 
     /**Place all PDH channels on sdb and display amps for checkout. */
     public static void sdbUpdPDH() {
@@ -204,8 +146,5 @@ public class IO {
         SmartDashboard.putNumber("PDH/19 - front Left Ld", pdh.getCurrent(19));
     }
 
-    public static void sdbUpdPCH(){
-
-    }
 
 }
