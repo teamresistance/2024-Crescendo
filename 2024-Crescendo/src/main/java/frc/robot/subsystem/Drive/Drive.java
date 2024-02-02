@@ -137,8 +137,8 @@ public class Drive {
             IO.kinematics, 
             navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
             ),
             new Pose2d(12.8, 5.5, new Rotation2d())
     );
@@ -236,8 +236,8 @@ public class Drive {
             IO.kinematics, 
             navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
             ),
             new Pose2d(12.8, 5.5, new Rotation2d())
         );
@@ -268,8 +268,8 @@ public class Drive {
         // // Update the drivetrain pose
 
         poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
+            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
         ));
 
         // TODO: test
