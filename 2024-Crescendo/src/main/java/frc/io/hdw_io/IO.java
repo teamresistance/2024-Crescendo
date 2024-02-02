@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
@@ -57,36 +58,36 @@ public class IO {
     public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
 
     //Temp allocation to stop Drive.java from breaking, get rid of this later
-    public static MecanumDriveKinematics kinematics = null;
+    // public static MecanumDriveKinematics kinematics = null;
 
     //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
-    // public static double tpfAll = 12.7; //37 rotations for 10 ft
-    // public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    // public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    // public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    // public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    // // Encoders
-    // public static Encoder_Neo frontLeftEnc = new Encoder_Neo(frontLeftLd, frontLeftTPF);
-    // public static Encoder_Neo backLeftEnc = new Encoder_Neo(backLeftLd, backLeftTPF);
-    // public static Encoder_Neo frontRightEnc = new Encoder_Neo(frontRightLd, frontRightTPF);
-    // public static Encoder_Neo backRightEnc = new Encoder_Neo(backRightLd, backRightTPF);
-    // public static boolean resetEnc = false; 
+    public static double tpfAll = 12.7; //37 rotations for 10 ft
+    public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    // Encoders
+    public static Encoder_Neo frontLeftEnc = new Encoder_Neo(motorFrontLeft, frontLeftTPF);
+    public static Encoder_Neo backLeftEnc = new Encoder_Neo(motorBackLeft, backLeftTPF);
+    public static Encoder_Neo frontRightEnc = new Encoder_Neo(motorFrontRight, frontRightTPF);
+    public static Encoder_Neo backRightEnc = new Encoder_Neo(motorBackRight, backRightTPF);
+    public static boolean resetEnc = false; 
 
 
-    // // Kinematics for Drive Train.
-    // // Locations of the wheels relative to the robot center.
-    // private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
-    // private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    // private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
-    // private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
-    // // Creating kinematics object using the wheel locations.
-    // public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
-        //     frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
-    // );
+    // Kinematics for Drive Train.
+    // Locations of the wheels relative to the robot center.
+    private static Translation2d frontLeftLocation = new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
+    private static Translation2d frontRightLocation = new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    private static Translation2d backLeftLocation = new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
+    private static Translation2d backRightLocation = new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
+    // Creating kinematics object using the wheel locations.
+    public static MecanumDriveKinematics kinematics = new MecanumDriveKinematics(
+            frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
+    );
     
-    // public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
+    public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
     /**
      * Initialize any hardware
