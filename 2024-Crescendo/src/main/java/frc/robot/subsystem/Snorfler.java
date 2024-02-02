@@ -26,14 +26,17 @@ public class Snorfler {
 
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
-    private static Timer stateTmr = new Timer(.05); // Timer for state machine
+    private static Timer stateTmr = new Timer(50); // Timer for state machine
     private static boolean snorflerEnable = false; 
     private static double frwdspeed = 0.85;
     private static double reversespeed = -.35;
     private static double unloadspeed = -.15;
     public static Boolean frwdspeedreq = null;
-    private static Integer reverseTimer = 6; //in milliseconds
-    private static Integer unloadTimer = 6; // in milliseconds
+    private static Integer reverseTimer = 60; //in milliseconds
+    private static Integer unloadTimer = 60; // in milliseconds
+    public static boolean snorflerHasgamePiece;
+    public static boolean autosnorfreq = false ;
+
 
 
     /**
@@ -42,8 +45,14 @@ public class Snorfler {
      */
     public static void init() {
         sdbInit();
-        cmdUpdate(0.0, false, false); // Make sure all is off
-        state = 0; // Start at state 0
+        cmdUpdate(0.0); // Make sure all is off
+        state = 0;// Start at state 0
+        snorflerEnable = false;
+        frwdspeedreq = null;
+        autosnorfreq = false; 
+
+
+         
     }
 
     /**
@@ -56,16 +65,26 @@ public class Snorfler {
         //Add code here to start state machine or override the sm sequence
         smUpdate();
         sdbUpdate();
-        if (enable.onButtonPressed || autosnorfreq = true()) snorflerEnable = !snorflerEnable;
-        //snorfler is enabled to pick up note
-        if(reject.onButtonPressed()) state = 10;
+        //snorfler is enabled to pick up note 
+        if (enable.onButtonPressed() ) snorflerEnable = !snorflerEnable;
+        //once request for snorfle is made, snorfle will intake ring
+        if (autosnorfreq == true) snorflerEnable = true;
+        if (snorflerHasgamePiece == true) snorflerEnable = false; 
+
+
+
+
+
+
         // starts rejecting the note, hold down on button 
+        if(reject.onButtonPressed()) state = 10;
+       // finished rejecting the note , button is not held anymore 
         if(reject.onButtonReleased()) state = 0; 
-        // finished rejecting the note , button is not held anymore 
-        if(frwdspeedreq == true) state = 20;
         //passes the note from snorfler to shooter
+        if(frwdspeedreq == true) state = 20;
+         //rejects note from shooter back to snorfler
         if(frwdspeedreq == false) state = 30; 
-        //rejects note from shooter back to snorfler
+       
     }
 
     /**
@@ -88,9 +107,9 @@ public class Snorfler {
             case 1: // snorfling for a note 
                 cmdUpdate(frwdspeed);
                 //replace with variable fwrdspeed
-                if (hasgpSensor.get()) state++;
+                if (hasgpSensor.get()) state++; // found note 
                 break;
-            case 2: // found note 
+            case 2: //center on shooter wheels
                 cmdUpdate(frwdspeed);
                 if (stateTmr.hasExpired(0.05, state)) state++; //Center note
                 break;
@@ -111,7 +130,7 @@ public class Snorfler {
                 break;
             case 30: //sends note from shooter back to snorfler
                 cmdUpdate(unloadspeed);
-                if (stateTmr.hasExpire(unloadTimer, state))
+                if (stateTmr.hasExpired(unloadTimer, state))
                 frwdspeedreq= null; 
                 state = 0; 
                 break;
@@ -126,9 +145,8 @@ public class Snorfler {
     /**
      * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
      * 
-     * @param select_low    - select the low goal, other wise the high goal
-     * @param left_trigger  - triggers the left catapult
-     * @param right_trigger - triggers the right catapult
+     * @param dblSig    // motor speed
+
      * 
      */
     private static void cmdUpdate(double dblSig) {
