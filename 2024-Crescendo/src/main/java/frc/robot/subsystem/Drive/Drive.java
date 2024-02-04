@@ -91,6 +91,7 @@ public class Drive {
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
 
+
     private static double[] inputs;
     
     //Velocity Controlled Mecanum
@@ -148,8 +149,8 @@ public class Drive {
     );
 
     //Setpoints for alignement
-    private static final double setPoint1X = 14.8;
-    private static final double setPoint1Y = 5.5;
+    private static final double setPoint1X = 14.55;
+    private static final double setPoint1Y = 5.25;
     private static final double setPoint2X = 14.35;
     private static final double setPoint2Y = 6.5;
 
@@ -293,7 +294,7 @@ public class Drive {
         }
 
         
-        System.out.println(poseEstimator.getEstimatedPosition());
+        // System.out.println(poseEstimator.getEstimatedPosition());
 
         smUpdate();
         sdbUpdate();
@@ -424,10 +425,14 @@ public class Drive {
         }
     }
 
-    public static void goTo(double x, double y, double hdg, double spd, double rotSpd){
+    public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
         double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
         double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
-        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * rotSpd;
+        // double pidOutputZ = -pidControllerZ.calculate(navX.getYaw(), hdg);
+
+        // rotSpd = -pidOutputZ * rotSpd;
+
+        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
         rlSpd = pidOutputX * spd;
         fwdSpd = pidOutputY * spd;
     }

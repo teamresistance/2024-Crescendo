@@ -58,7 +58,7 @@ public class IO {
     /**
      * Array that contains all the drive motors for certain logic
      */
-    public static MecanumDrive drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
+    // public static MecanumDrive drvMec = new MecanumDrive(frontLeftLd, backLeftLd, frontRightLd, backRightLd);
 
     //Temp allocation to stop Drive.java from breaking, get rid of this later
     // public static MecanumDriveKinematics kinematics = null;

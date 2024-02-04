@@ -35,17 +35,17 @@ public class GoToTarget extends ATrajFunction {
         case 0: // Initialize
             delayTimer.clearTimer();
             state++;
-            // System.out.println("Delay - 0: ---------- Init -----------");
+            System.out.println("Target - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
             Drive.goTo(x, y, hdg, spd, rotSpd);
             if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            // System.out.println("Delay - 1: ---------- Waiting -----------");
+            System.out.println("Target - 1: ---------- Waiting -----------");
             break;
         case 2:
             setDone();
-            System.out.println("Delay - 2: ---------- Done -----------");
+            System.out.println("Target - 2: ---------- Done -----------");
             break;
         default:
             setDone();

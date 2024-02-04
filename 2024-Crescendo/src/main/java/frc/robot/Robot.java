@@ -52,13 +52,14 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         IO.update();
         JS_IO.update();
-        Drive.update();
+        // Drive.update();
         Drv_Teleop.chsrUpdate();
     }
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
+        Drive.init();
         Drv_Auto.init();
     }
 
@@ -67,6 +68,7 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         Trajectories.chsrUpdate();
         Drv_Auto.update();
+        Drive.update();
     }
 
     /** This function is called once when teleop is enabled. */
@@ -81,7 +83,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        // Drive.update();
+        Drive.update();
         
         Drv_Teleop.chsrUpdate();
         Drv_Teleop.update();

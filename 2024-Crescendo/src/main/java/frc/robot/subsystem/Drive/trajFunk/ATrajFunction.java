@@ -52,7 +52,7 @@ public abstract class ATrajFunction {
 
     /**Execute this trajectory */
     public void execute() {
-
+        
     }
 
     /**issue commands to the Drive system.
