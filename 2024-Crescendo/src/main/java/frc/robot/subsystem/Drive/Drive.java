@@ -87,9 +87,19 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDXController pidControllerX = new PIDXController(0.1, 0.000, 0.0); //1.0, 0.000, 0.01
-    private static PIDXController pidControllerY = new PIDXController(0.1, 0.000, 0.0);
-    private static PIDController pidControllerZ = new PIDController(0.008, 0.00, 0.0);
+
+    private static PIDXController pidControllerX;
+    private static PIDXController pidControllerY;
+    private static PIDController pidControllerZ;
+    
+    private static double dP;
+    private static double dI;
+    private static double dD;
+    
+    private static double rP;
+    private static double rI;
+    private static double rD;
+
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
 
@@ -190,6 +200,9 @@ public class Drive {
      */
     public static void init() {
         sdbInit();
+        pidControllerX = new PIDXController(dP, dI, dD);
+        pidControllerY = new PIDXController(dP, dI, dD);
+        pidControllerZ = new PIDXController(rP, rI, rD);
         state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold
@@ -615,10 +628,25 @@ public class Drive {
         SmartDashboard.putNumber("Drv/Test/tstDVar4", 0.30);  //tstDVar4);
         SmartDashboard.putBoolean("Drv/Test/tstBVar1",false); // tstBVar1);
         SmartDashboard.putBoolean("Drv/Test/tstBVar2",false); // tstBVar2);
+
+        SmartDashboard.putNumber("Drv/Test/dP", 0.2);
+        SmartDashboard.putNumber("Drv/Test/dI", 0.000);
+        SmartDashboard.putNumber("Drv/Test/dD", 0.06);
+        
+        SmartDashboard.putNumber("Drv/Test/rP", 0.008);
+        SmartDashboard.putNumber("Drv/Test/rI", 0.000);
+        SmartDashboard.putNumber("Drv/Test/rD", 0.0);
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
+        dP = SmartDashboard.getNumber("Drv/Test/dP", 0.2);
+        dI = SmartDashboard.getNumber("Drv/Test/dI", 0.000);
+        dD = SmartDashboard.getNumber("Drv/Test/dD", 0.06);
+        rP = SmartDashboard.getNumber("Drv/Test/rP", 0.008);
+        rI = SmartDashboard.getNumber("Drv/Test/rI", 0.000);
+        rD = SmartDashboard.getNumber("Drv/Test/rD", 0.0);
+        
         SmartDashboard.putNumber("Drv/fwdSpd", fwdSpd);
         SmartDashboard.putNumber("Drv/rlSpd", rlSpd);
         SmartDashboard.putNumber("Drv/rotSpd", rotSpd);
