@@ -115,6 +115,9 @@ public class Drive {
 
     private static Transform3d robotToCam = new Transform3d(new Translation3d(0.0, -0.5, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
+    private static boolean followNote;
+    private static boolean parkAtTarget;
+
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
     //Odometry
@@ -259,11 +262,7 @@ public class Drive {
         state = isFieldOriented ? 1 : 0;
 
         if (btnGyroReset.isDown()) {
-            // botHold_SP = null;
-            // hdgHold_SP = null;
-            IO.navX.reset();
             reset();
-            // IO.coorXY.reset();
         }
 
         // // Update the drivetrain pose
@@ -288,7 +287,7 @@ public class Drive {
 
                 // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-                System.out.println("Estimated pose: " + estimatedPose);
+                // System.out.println("Estimated pose: " + estimatedPose);
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
@@ -372,46 +371,30 @@ public class Drive {
             rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
         }
         else rotSpd = 0.0;
-        // fwdSpd = jsX.get();
-        // rlSpd = jsY.get();
-        // rotSpd = jsRot.get();
 
         //Autoalign stuff
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
-            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint1Y);
-            rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), 0.0);
-            rlSpd = pidOutputX;
-            fwdSpd = pidOutputY;
+            goTo(setPoint1X, setPoint1Y, 0.0, 1.0, 1.0);
         }
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
-            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
+            goTo(setPoint2X, setPoint2Y, -90.0, 1.0, 1.0);
+            // double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
+            // double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
 
-            rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), -90.0);
-            rlSpd = pidOutputX;
-            fwdSpd = pidOutputY;
+            // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), -90.0);
+            // rlSpd = pidOutputX;
+            // fwdSpd = pidOutputY;
         }
-
-        //Limelight stuff
-        double x = tx.getDouble(0.0);
-        double y = ty.getDouble(0.0);
-        double area = ta.getDouble(0.0);
         
         heading = IO.navX.getRotation2d();
 
         
-        if (lookAtNote.isDown() && x != 0.0){
-            double pidOutputZ = -pidControllerZ.calculate(0.0, x);
-            rotSpd = -pidOutputZ;
-            // rlSpd = 0;
-        }
-        if (lookAtNote.isUp()){
-            // robotOriented = false;
+        if (lookAtNote.isDown()){
+            goToNote(1.0);
         }
 
         if (headingHoldBtn.isDown()){
@@ -430,6 +413,23 @@ public class Drive {
                 System.out.println("Bad DriveMec state: " + state);
                 break;
         }
+    }
+
+    public static void goToNote(double _spd){
+        //Limelight stuff
+        double x = tx.getDouble(0.0);
+        if (x != 0.0){
+            double pidOutputZ = -pidControllerZ.calculate(0.0, x);
+            rotSpd = -pidOutputZ * _spd;
+        }
+    }
+
+    public static void goTo(double x, double y, double hdg, double spd, double rotSpd){
+        double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
+        double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * rotSpd;
+        rlSpd = pidOutputX * spd;
+        fwdSpd = pidOutputY * spd;
     }
 
     /**
