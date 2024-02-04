@@ -1,9 +1,11 @@
 package frc.robot.subsystem.Drive;
 
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import java.time.LocalDateTime;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -48,6 +50,7 @@ import frc.util.PIDXController;
 import frc.util.PropMath;
 import frc.util.Timer;
 import edu.wpi.first.math.VecBuilder;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Drive {
     // hdw defintions:
@@ -85,8 +88,12 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDXController pidControllerX = new PIDXController(0.2, 0.000, 0.06); //1.0, 0.000, 0.01
-    private static PIDXController pidControllerY = new PIDXController(0.2, 0.000, 0.06);
+    private static LoggedDashboardNumber P = new LoggedDashboardNumber("P", 0.2);
+    private static LoggedDashboardNumber I = new LoggedDashboardNumber("I", 0.000);
+    private static LoggedDashboardNumber D = new LoggedDashboardNumber("D", 0.06);
+    
+    private static PIDXController pidControllerX = new PIDXController(P.get(), I.get(), D.get());
+    private static PIDXController pidControllerY = new PIDXController(P.get(), I.get(), D.get());
     private static PIDController pidControllerZ = new PIDController(0.008, 0.00, 0.0);
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
@@ -135,7 +142,7 @@ public class Drive {
     // new Pose2d(0.0, 0.0, new Rotation2d())
     // );
 
-    private static final double tpf = 12.7;
+    private static final double tpf = 12.7; //ticks per foot
 
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
@@ -292,7 +299,9 @@ public class Drive {
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
-
+        
+        pidControllerX.setPID(P.get(), I.get(), D.get());
+        pidControllerY.setPID(P.get(), I.get(), D.get());
         
         // System.out.println(poseEstimator.getEstimatedPosition());
 
@@ -474,6 +483,14 @@ public class Drive {
         backLeftLdPID.updateSetpoint(inputs[2] * maxRPM);
         backRightLdPID.updateSetpoint(inputs[3] * maxRPM);
         
+//
+//            System.out.println("Time: " + LocalDateTime.now());
+//            System.out.format("%-20s %-20s\n", "Wheel", "Input");
+//            System.out.format("%-20s %-20f\n", "Front Left Wheel", inputs[0] );
+//            System.out.format("%-20s %-20f\n", "Front Right Wheel", inputs[1]);
+//            System.out.format("%-20s %-20f\n", "Back Left Wheel", inputs[2] );
+//            System.out.format("%-20s %-20f\n", "Back Right Wheel", inputs[3]);
+
         //Check if updates were made in SDB
         frontLeftLdPID.update();
         backLeftLdPID.update();
