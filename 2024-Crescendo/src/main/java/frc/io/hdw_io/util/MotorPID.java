@@ -7,17 +7,20 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 public class MotorPID {
     private int deviceID;
-    private CANSparkMax m_motor;
+    private CANSparkMax m_motor, m_lagMotor;
     public SparkPIDController m_pidController;
-    private RelativeEncoder m_encoder; //This may say it's unused, it absolutely IS used
+    private RelativeEncoder m_encoder;
     private double setPoint = 0.0;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
     private boolean m_isInverted, m_isLagInverted;
 
-    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, boolean _m_isLagInverted, SparkPIDController _m_pidController){
+    public MotorPID(CANSparkMax _m_motor, CANSparkMax _m_lagMotor, boolean _m_isInverted, boolean _m_isLagInverted, SparkPIDController _m_pidController){
         m_motor = _m_motor;
+        m_lagMotor = _m_lagMotor;
         m_isInverted = _m_isInverted;
         m_isLagInverted = _m_isLagInverted;
         m_pidController = _m_pidController;
@@ -34,8 +37,11 @@ public class MotorPID {
          * parameters will not persist between power cycles
          */
         m_motor.restoreFactoryDefaults();
+        m_lagMotor.restoreFactoryDefaults();
 
         m_motor.setInverted(m_isInverted);
+        m_lagMotor.setInverted(m_isLagInverted);
+        m_lagMotor.follow(m_motor);
         
 
         deviceID = m_motor.getDeviceId();
@@ -53,7 +59,7 @@ public class MotorPID {
         m_motor.setIdleMode(IdleMode.kCoast);
 
         // PID coefficients
-        kP = 6e-5; 
+        kP = 4e-5; 
         kI = 0;
         kD = 0; 
         kIz = 0; 
@@ -81,7 +87,7 @@ public class MotorPID {
 
     public void update(){
         // read PID coefficients from SmartDashboard
-        double p = SmartDashboard.getNumber("P Gain " + deviceID, 6e-5);
+        double p = SmartDashboard.getNumber("P Gain " + deviceID, 4e-5);
         double i = SmartDashboard.getNumber("I Gain " + deviceID, 0);
         double d = SmartDashboard.getNumber("D Gain " + deviceID, 3e-5);
         double iz = SmartDashboard.getNumber("I Zone " + deviceID, 0);

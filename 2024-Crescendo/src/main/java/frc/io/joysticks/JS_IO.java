@@ -66,9 +66,9 @@ public class JS_IO {
     }
 
     public static void init() {
-        axRightX.setInDB(0.1);
-        axLeftX.setInDB(0.1);
-        axLeftY.setInDB(0.1);
+        axRightX.setInDB(0.05);
+        axLeftX.setInDB(0.05);
+        axLeftY.setInDB(0.05);
 
         chsrInit(); //Setup JS chooser and set JS assignments to default.
     }
@@ -141,11 +141,11 @@ public class JS_IO {
         axCoDrvY.setAxis(coJoystick, 1);
 
         //2024 Stuff
-        autoBtn.setButton(leftJoystick, 11);
-        auto1Btn.setButton(leftJoystick, 9);
-        headingHoldBtn.setButton(leftJoystick, 12);
+        autoBtn.setButton(rightJoystick, 11);
+        auto1Btn.setButton(rightJoystick, 9);
+        headingHoldBtn.setButton(rightJoystick, 3);
         lookAtNote.setButton(rightJoystick, 1);
-        btnGyroReset.setButton(leftJoystick, 10);
+        btnGyroReset.setButton(rightJoystick, 7);
     }
 
     // ----- gamePad only --------
@@ -185,10 +185,10 @@ public class JS_IO {
         axCoDrvY.setAxis(coJoystick, 1);
 
         //2024 Stuff
-        autoBtn.setButton(leftJoystick, 11);
-        auto1Btn.setButton(leftJoystick, 9);
-        headingHoldBtn.setButton(leftJoystick, 12);
+        autoBtn.setButton(rightJoystick, 11);
+        auto1Btn.setButton(rightJoystick, 9);
+        headingHoldBtn.setButton(rightJoystick, 3);
         lookAtNote.setButton(rightJoystick, 1);
-        btnGyroReset.setButton(leftJoystick, 10);
+        btnGyroReset.setButton(rightJoystick, 7);
     }
 }

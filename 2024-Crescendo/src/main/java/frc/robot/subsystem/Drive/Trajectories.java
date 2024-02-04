@@ -8,7 +8,7 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "RightCone", "RightCube","LeftCone", "LeftCube", "Balance", "MobilityBalance", "RightConeBalance", "LeftConeBalance", "RightConeDrive", "LeftConeDrive"
+            "Test"
     
         };
     //
@@ -22,7 +22,7 @@ public class Trajectories {
         for (int i = 0; i < chsrDesc.length; i++) {
             chsr.addOption(chsrDesc[i], chsrDesc[i]);
         }
-        int dflt = 1; // default - rightRun
+        int dflt = 0; // default - rightRun
         chsr.setDefaultOption(chsrDesc[dflt] + " (Default)", chsrDesc[dflt]); // Default MUST have a different name
         SmartDashboard.putData("Drv/Traj/Traj Choice", chsr);
         //SmartDashboard.putData("Drv/Traj/IsRed", isRed);
@@ -66,8 +66,6 @@ public class Trajectories {
                 System.out.println("Traj/Bad Traj Desc - " + chsr.getSelected());
                 return test(pwr);
         }
-
-        
     }
 
     /**
@@ -99,7 +97,7 @@ public class Trajectories {
     public static ATrajFunction[] test(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-                // new MoveOnHdgFwd(0.0, 5.0, 0.3),
+                new MoveOnHdgFwd(0.0, 5.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
                 // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
                 // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'

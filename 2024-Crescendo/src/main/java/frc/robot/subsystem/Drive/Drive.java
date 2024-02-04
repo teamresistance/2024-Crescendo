@@ -45,6 +45,7 @@ import frc.io.joysticks.util.Button;
 import frc.util.MecanumDriveCalculator;
 // import frc.util.Apriltags;
 import frc.util.PIDXController;
+import frc.util.PropMath;
 import frc.util.Timer;
 import edu.wpi.first.math.VecBuilder;
 
@@ -84,21 +85,21 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDXController pidControllerX = new PIDXController(1.0, 0.000, 0.01);
-    private static PIDXController pidControllerY = new PIDXController(0.5, 0.000, 0.055);
-    private static PIDController pidControllerZ = new PIDController(0.02, 0.00, 0.0);
+    private static PIDXController pidControllerX = new PIDXController(0.2, 0.000, 0.06); //1.0, 0.000, 0.01
+    private static PIDXController pidControllerY = new PIDXController(0.2, 0.000, 0.06);
+    private static PIDController pidControllerZ = new PIDController(0.008, 0.00, 0.0);
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
 
     private static double[] inputs;
     
     //Velocity Controlled Mecanum
-    public static final double maxRPM = 5700;
+    public static final double maxRPM = 20000;
 
-    public static MotorPID frontLeftLdPID = new MotorPID(IO.frontLeftLd, false, false, IO.frontLeftLd.getPIDController());
-    public static MotorPID backLeftLdPID = new MotorPID(IO.backLeftLd, false, false, IO.backLeftLd.getPIDController());
-    public static MotorPID frontRightLdPID = new MotorPID(IO.frontRightLd, true, false, IO.frontRightLd.getPIDController());
-    public static MotorPID backRightLdPID = new MotorPID(IO.backRightLd, true, false, IO.backRightLd.getPIDController());
+    public static MotorPID frontLeftLdPID = new MotorPID(IO.frontLeftLd, IO.frontLeftLg, false, false, IO.frontLeftLd.getPIDController());
+    public static MotorPID backLeftLdPID = new MotorPID(IO.backLeftLd, IO.backLeftLg, false, false, IO.backLeftLd.getPIDController());
+    public static MotorPID frontRightLdPID = new MotorPID(IO.frontRightLd, IO.frontRightLg, true, false, IO.frontRightLd.getPIDController());
+    public static MotorPID backRightLdPID = new MotorPID(IO.backRightLd, IO.backRightLg, true, false, IO.backRightLd.getPIDController());
 
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -112,7 +113,7 @@ public class Drive {
 
     private static PhotonCamera cam = new PhotonCamera("photonvision");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.0, -0.5, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
@@ -144,10 +145,10 @@ public class Drive {
     );
 
     //Setpoints for alignement
-    private static final double setPoint1X = 15.0;
+    private static final double setPoint1X = 14.8;
     private static final double setPoint1Y = 5.5;
-    private static final double setPoint2X = 12.8;
-    private static final double setPoint2Y = 5.5;
+    private static final double setPoint2X = 14.35;
+    private static final double setPoint2Y = 6.5;
 
 
 
@@ -358,12 +359,22 @@ public class Drive {
      */
     private static void smUpdate() {
         // System.out.println(state);
-        fwdSpd = jsX.getRaw();
-        rlSpd = jsY.getRaw();
-        rotSpd = jsRot.getRaw();
         
-        //Northstar stuff
-
+        if(Math.abs(jsX.getRaw()) > 0.1){
+            fwdSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+        }
+        else fwdSpd = 0.0;
+        if(Math.abs(jsY.getRaw()) > 0.1){
+            rlSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+        }
+        else rlSpd = 0.0;
+        if(Math.abs(jsRot.getRaw()) > 0.05){
+            rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+        }
+        else rotSpd = 0.0;
+        // fwdSpd = jsX.get();
+        // rlSpd = jsY.get();
+        // rotSpd = jsRot.get();
 
         //Autoalign stuff
         if (btnAuto.isDown()){
@@ -371,6 +382,7 @@ public class Drive {
             // stuff is reversed cus confusing
             double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
             double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint1Y);
+            rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), 0.0);
             rlSpd = pidOutputX;
             fwdSpd = pidOutputY;
         }
@@ -379,6 +391,8 @@ public class Drive {
             // stuff is reversed cus confusing
             double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
             double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
+
+            rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), -90.0);
             rlSpd = pidOutputX;
             fwdSpd = pidOutputY;
         }
@@ -603,6 +617,7 @@ public class Drive {
         SmartDashboard.putNumber("SP/FrontRight SP", inputs[1] * maxRPM);
         SmartDashboard.putNumber("SP/BackLeft SP", inputs[2] * maxRPM);
         SmartDashboard.putNumber("SP/BackRight SP", inputs[3] * maxRPM);
+        // SmartDashboard.putNumber("", )
         
         // SmartDashboard.putNumber("Drv/coorX", IO.coorXY.getX());
         // SmartDashboard.putNumber("Drv/coorY", IO.coorXY.getY());

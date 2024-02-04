@@ -50,7 +50,7 @@ public class Drv_Teleop extends Drive {
         setHdgHold(null);
         drvBrake(true);
 
-        state = 0; // Start at state 0, 0=robotOriented, 2=fieldOriented
+        state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
     }
 
     /**
@@ -78,13 +78,13 @@ public class Drv_Teleop extends Drive {
         switch (state) {
             case 0: // Stop Moving
             // cmdUpdate(); // Stop moving
-            setDriveCmds(0.0, 0.0, 0.0, false);
+            // setDriveCmds(0.0, 0.0, 0.0, false);
             break;
             case 1: // robot mode.
-            setDriveCmds(jsFwd() *  teleopScale/100.0, jsRL() * teleopScale/100.0, jsRot() * 0.65, false);
+            // setDriveCmds(jsFwd() *  teleopScale/100.0, jsRL() * teleopScale/100.0, jsRot() * 0.65, false);
             break;
             case 2: // Field relative mode.
-            setDriveCmds(JS_IO.axLeftY.getRaw(), JS_IO.axLeftX.getRaw(), JS_IO.axRightX.getRaw() * 0.65, true);
+            // setDriveCmds(JS_IO.axLeftY.getRaw(), JS_IO.axLeftX.getRaw(), JS_IO.axRightX.getRaw() * 0.65, true);
             break;
             default:
             // cmdUpdate();
