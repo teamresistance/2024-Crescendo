@@ -50,7 +50,6 @@ import frc.util.PIDXController;
 import frc.util.PropMath;
 import frc.util.Timer;
 import edu.wpi.first.math.VecBuilder;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Drive {
     // hdw defintions:
