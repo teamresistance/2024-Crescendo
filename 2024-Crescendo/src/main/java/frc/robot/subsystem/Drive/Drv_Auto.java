@@ -19,6 +19,7 @@ public class Drv_Auto extends Drive {
      * <p>Reset Heading & Distance to 0.
      */
     public static void init() {
+        auto = true;
         traj = Trajectories.getTraj(1.0);
         autoStep = 0;
         idx = 0;
@@ -92,6 +93,7 @@ public class Drv_Auto extends Drive {
 
     public static void disable() {
         setDriveCmds(0.0, 0.0, 0.0, false);
+        auto = false;
     }
 
     public static void sdbInit() {

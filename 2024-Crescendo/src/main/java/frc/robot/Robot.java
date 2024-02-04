@@ -53,22 +53,22 @@ public class Robot extends TimedRobot {
         IO.update();
         JS_IO.update();
         // Drive.update();
+        Trajectories.chsrUpdate();
         Drv_Teleop.chsrUpdate();
     }
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        Drive.init();
+        // Drive.init();
         Drv_Auto.init();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        Trajectories.chsrUpdate();
-        Drv_Auto.update();
         Drive.update();
+        Drv_Auto.update();
     }
 
     /** This function is called once when teleop is enabled. */

@@ -85,8 +85,8 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDXController pidControllerX = new PIDXController(0.2, 0.000, 0.06); //1.0, 0.000, 0.01
-    private static PIDXController pidControllerY = new PIDXController(0.2, 0.000, 0.06);
+    private static PIDXController pidControllerX = new PIDXController(0.1, 0.000, 0.0); //1.0, 0.000, 0.01
+    private static PIDXController pidControllerY = new PIDXController(0.1, 0.000, 0.0);
     private static PIDController pidControllerZ = new PIDController(0.008, 0.00, 0.0);
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
@@ -118,6 +118,11 @@ public class Drive {
 
     private static boolean followNote;
     private static boolean parkAtTarget;
+    public static boolean auto;
+
+    public static double offSetX = 12.0;
+    public static double offSetY = 5.0;
+    public static double offSetRot = 0.0;
 
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
@@ -145,7 +150,7 @@ public class Drive {
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(12.8, 5.5, new Rotation2d())
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
     );
 
     //Setpoints for alignement
@@ -244,7 +249,7 @@ public class Drive {
             Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(12.8, 5.5, new Rotation2d())
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
     }
 
@@ -360,18 +365,20 @@ public class Drive {
     private static void smUpdate() {
         // System.out.println(state);
         
-        if(Math.abs(jsX.getRaw()) > 0.1){
-            fwdSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-        }
-        else fwdSpd = 0.0;
-        if(Math.abs(jsY.getRaw()) > 0.1){
-            rlSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-        }
-        else rlSpd = 0.0;
-        if(Math.abs(jsRot.getRaw()) > 0.05){
-            rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-        }
-        else rotSpd = 0.0;
+        if (!auto){
+            if(Math.abs(jsX.getRaw()) > 0.1){
+                fwdSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else fwdSpd = 0.0;
+            if(Math.abs(jsY.getRaw()) > 0.1){
+                rlSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else rlSpd = 0.0;
+            if(Math.abs(jsRot.getRaw()) > 0.05){
+                rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else rotSpd = 0.0;
+    }
 
         //Autoalign stuff
         if (btnAuto.isDown()){
