@@ -8,6 +8,7 @@ import frc.io.hdw_io.util.*;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
+import frc.robot.subsystem.Snorfler.SnorfRq;
 import frc.util.Timer;
 //Literally just copied snorfler and changed the names
 /**
@@ -15,16 +16,16 @@ import frc.util.Timer;
  */
 public class Shooter {
     // hdw defintions:
-    private static CANSparkMax shooterMtrL;
-    private static CANSparkMax shooterMtrR;
+    private static CANSparkMax shooterMtrL = IO.shooterMtrL;
+    private static CANSparkMax shooterMtrR = IO.shooterMtrR;
     private static Solenoid arm = IO.arm;
     //private static Solenoid ShooterSV;
 
     // joystick buttons:
-    private static Button btnLoadForSpkr; //Shooter up to high speed
-    private static Button btnLoadForAmp; //Shooter at low speed signal Snorfler then stops after 0.15 seconds
-    private static Button btnShoot; //After btnLoadForSpkr or btnLoadForAmp, request Snorfler spin fwd
-    private static Button btnUnload; //reverse Shooter low speed and signal Snorfler reverse after 0.25 seconds
+    private static Button btnLoadForSpkr = JS_IO.btnLoadForSpkr; //Shooter up to high speed
+    private static Button btnLoadForAmp = JS_IO.btnLoadForAmp;//Shooter at low speed signal Snorfler then stops after 0.15 seconds
+    private static Button btnShoot = JS_IO.btnShoot;//After btnLoadForSpkr or btnLoadForAmp, request Snorfler spin fwd
+    private static Button btnUnload = JS_IO.btnUnload; //reverse Shooter low speed and signal Snorfler reverse after 0.25 seconds
 
 
 
@@ -33,10 +34,11 @@ public class Shooter {
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
     private static double hiSpd = 0.8; // Speed to run the snorfler at
     private static double loSpd = 0.3; // Speed to run the snorfler at
-
+    private static double mtr_rpm;
     private static boolean targetAmp = false;
     private static boolean btnSpeakerRq;
     private static boolean btnAmpRq; 
+    
     private static boolean shtrSpeakerRq;
 
     /**
@@ -67,6 +69,7 @@ public class Shooter {
             state = 3;
         smUpdate();
         sdbUpdate();
+        double motorspeed = mtr_rpm;
     }
 
     /**
@@ -91,31 +94,31 @@ public class Shooter {
                 //Snorfler.loadShooter;     //TO DO: Require to release Note
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
-            case 3: //Shoot
+            case 3: //Shoot for Amp
                 cmdUpdate(hiSpd, true);
-                Snorfler.snorfFwdRq = true;
-                shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
+                shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad//yea man stop it 😠
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
             case 10:
                 cmdUpdate(loSpd, true);
-                Snorfler.snorfFwdRq = true; //please improve this line; not entirely sure how to properly rq subsystems
+                Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
                 if (stateTmr.hasExpired(0.33, state)) state++;
                 break;
             case 11: //Stop Shooter & Snorfler, Raise Arm.
                 cmdUpdate(0.0, false);
-                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // 
+                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
                 break;
             case 12: //Wait for Arm to Position
                 cmdUpdate(hiSpd, false);
                 if (btnShoot.isDown() || btnAmpRq == true) state++;
             case 13: //Wait for trigger to shoot Amp
                 cmdUpdate(hiSpd, false);
-                Snorfler.snorfFwdRq = true;
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
                 if (stateTmr.hasExpired(0.35, state)) state = 0;
             case 30: //Unload
                 cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
-                Snorfler.snorfFwdRq = false;
+                Snorfler.snorfFwdRq = SnorfRq.kreverse;
                 if (stateTmr.hasExpired(0.22, state)) state = 0;
             default: // all off
                 cmdUpdate(0.0, true); //Is it really false??
@@ -156,7 +159,10 @@ public class Shooter {
         // sumpthin = SmartDashboard.getBoolean("Shooter/Sumpthin", sumpthin.get());
 
         //Put other stuff to be displayed here
-        SmartDashboard.putNumber("ZZ_Template/state", state);
+        SmartDashboard.putNumber("Shooter_State", state);
+        SmartDashboard.putNumber("MTR_speed", mtr_rpm);
+        SmartDashboard.putBoolean("ShtrSpeakerRq",shtrSpeakerRq);
+        
     }
 
     // ----------------- Shooter statuses and misc.-----------------

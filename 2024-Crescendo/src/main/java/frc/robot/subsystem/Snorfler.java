@@ -1,4 +1,4 @@
-//Skibdi toilet, inc.
+
 package frc.robot.subsystem;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,23 +29,26 @@ import edu.wpi.first.wpilibj.motorcontrol.Victor;
 public class Snorfler {
 
     // hdw defintions:
-    private static CANSparkMax snorflerMtr;
-    private static InvertibleDigitalInput snorfhasGP;      //Banner snsr game piece on porch
+    private static CANSparkMax snorflerMtr = IO.snorfMtr;
+    private static InvertibleDigitalInput snorfhasGP = IO.snorHAsGP;      //Banner snsr game piece on porch
 
     // joystick buttons:
-    private static Button btnSnorflerEnable;
-    private static Button btnSnorfleReject;
+    private static Button btnSnorflerEnable = JS_IO.btnSnorflerEnable;
+    private static Button btnSnorfleReject = JS_IO.btnSnorfleReject;
     
     // variables:
     private static int state; // Snorfler state machine. 0=Off by pct, 1=On by velocity, RPM
-    public static boolean snorflerEnable = false;  // Sno
+    public static boolean snorflerEnable = false;  // Snorfler Enable
     private static double fwdMtrSpd = 0.8;      // Snorfling speed
     private static double rejMtrSpd = -0.35;    // Reject Snorfling speed
     private static double loadMtrSpd = 0.05;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
-    public static Boolean snorfFwdRq = null;   // Request from Shooter subsystem, true = load, false = unload, null = ignore
+    //public static Boolean snorfFwdRq = null;   // Request from Shooter subsystem, true = load, false = unload, null = ignore
+    public static enum SnorfRq{koff,kforward,kreverse};
+    public static SnorfRq snorfFwdRq = SnorfRq.koff;
+    public static int snorfFwdState;
 
     public static boolean hasGP;
     private static OnDly hasGPOnDly = new OnDly(0.35);
@@ -59,7 +62,7 @@ public class Snorfler {
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
         snorflerEnable = false; // Start disabled
-        snorfFwdRq = null;  // Start no request
+        snorfFwdRq = SnorfRq.koff;
     }
 
     /**
@@ -77,8 +80,23 @@ public class Snorfler {
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
 
-        if(snorfFwdRq == true && state < 20) state = 20;
-        if(snorfFwdRq == false && state < 30) state = 30;
+        if(snorfFwdRq == SnorfRq.kforward && state < 20) state = 20;
+        if(snorfFwdRq == SnorfRq.kreverse && state < 30) state = 30;
+        switch (snorfFwdRq) {
+            case koff:
+                snorfFwdState = 0;
+                break;
+            case kforward:
+                snorfFwdState = 1;
+                break;
+            case kreverse:
+                snorfFwdState = 2;
+                break;
+        
+            default:
+                snorfFwdState = -1;
+                break;
+        }
 
         hasGP = hasGPOnDly.get(snorfhasGP.get());   //Used in state 1
 
@@ -113,6 +131,7 @@ public class Snorfler {
             case 3: //Reverse to hold Note
                 cmdUpdate(rejMtrSpd);
                 if(stateTmr.hasExpired(0.06, state)) state = 0;
+                snorflerEnable = false;
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(rejMtrSpd);
@@ -124,7 +143,7 @@ public class Snorfler {
             case 21:
                 cmdUpdate(0.0);
                 state = 0;
-                snorfFwdRq = null;
+                snorfFwdRq = SnorfRq.koff;
                 break;
             case 30: // Shooter request to Snorfler to unload
                 cmdUpdate(rejMtrSpd);
@@ -133,7 +152,7 @@ public class Snorfler {
             case 31:
                 cmdUpdate(0.0);
                 state = 0;
-                snorfFwdRq = null;
+                snorfFwdRq = SnorfRq.koff;
                 break;
             default: // all off
                 cmdUpdate(0.0);
@@ -169,15 +188,18 @@ public class Snorfler {
     /**Update the Smartdashboard. */
     public static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        fwdMtrSpd = SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
+        SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
 
         SmartDashboard.putNumber("Snorf/state", state);
         SmartDashboard.putNumber("Snorf/Mtr Cmd", snorflerMtr.get());
         SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
-        
         SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
         SmartDashboard.putBoolean("Snorf/Has GP", hasGP);
-
+        SmartDashboard.putNumber("Snorf/FwdRq", snorfFwdState);
+        //0 means off
+        //1 means forward
+        //2 means reverse 
+        
     }
 
     // ----------------- Snorfler statuses and misc.-----------------

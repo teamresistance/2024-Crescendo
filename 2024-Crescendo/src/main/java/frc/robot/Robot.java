@@ -63,10 +63,10 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         
-        IO.navX.reset();
-        IO.init();
+        //IO.navX.reset();
+        //IO.init();
         JS_IO.init();
-        Drive.init();
+        //Drive.init();
         Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();
@@ -76,10 +76,10 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        IO.update();
+        //IO.update();
         JS_IO.update();
-        Drive.update();
-        Drv_Teleop.update();
+        // Drive.update();
+        // Drv_Teleop.update();
         Snorfler.update();
         Shooter.update();
         Climber.update();

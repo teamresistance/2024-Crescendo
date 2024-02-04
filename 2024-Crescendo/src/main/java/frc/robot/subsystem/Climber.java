@@ -16,7 +16,8 @@ public class Climber {
     private static Solenoid climberExtSV = IO.climberExtSV;
 
     // joystick buttons:
-    private static Button btnClimberEna;
+    private static Button btnClimberEna = JS_IO.btnClimberEna;
+    
 
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
@@ -61,7 +62,6 @@ public class Climber {
         switch (state) {
             case 0: // Everything is off
                 cmdUpdate(false);
-                if(btnClimberEna.onButtonPressed())state++;
                 break;
             case 1: // run 
                 cmdUpdate(true);
@@ -91,7 +91,6 @@ public class Climber {
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
-        SmartDashboard.putNumber("Climber/state", state);
     }
 
     /**Update the Smartdashboard. */
@@ -101,6 +100,7 @@ public class Climber {
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Climber/state", state);
+        SmartDashboard.putBoolean("Climber/Enable", climberEna);
     }
 
     // ----------------- Shooter statuses and misc.-----------------

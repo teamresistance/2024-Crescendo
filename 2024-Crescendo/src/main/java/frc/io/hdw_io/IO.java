@@ -84,12 +84,15 @@ public class IO {
     // public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
 
     //Snorfler
-    public static CANSparkMax snorfMtr = new CANSparkMax(41, MotorType.kBrushless);
+    public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
     public static InvertibleDigitalInput snorHAsGP = new InvertibleDigitalInput(1, false);
-
+    //Shooter
+    public static CANSparkMax shooterMtrL = new CANSparkMax(41, MotorType.kBrushless);
+    public static CANSparkMax shooterMtrR = new CANSparkMax(42, MotorType.kBrushless);
+    public static Solenoid arm = new Solenoid(2,PneumaticsModuleType.REVPH, 2);
     //Climber
     public static Solenoid climberExtSV = new Solenoid(1, PneumaticsModuleType.REVPH, 1);
-    public static Solenoid arm = new Solenoid(2,PneumaticsModuleType.REVPH, 2);
+    
 
     /**
      * Initialize any hardware

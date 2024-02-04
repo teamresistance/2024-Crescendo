@@ -58,6 +58,25 @@ public class JS_IO {
     public static Button headingHoldBtn = new Button();
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
+    
+    //Climber
+    public static Button btnClimberEna = new Button();
+
+    //Shooter
+    public static Button btnLoadForSpkr = new Button();
+    public static Button btnLoadForAmp = new Button();
+    public static Button btnShoot = new Button();
+    public static Button btnUnload = new Button();
+    
+    // and Amp and Reject↑↑↑↑
+    
+    //Snorfler
+    public static Button btnSnorflerEnable = new Button();
+    public static Button btnSnorfleReject = new Button();
+    //Snorfler Booleans!!
+    public static Boolean snorflerEnable = false;
+    public static boolean snorfFwdRq = false;
+
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -74,7 +93,7 @@ public class JS_IO {
 
     //---- Joystick controller chooser ----
     private static SendableChooser<String> chsr = new SendableChooser<String>();
-    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo"};
+    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo"}; //Skibdi toilet,inc.
 
     /** Setup the JS Chooser */
     public static void chsrInit(){
@@ -144,6 +163,9 @@ public class JS_IO {
         headingHoldBtn.setButton(leftJoystick, 12);
         lookAtNote.setButton(leftJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
+
+        //Climber
+        btnClimberEna.setButton(coJoystick, 7);
     }
 
     // ----- gamePad only --------
@@ -155,6 +177,19 @@ public class JS_IO {
         axLeftY.setAxis(gamePad, 1);
         axRightX.setAxis(gamePad, 4);
         axRightY.setAxis(gamePad, 5);
+
+        //climber
+        btnClimberEna.setButton(gamePad, 3);
+
+        //Shooter
+        btnShoot.setButton(gamePad, 6);
+        btnLoadForAmp.setButton(gamePad, 2);
+        btnLoadForSpkr.setButton(gamePad, 1);
+        btnUnload.setButton(gamePad, 8);
+
+        //Snofler
+        btnSnorflerEnable.setButton(gamePad, 4);
+        btnSnorfleReject.setButton(gamePad, 5);
     }
 
     // ----------- Normal 2 Joysticks -------------
@@ -163,23 +198,38 @@ public class JS_IO {
 
     // ----------- Nintendo gamepad -------------
     private static void a_NP() {
+        btnClimberEna.setButton(neoPad, 3);
+
     }
 
     // ----------- Case Default -----------------
     private static void caseDefault() {
         //3JS
 
-        axLeftX.setAxis(leftJoystick, 0);       //Common call for each JS x & Y
-        axLeftY.setAxis(leftJoystick, 1);
-        axRightX.setAxis(rightJoystick, 0);
-        axRightY.setAxis(rightJoystick, 1);
-        axCoDrvX.setAxis(coJoystick, 0);
-        axCoDrvY.setAxis(coJoystick, 1);
+        axLeftX.setAxis();       //Common call for each JS x & Y
+        axLeftY.setAxis();
+        axRightX.setAxis();
+        axRightY.setAxis();
+        axCoDrvX.setAxis();
+        axCoDrvY.setAxis();
 
         //2024 Stuff
-        autoBtn.setButton(leftJoystick, 11);
-        headingHoldBtn.setButton(leftJoystick, 12);
-        lookAtNote.setButton(leftJoystick, 1);
-        btnGyroReset.setButton(leftJoystick, 10);
+        autoBtn.setButton();
+        headingHoldBtn.setButton();
+        lookAtNote.setButton();
+        btnGyroReset.setButton();
+
+        //climber
+        btnClimberEna.setButton();
+
+        //Shooter
+        btnLoadForSpkr.setButton();
+        btnLoadForAmp.setButton();
+        btnShoot.setButton();
+        btnUnload.setButton();
+        
+        //Snorfler
+        btnSnorflerEnable.setButton();
+        btnSnorfleReject.setButton();
     }
 }
