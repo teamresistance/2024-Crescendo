@@ -88,9 +88,9 @@ public class Drive {
     
     //PIDS
 
-    private static PIDXController pidControllerX;
-    private static PIDXController pidControllerY;
-    private static PIDController pidControllerZ;
+    private static PIDXController pidControllerX = new PIDXController(0.2, 0.0, 0.0);
+    private static PIDXController pidControllerY = new PIDXController(0.2, 0.0, 0.0);
+    private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0);
     
     private static double dP;
     private static double dI;
@@ -200,9 +200,9 @@ public class Drive {
      */
     public static void init() {
         sdbInit();
-        pidControllerX = new PIDXController(dP, dI, dD);
-        pidControllerY = new PIDXController(dP, dI, dD);
-        pidControllerZ = new PIDXController(rP, rI, rD);
+        // pidControllerX = new PIDXController(dP, dI, dD);
+        // pidControllerY = new PIDXController(dP, dI, dD);
+        // pidControllerZ = new PIDXController(rP, rI, rD);
         state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold

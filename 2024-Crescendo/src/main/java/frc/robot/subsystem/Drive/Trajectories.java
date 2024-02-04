@@ -99,10 +99,11 @@ public class Trajectories {
         ATrajFunction traj[] = {
             new Offset(12.0, 5.0, 0.0),
             // new MoveOnHdgFwd(0.0, 5.0, 0.3),
-            new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 5.0),
-            new GoToTarget(10.0, 5.25, 0.0, 1.0, 1.0, 5.0),
-            new GoToTarget(10.0, 0.0, 0.0, 1.0, 1.0, 5.0),
-            new GoToTarget(14.55, 0.0, 0.0, 1.0, 1.0, 5.0),
+            new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 3.0),
+            new GoToTarget(13.0, 5.25, 0.0, 1.0, 1.0, 3.0),
+            new GoToTarget(13.0, 7.0, 0.0, 1.0, 1.0, 3.0),
+            new GoToTarget(14.55, 7.0, 0.0, 1.0, 1.0, 3.0),
+            new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 3.0),
             // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
             // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
             // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'
