@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
@@ -89,6 +91,19 @@ public class IO {
     
     public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
+    //Snorfler
+    public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
+    public static InvertibleDigitalInput snorHasGP = new InvertibleDigitalInput(1, false);
+
+    //Shooter
+    public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
+    public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);  //Follows A
+    public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
+
+    //Climber
+    public static Solenoid climberExtSV = new Solenoid(modID, modType, 1);
+    public static DigitalOutput climbTest = new DigitalOutput(0);
+
     /**
      * Initialize any hardware
      */
@@ -96,7 +111,8 @@ public class IO {
         pch.enableAnalog(105.0, 120.0); //Reads 120 high
         navX.reset();
 
-        drvsInit();
+        // drvsInit();
+        motorsInit();
     }
 
     /**Update items not handled elsewhere */
@@ -113,14 +129,45 @@ public class IO {
     /**
      * Initialize drive configuration setup.
      */
-    public static void drvsInit() {
+    public static void motorsInit() {
         // -------- Configure Lead drive motors ---------
+        //Drive
         for(CANSparkMax motor : driveMotors){
             motor.restoreFactoryDefaults();
             motor.setIdleMode(IdleMode.kCoast);
             // motor.clearFaults();
         }
+
+        //Snorfler
+            snorfMtr.restoreFactoryDefaults();
+            snorfMtr.setIdleMode(IdleMode.kCoast);
+            snorfMtr.clearFaults();
+            snorfMtr.setInverted(false);
+        //Shooter
+            shooterMtrA.restoreFactoryDefaults();
+            shooterMtrA.setIdleMode(IdleMode.kCoast);
+            shooterMtrA.clearFaults();
+            shooterMtrA.setInverted(false);
+            shooterMtrB.restoreFactoryDefaults();
+            shooterMtrB.setIdleMode(IdleMode.kCoast);
+            shooterMtrB.clearFaults();
+            shooterMtrB.setInverted(false);
+
+            shooterMtrB.follow(shooterMtrA);
+
     }
+
+    // /**
+    //  * Initialize drive configuration setup.
+    //  */
+    // public static void drvsInit() {
+    //     // -------- Configure Lead drive motors ---------
+    //     for(CANSparkMax motor : driveMotors){
+    //         motor.restoreFactoryDefaults();
+    //         motor.setIdleMode(IdleMode.kCoast);
+    //         // motor.clearFaults();
+    //     }
+    // }
 
     private static double mecDistX = 0.0;
     private static double mecDistY = 0.0;
