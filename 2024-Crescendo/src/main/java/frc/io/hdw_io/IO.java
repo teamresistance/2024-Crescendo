@@ -122,6 +122,24 @@ public class IO {
         }
     }
 
+    private static double mecDistX = 0.0;
+    private static double mecDistY = 0.0;
+    /**
+     * Calc distance on a Mecanum drive for single direction movement.
+     * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.
+     */
+    private static void calcXY(){
+        mecDistX = -(-frontLeftEnc.feet() + backLeftEnc.feet() +
+        /*          */frontRightEnc.feet() + -backRightEnc.feet() / 4);
+        mecDistY = frontLeftEnc.feet() + backLeftEnc.feet() +
+        /*          */frontRightEnc.feet() + backRightEnc.feet() / 4;
+    }
+
+    /**Get the sideways movement on a mec Drive.  Right is positive. */
+    public static double getmecDistX(){ return mecDistX; }
+    /**Get the fwd movement on a mec Drive.  Fwd is positive. */
+    public static double getmecDistY(){ return mecDistY; }
+
     /**Place all PDH channels on sdb and display amps for checkout. */
     public static void sdbUpdPDH() {
         SmartDashboard.putNumber("PDH/0 - VRM", pdh.getCurrent(0));
