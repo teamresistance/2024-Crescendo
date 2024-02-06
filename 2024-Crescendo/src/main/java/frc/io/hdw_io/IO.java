@@ -147,11 +147,11 @@ public class IO {
             shooterMtrA.restoreFactoryDefaults();
             shooterMtrA.setIdleMode(IdleMode.kCoast);
             shooterMtrA.clearFaults();
-            shooterMtrA.setInverted(false);
+            shooterMtrA.setInverted(true);
             shooterMtrB.restoreFactoryDefaults();
             shooterMtrB.setIdleMode(IdleMode.kCoast);
             shooterMtrB.clearFaults();
-            shooterMtrB.setInverted(false);
+            shooterMtrB.setInverted(true);
 
             shooterMtrB.follow(shooterMtrA);
 

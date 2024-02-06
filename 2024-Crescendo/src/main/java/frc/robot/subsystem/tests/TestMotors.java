@@ -35,7 +35,7 @@ public class TestMotors {
 
     private static SendableChooser<String> mtrToCtl = new SendableChooser<String>();
     private static final String[] mtrToCtlDesc = 
-    {"No Motors", "Snorf Mtr 40", "Shtr Mtr A 41", "Shtr Mtr B 42", "Shtr Mtrs 41&42"};
+    {"No Motors", "Snorf Mtr 40", "Shtr Mtrs 41=>42", "Snorf & Shtr"};
 
     /** Setup the JS Chooser */
     public static void chsrInit(){
@@ -89,16 +89,14 @@ public class TestMotors {
                 case "Snorf Mtr 40":
                     state = 1;
                     break;
-                case "Shtr Mtr A 41":
+                case "Shtr Mtrs 41=>42":
                     state = 2;
                     break;
-                case "Shtr Mtr B 42":
-                    state = 3;
-                    break;
-                case "Shtr Mtrs 41&42":
+                case "Snorf & Shtr":
                     state = 4;
                     break;
                 default:
+                    System.out.println("Test Motors, bad state - " + state);
                     break;
             }
         }else{
@@ -124,14 +122,14 @@ public class TestMotors {
             case 1: // Snorfler motor only
                 cmdUpdate(snorfMtrPct, 0.0, 0.0);
                 break;
-            case 2: // Shooter motor A only
+            case 2: // Shooter motor A lag B only 41=>42
                 cmdUpdate(0.0, shtrMtrPct, 0.0);
                 break;
-            case 3: // Shooter motor B only
+            case 3: // Shooter motor B only 42=>41
                 cmdUpdate(0.0, 0.0, shtrMtrPct);
                 break;
-            case 4: // Shooter motor A & B.  Select only after confirming proper direction!
-                cmdUpdate(0.0, shtrMtrPct, shtrMtrPct);
+            case 4: // Snorfler & Shooter motors
+                cmdUpdate(snorfMtrPct, shtrMtrPct, shtrMtrPct);
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, 0.0);
