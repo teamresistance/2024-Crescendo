@@ -1,5 +1,6 @@
 package frc.robot.subsystem.tests;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -22,18 +23,24 @@ public class TestMotors {
     // private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
     private static double snorfMtrPct = 0.0;        //Chg to RPM after testing rotation
-    private static double shtrMtrPct = 0.0;
+    private static double shtrMtr41Pct = 0.0;
+    private static double shtrMtr42Pct = 0.0;
     private static boolean runMtrsChoosen = false;
     private static double testSnorfCmd;
     private static double testShtrACmd;
     private static double testShtrBCmd;
 
-    //--------- Chooser Motor Test chooser -------
+    //--------- Chooser Motor Test Chooser -------
+    //Define enum for Motor Test Chooser
     public enum MtrCtl {
-        NoMtrs      (0, "No Motors"),
-        SnorfOnly   (1, "Snorf Mtr 40"),
-        ShtrOnly41Ld(2, "Shtr Mtrs 41=>42"),
-        Snorf_Shtr  (3, "Snorf & Shtr");
+        NoMtrs        (0, "No Motors"),
+        SnorfOnly     (1, "Snorf Mtr 40"),
+        Shtr41Only    (2, "Shtr Mtr 41"),
+        Shtr42Only    (3, "Shtr Mtr 42"),
+        Shtr41_42     (4, "Shtr Mtrs 41 & 42"),
+        Shtr41Only42Lg(5, "Shtr Mtrs 41=>42"),
+        Snorf_Shtr41  (6, "Snorf & Shtr 41=>42"),
+        Snorf_Shtrs   (7, "Snorf & Shtr");
 
         private final int num;
         private final String desc;
@@ -97,21 +104,33 @@ public class TestMotors {
     private static void smUpdate() { // State Machine Update
 
         switch (mcState) {
-            case NoMtrs: // Everything is off.  Snorf, Shtr A, Shtr B
-                cmdUpdate(0.0, 0.0, 0.0);
+            case NoMtrs: // Everything is off.  Snorf, Shtr A, Shtr B, B follows A
+                cmdUpdate(0.0, 0.0, 0.0, false);
                 stateTmr.clearTimer();; // Initialize timer for covTrgr. Do nothing.
                 break;
             case SnorfOnly: // Snorfler motor only
-                cmdUpdate(snorfMtrPct, 0.0, 0.0);
+                cmdUpdate(snorfMtrPct, 0.0, 0.0, false);
                 break;
-            case ShtrOnly41Ld: // Shooter motor A lag B only 41=>42
-                cmdUpdate(0.0, shtrMtrPct, 0.0);
+            case Shtr41Only: // Shooter motor 41 only
+                cmdUpdate(0.0, shtrMtr41Pct, 0.0, false);
                 break;
-            case Snorf_Shtr: // Snorfler & Shooter motors
-                cmdUpdate(snorfMtrPct, shtrMtrPct, shtrMtrPct);
+            case Shtr42Only: // Shooter motor 42 only
+                cmdUpdate(0.0, 0.0, shtrMtr42Pct, false);
+                break;
+            case Shtr41_42: // Shooter motor 41 & 42
+                cmdUpdate(0.0, shtrMtr41Pct, shtrMtr42Pct, false);
+                break;
+            case Shtr41Only42Lg: // Shooter motor A, lag B only 41=>42
+                cmdUpdate(0.0, shtrMtr41Pct, 0.0, true);
+                break;
+            case Snorf_Shtr41: // Shooter motor 41, 42 Lg
+                cmdUpdate(snorfMtrPct, shtrMtr41Pct, 0.0, true);
+                break;
+            case Snorf_Shtrs: // Snorfler & Shooter motors
+                cmdUpdate(snorfMtrPct, shtrMtr41Pct, shtrMtr42Pct, false);
                 break;
             default: // all off
-                cmdUpdate(0.0, 0.0, 0.0);
+                cmdUpdate(0.0, 0.0, 0.0, false);
                 System.out.println("Test Motor Bad sm state:" + mcState.desc);
                 break;
         }
@@ -125,8 +144,15 @@ public class TestMotors {
      * @param shtrACmd - motor percent command to issue to the shooter B motor.  Follows A
      * 
      */
-    private static void cmdUpdate(double snorfCmd, double shtrACmd, double shtrBCmd) {
+    private static void cmdUpdate(double snorfCmd, double shtrACmd, double shtrBCmd, boolean shtrBFlwA) {
         //Check any safeties, mod passed cmds if needed.
+        if(shtrBFlwA != shooterMtrLg.isFollower()){
+            if(shtrBFlwA){
+                shooterMtrLg.follow(shooterMtrLd);
+            }else{
+                shtrBInit();
+            }
+        }
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
         shooterMtrLd.set(shtrACmd);
@@ -142,7 +168,8 @@ public class TestMotors {
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         SmartDashboard.putNumber("TestMtrs/Snorf Mtr Pct", snorfMtrPct);
-        SmartDashboard.putNumber("TestMtrs/Shtr Mtr Pct", shtrMtrPct);
+        SmartDashboard.putNumber("TestMtrs/Shtr Mtr 41 Pct", shtrMtr41Pct);
+        SmartDashboard.putNumber("TestMtrs/Shtr Mtr 42 Pct", shtrMtr42Pct);
         SmartDashboard.putBoolean("TestMtrs/Run Mtrs Chosen", runMtrsChoosen);
     }
 
@@ -150,7 +177,8 @@ public class TestMotors {
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         snorfMtrPct = SmartDashboard.getNumber("TestMtrs/Snorf Mtr Pct", snorfMtrPct);
-        shtrMtrPct = SmartDashboard.getNumber("TestMtrs/Shtr Mtr Pct", shtrMtrPct);
+        shtrMtr41Pct = SmartDashboard.getNumber("TestMtrs/Shtr Mtr 41 Pct", shtrMtr41Pct);
+        shtrMtr42Pct = SmartDashboard.getNumber("TestMtrs/Shtr Mtr 42 Pct", shtrMtr42Pct);
         runMtrsChoosen = SmartDashboard.getBoolean("TestMtrs/Run Mtrs Chosen", runMtrsChoosen);
 
         //Put other stuff to be displayed here
@@ -161,6 +189,34 @@ public class TestMotors {
         SmartDashboard.putNumber("TestMtrs/Snorf cmd issued", testSnorfCmd);
         SmartDashboard.putNumber("TestMtrs/ShtrA cmd issued", testShtrACmd);
         SmartDashboard.putNumber("TestMtrs/ShtrB cmd issued", testShtrBCmd);
+        SmartDashboard.putBoolean("TestMtrs/Shtr B isFollower", shooterMtrLg.isFollower());
+    }
+
+    /**
+     * Initialize motor configuration setup.
+     */
+    public static void hdw_ioInit() {
+        //Snorfler
+        snorfMtr.restoreFactoryDefaults();
+        snorfMtr.setIdleMode(IdleMode.kCoast);
+        snorfMtr.clearFaults();
+        snorfMtr.setInverted(false);
+        //Shooter A
+        shooterMtrLd.restoreFactoryDefaults();
+        shooterMtrLd.setIdleMode(IdleMode.kCoast);
+        shooterMtrLd.clearFaults();
+        shooterMtrLd.setInverted(true);
+    }
+
+    /**
+     * Initialize motor configuration setup.
+     */
+    public static void shtrBInit() {
+        //Shooter
+        shooterMtrLg.restoreFactoryDefaults();
+        shooterMtrLg.setIdleMode(IdleMode.kCoast);
+        shooterMtrLg.clearFaults();
+        shooterMtrLg.setInverted(true);
     }
 
     // ----------------- Shooter statuses and misc.-----------------
