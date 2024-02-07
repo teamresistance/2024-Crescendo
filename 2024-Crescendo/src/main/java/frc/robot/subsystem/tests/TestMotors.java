@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
+import frc.io.hdw_io.util.Encoder_Neo;
 import frc.util.Timer;
 
 public class TestMotors {
@@ -15,6 +16,9 @@ public class TestMotors {
     //Shooter
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
     private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, follows A
+    //Shooter Encoders
+    private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
+    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
 
     // joystick buttons:
     //none at this time
@@ -190,6 +194,9 @@ public class TestMotors {
         SmartDashboard.putNumber("TestMtrs/ShtrA cmd issued", testShtrACmd);
         SmartDashboard.putNumber("TestMtrs/ShtrB cmd issued", testShtrBCmd);
         SmartDashboard.putBoolean("TestMtrs/Shtr B isFollower", shooterMtrLg.isFollower());
+        //Shooter Encoders
+        SmartDashboard.putNumber("TestMtrs/Enc/ShtrA FPS", shtrA_Enc.getFPS());
+        SmartDashboard.putNumber("TestMtrs/Enc/ShtrB FPS", shtrB_Enc.getFPS());
     }
 
     /**

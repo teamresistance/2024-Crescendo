@@ -93,12 +93,16 @@ public class IO {
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
-    public static InvertibleDigitalInput snorHasGP = new InvertibleDigitalInput(1, false);
+    public static DigitalInput snorHasGP = new DigitalInput(1, false);
 
     //Shooter
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);  //Follows A
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
+    //Shooter Encoders
+    // 1024 ticks/rev, (0.18' * 3.14) = 0.566 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.566)*1.0  = 1810.76 ticks/ft
+    public static Encoder_Neo shtrMtrASpd = new Encoder_Neo(shooterMtrA, 1810.76);
+    public static Encoder_Neo shtrMtrBSpd = new Encoder_Neo(shooterMtrB, 1810.76);
 
     //Climber
     public static Solenoid climberExtSV = new Solenoid(modID, modType, 1);
