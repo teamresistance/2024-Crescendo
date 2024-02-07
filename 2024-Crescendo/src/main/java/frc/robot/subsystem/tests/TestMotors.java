@@ -1,7 +1,5 @@
 package frc.robot.subsystem.tests;
 
-import java.util.function.DoubleToLongFunction;
-
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -21,7 +19,7 @@ public class TestMotors {
     //none at this time
 
     // variables:
-    private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
+    // private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
     private static double snorfMtrPct = 0.0;        //Chg to RPM after testing rotation
     private static double shtrMtrPct = 0.0;
@@ -31,111 +29,91 @@ public class TestMotors {
     private static double testShtrBCmd;
 
     //--------- Chooser Motor Test chooser -------
-    private static String prvMtrAssigned;
+    public enum MtrCtl {
+        NoMtrs      (0, "No Motors"),
+        SnorfOnly   (1, "Snorf Mtr 40"),
+        ShtrOnly41Ld(2, "Shtr Mtrs 41=>42"),
+        Snorf_Shtr  (3, "Snorf & Shtr");
 
-    private static SendableChooser<String> mtrToCtl = new SendableChooser<String>();
-    private static final String[] mtrToCtlDesc = 
-    {"No Motors", "Snorf Mtr 40", "Shtr Mtrs 41=>42", "Snorf & Shtr"};
+        private final int num;
+        private final String desc;
+        MtrCtl(int num, String desc){
+            this.num = num;
+            this.desc = desc;
+        };
+        public String stateDesc(){return num + " - " + desc;}   //Not needed, an example
+    };
+    private static MtrCtl mcState;
 
-    /** Setup the JS Chooser */
+    //Declare the Test Motor Chooser
+    private static SendableChooser<MtrCtl> mtrToCtl = new SendableChooser<MtrCtl>();
+    /** Initialize the Test Motor Chooser */
     public static void chsrInit(){
-        for(int i = 0; i < mtrToCtlDesc.length; i++){
-            mtrToCtl.addOption(mtrToCtlDesc[i], mtrToCtlDesc[i]);
+        for(MtrCtl m : MtrCtl.values()){
+            mtrToCtl.addOption(m.desc, m);
         }
-        int dfltJS = 0; //--- Set the default chsrDesc index ----
-        mtrToCtl.setDefaultOption(mtrToCtlDesc[dfltJS], mtrToCtlDesc[dfltJS]); //Chg index to select chsrDesc[] for default
+        MtrCtl dfltMtr = MtrCtl.NoMtrs; //--- Set the default chsrDesc index ----
+        mtrToCtl.setDefaultOption(dfltMtr.desc, dfltMtr);
         SmartDashboard.putData("TestMtrs/Choice", mtrToCtl);  //Put it on the dashboard
-        // update();   //Update the JS assignments
+        SmartDashboard.putString("TestMtrs/Chosen", mtrToCtl.getSelected().desc);   //Put selected on sdb
     }
-
-    private static void sdbUpdChsr(){
-        SmartDashboard.putString("TestMtrs/Chosen", mtrToCtl.getSelected());   //Put selected on sdb
-    }
-
-
 
     /**
-     * Initialize Motor Tests stuff. Called from telopInit (maybe robotInit(?)) in
+     * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
      */
     public static void init() {
         sdbInit();
-        // cmdUpdate(0.0, 0.0, 0.0); // Make sure all is off
-        state = 0; // Start at state 0
+        mcState = MtrCtl.NoMtrs;
+        System.out.println(mcState);
         smUpdate();
     }
 
     /**
-     * Update Motor Tests. Called from teleopPeriodic in robot.java.
+     * Update Motor Tests. Called from testPeriodic in robot.java.
      * <p>
-     * Determine any state that needs to interupt the present state, usually by way
-     * of a JS button but can be caused by other events.
+     * If sdb boolean switch is true then determines which combination of motors 
+     * to test and issue commands.  If false turn all off.
      */
     public static void update() {
         //Add code here to start state machine or override the sm sequence
-        if (prvMtrAssigned != (mtrToCtl.getSelected() == null ? mtrToCtlDesc[0] : mtrToCtl.getSelected())) {
-            prvMtrAssigned = mtrToCtl.getSelected();
-            sdbUpdChsr();
-            // caseDefault();      //Clear exisitng jsConfig
-            System.out.println("JS Chsn: " + mtrToCtl.getSelected());
-        }
-
         if(runMtrsChoosen){
-            String t = mtrToCtl.getSelected();
-            switch (t) {
-                case "No Motors":
-                    state = 0;
-                    break;
-                case "Snorf Mtr 40":
-                    state = 1;
-                    break;
-                case "Shtr Mtrs 41=>42":
-                    state = 2;
-                    break;
-                case "Snorf & Shtr":
-                    state = 4;
-                    break;
-                default:
-                    System.out.println("Test Motors, bad state - " + state);
-                    break;
+            if (mcState != (mtrToCtl.getSelected() == null ? MtrCtl.NoMtrs.desc : mtrToCtl.getSelected())) {
+                mcState = mtrToCtl.getSelected();
+                // sdbUpdChsr();
+                System.out.println("Motor Chsn: " + mtrToCtl.getSelected());
             }
         }else{
-            state = 0;
+            mcState = MtrCtl.NoMtrs;
         }
+
         smUpdate();
         sdbUpdate();
     }
 
     /**
-     * Update ????. Called from teleopPeriodic in robot.java.
-     * <p>
-     * Determine any state that needs to interupt the present state, usually by way
-     * of a JS button but can be caused by other events.
+     * State Machine update.  
      */
     private static void smUpdate() { // State Machine Update
 
-        switch (state) {
-            case 0: // Everything is off.  Snorf, Shtr A, Shtr B
+        switch (mcState) {
+            case NoMtrs: // Everything is off.  Snorf, Shtr A, Shtr B
                 cmdUpdate(0.0, 0.0, 0.0);
                 stateTmr.clearTimer();; // Initialize timer for covTrgr. Do nothing.
                 break;
-            case 1: // Snorfler motor only
+            case SnorfOnly: // Snorfler motor only
                 cmdUpdate(snorfMtrPct, 0.0, 0.0);
                 break;
-            case 2: // Shooter motor A lag B only 41=>42
+            case ShtrOnly41Ld: // Shooter motor A lag B only 41=>42
                 cmdUpdate(0.0, shtrMtrPct, 0.0);
                 break;
-            case 3: // Shooter motor B only 42=>41
-                cmdUpdate(0.0, 0.0, shtrMtrPct);
-                break;
-            case 4: // Snorfler & Shooter motors
+            case Snorf_Shtr: // Snorfler & Shooter motors
                 cmdUpdate(snorfMtrPct, shtrMtrPct, shtrMtrPct);
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, 0.0);
-                System.out.println("Test Motor Bad sm state:" + state);
+                System.out.println("Test Motor Bad sm state:" + mcState.desc);
                 break;
-
         }
     }
 
@@ -144,7 +122,7 @@ public class TestMotors {
      * 
      * @param snorfCmd - motor percent command to issue to the snorfler motor
      * @param shtrACmd - motor percent command to issue to the shooter A motor
-     * @param shtrACmd - motor percent command to issue to the shooter B motor
+     * @param shtrACmd - motor percent command to issue to the shooter B motor.  Follows A
      * 
      */
     private static void cmdUpdate(double snorfCmd, double shtrACmd, double shtrBCmd) {
@@ -176,7 +154,10 @@ public class TestMotors {
         runMtrsChoosen = SmartDashboard.getBoolean("TestMtrs/Run Mtrs Chosen", runMtrsChoosen);
 
         //Put other stuff to be displayed here
-        SmartDashboard.putNumber("TestMtrs/state", state);
+        SmartDashboard.putString("TestMtrs/Chosen", mtrToCtl.getSelected().desc);
+        SmartDashboard.putString("TestMtrs/state", mcState.desc);
+        SmartDashboard.putNumber("TestMtrs/state mc", mcState.num);
+        SmartDashboard.putString("TestMtrs/state desc", mcState.stateDesc());
         SmartDashboard.putNumber("TestMtrs/Snorf cmd issued", testSnorfCmd);
         SmartDashboard.putNumber("TestMtrs/ShtrA cmd issued", testShtrACmd);
         SmartDashboard.putNumber("TestMtrs/ShtrB cmd issued", testShtrBCmd);
@@ -189,14 +170,14 @@ public class TestMotors {
      * @return - present state of Shooter state machine.
      */
     public static int getState() {
-        return state;
+        return mcState.num;
     }
 
     /**
      * @return If the state machine is running, not idle.
      */
     public static boolean getStatus(){
-        return state != 0;      //This example says the sm is runing, not idle.
+        return mcState != MtrCtl.NoMtrs;      //This example says the sm is runing, not idle.
     }
 
 }
