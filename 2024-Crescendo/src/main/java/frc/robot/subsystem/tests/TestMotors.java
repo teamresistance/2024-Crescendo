@@ -74,6 +74,7 @@ public class TestMotors {
      * Robot.java
      */
     public static void init() {
+        hdwInit();
         sdbInit();
         mcState = MtrCtl.NoMtrs;
         System.out.println(mcState);
@@ -194,21 +195,40 @@ public class TestMotors {
         SmartDashboard.putNumber("TestMtrs/ShtrA cmd issued", testShtrACmd);
         SmartDashboard.putNumber("TestMtrs/ShtrB cmd issued", testShtrBCmd);
         SmartDashboard.putBoolean("TestMtrs/Shtr B isFollower", shooterMtrLg.isFollower());
+        SmartDashboard.putNumber("TestMtrs/ShtrA amps", shooterMtrLd.getOutputCurrent());
+        SmartDashboard.putNumber("TestMtrs/ShtrB amps", shooterMtrLg.getOutputCurrent());
         //Shooter Encoders
         SmartDashboard.putNumber("TestMtrs/Enc/ShtrA FPS", shtrA_Enc.getFPS());
         SmartDashboard.putNumber("TestMtrs/Enc/ShtrB FPS", shtrB_Enc.getFPS());
+        SmartDashboard.putNumber("TestMtrs/Enc/ShtrA RPM", shtrA_Enc.getSpeed());
+        SmartDashboard.putNumber("TestMtrs/Enc/ShtrB RPM", shtrB_Enc.getSpeed());
     }
 
     /**
      * Initialize motor configuration setup.
      */
-    public static void hdw_ioInit() {
-        //Snorfler
+    public static void hdwInit() {
+        snorfInit();
+        shtrAInit();
+        shtrBInit();
+    }
+
+    /**
+     * Initialize motor configuration setup.
+     */
+    public static void snorfInit() {
+        //Shooter
         snorfMtr.restoreFactoryDefaults();
         snorfMtr.setIdleMode(IdleMode.kCoast);
         snorfMtr.clearFaults();
-        snorfMtr.setInverted(false);
-        //Shooter A
+        snorfMtr.setInverted(true);
+    }
+
+    /**
+     * Initialize motor configuration setup.
+     */
+    public static void shtrAInit() {
+        //Shooter
         shooterMtrLd.restoreFactoryDefaults();
         shooterMtrLd.setIdleMode(IdleMode.kCoast);
         shooterMtrLd.clearFaults();
