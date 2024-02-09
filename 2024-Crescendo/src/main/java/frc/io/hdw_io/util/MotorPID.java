@@ -11,37 +11,116 @@ public class MotorPID {
     private int deviceID;
     private CANSparkMax m_motor;
     public SparkPIDController m_pidController;
-    private RelativeEncoder m_encoder; //This may say it's unused, it absolutely IS used
+    private RelativeEncoder m_encoder; // This may say it's unused, it absolutely IS used
     private double setPoint = 0.0;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-    private boolean m_isInverted, m_isLagInverted;
+    private boolean m_isInverted;
 
-    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, boolean _m_isLagInverted, SparkPIDController _m_pidController){
+    /**
+     * <p>
+     * Creates a MotorPID object
+     * </p>
+     * There's a bunch of constants here, if you're unsure what they mean, check out
+     * the Deep Blue Robotics
+     * page on PID control
+     * <a href=
+     * "https://deep-blue-training.readthedocs.io/en/latest/section-7/feedback-control/">PID
+     * Control Link</a>
+     * 
+     * @param _m_motor         The CANSparkMax object of the motor you want to
+     *                         control via PID
+     * @param _m_isInverted    Is the motor you're running inverted or not? True =
+     *                         inverted, false = normal
+     * @param _m_pidController The CANSparkMax PID object of the motor you want to
+     *                         control
+     * @param _kP              Proportional constant of the PID
+     * @param _kI              Integral constant of the PID
+     * @param _kD              Differential constant of the PID
+     * @param _kIz             Integral threshold constant of the PID
+     * @param _kFF             Feed Foward constant of the PID
+     */
+    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, SparkPIDController _m_pidController, double _kP,
+            double _kI, double _kD, double _kIz, double _kFF) {
         m_motor = _m_motor;
         m_isInverted = _m_isInverted;
-        m_isLagInverted = _m_isLagInverted;
+        m_pidController = _m_pidController;
+        kP = _kP;
+        kI = _kI;
+        kIz = _kIz;
+        kFF = _kFF;
+    }
+
+    /**
+     * <p>
+     * Creates a MotorPID object
+     * </p>
+     * There's a bunch of constants here, if you're unsure what they mean, check out
+     * the Deep Blue Robotics
+     * page on PID control
+     * <a href=
+     * "https://deep-blue-training.readthedocs.io/en/latest/section-7/feedback-control/">PID
+     * Control Link</a>
+     * 
+     * @param _m_motor         The CANSparkMax object of the motor you want to
+     *                         control via PID
+     * @param _m_isInverted    Is the motor you're running inverted or not? True =
+     *                         inverted, false = normal
+     * @param _m_pidController The CANSparkMax PID object of the motor you want to
+     *                         control
+     * @param kArray           A double array of length 4 with numbers in the order
+     *                         of kP, kI, kIz, and kFF.
+     *                         If you're unsure what these are check out Deep Blue
+     *                         Robotics or the longer constructor
+     *                         for more info
+     */
+    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, SparkPIDController _m_pidController, double[] kArray) {
+        m_motor = _m_motor;
+        m_isInverted = _m_isInverted;
+        m_pidController = _m_pidController;
+        kP = kArray[0];
+        kI = kArray[1];
+        kIz = kArray[2];
+        kFF = kArray[3];
+    }
+
+    /**
+     * Creates a motor PID object without setting the constants. All constants will
+     * default to 0.
+     * 
+     * @param _m_motor         The CANSparkMax object of the motor you want to
+     *                         contorl via PID
+     * @param _m_isInverted    Is the motor you're running inverted or not? True =
+     *                         inverted, false = normal
+     * @param _m_pidController The CANSparkMax PID object of the motor you want to
+     *                         control
+     */
+    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, SparkPIDController _m_pidController) {
+        m_motor = _m_motor;
+        m_isInverted = _m_isInverted;
         m_pidController = _m_pidController;
     }
 
-    public void init(){
+    public void init() {
         m_encoder = m_motor.getEncoder();
 
         // initialize motor
-        
+
         /**
-         * The RestoreFactoryDefaults method can be used to reset the configuration parameters
-         * in the SPARK MAX to their factory default state. If no argument is passed, these
+         * The RestoreFactoryDefaults method can be used to reset the configuration
+         * parameters
+         * in the SPARK MAX to their factory default state. If no argument is passed,
+         * these
          * parameters will not persist between power cycles
          */
         m_motor.restoreFactoryDefaults();
 
         m_motor.setInverted(m_isInverted);
-        
 
         deviceID = m_motor.getDeviceId();
 
         /**
-         * In order to use PID functionality for a controller, a SparkPIDController object
+         * In order to use PID functionality for a controller, a SparkPIDController
+         * object
          * is constructed by calling the getPIDController() method on an existing
          * CANSparkMax object
          */
@@ -51,15 +130,6 @@ public class MotorPID {
         m_encoder = m_motor.getEncoder();
 
         m_motor.setIdleMode(IdleMode.kCoast);
-
-        // PID coefficients
-        kP = 6e-5; 
-        kI = 0;
-        kD = 0; 
-        kIz = 0; 
-        kFF = 0.000015; 
-        kMaxOutput = 1; 
-        kMinOutput = -1;
 
         // set PID coefficients
         m_pidController.setP(kP);
@@ -79,7 +149,7 @@ public class MotorPID {
         SmartDashboard.putNumber("Min Output " + deviceID, kMinOutput);
     }
 
-    public void update(){
+    public void update() {
         // read PID coefficients from SmartDashboard
         double p = SmartDashboard.getNumber("P Gain " + deviceID, 6e-5);
         double i = SmartDashboard.getNumber("I Gain " + deviceID, 0);
@@ -89,38 +159,54 @@ public class MotorPID {
         double max = SmartDashboard.getNumber("Max Output " + deviceID, 1);
         double min = SmartDashboard.getNumber("Min Output " + deviceID, -1);
 
-        // if PID coefficients on SmartDashboard have changed, write new values to controller
-        if((p != kP)) { m_pidController.setP(p); kP = p; }
-        if((i != kI)) { m_pidController.setI(i); kI = i; }
-        if((d != kD)) { m_pidController.setD(d); kD = d; }
-        if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
-        if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
-        if((max != kMaxOutput) || (min != kMinOutput)) { 
-            m_pidController.setOutputRange(min, max); 
-            kMinOutput = min; kMaxOutput = max; 
+        // if PID coefficients on SmartDashboard have changed, write new values to
+        // controller
+        if ((p != kP)) {
+            m_pidController.setP(p);
+            kP = p;
+        }
+        if ((i != kI)) {
+            m_pidController.setI(i);
+            kI = i;
+        }
+        if ((d != kD)) {
+            m_pidController.setD(d);
+            kD = d;
+        }
+        if ((iz != kIz)) {
+            m_pidController.setIZone(iz);
+            kIz = iz;
+        }
+        if ((ff != kFF)) {
+            m_pidController.setFF(ff);
+            kFF = ff;
+        }
+        if ((max != kMaxOutput) || (min != kMinOutput)) {
+            m_pidController.setOutputRange(min, max);
+            kMinOutput = min;
+            kMaxOutput = max;
         }
 
-        
         /**
-         * PIDController objects are commanded to a set point using the 
+         * PIDController objects are commanded to a set point using the
          * SetReference() method.
          * 
          * The first parameter is the value of the set point, whose units vary
          * depending on the control type set in the second parameter.
          * 
-         * The second parameter is the control type can be set to one of four 
+         * The second parameter is the control type can be set to one of four
          * parameters:
-         *  com.revrobotics.CANSparkMax.ControlType.kDutyCycle
-         *  com.revrobotics.CANSparkMax.ControlType.kPosition
-         *  com.revrobotics.CANSparkMax.ControlType.kVelocity
-         *  com.revrobotics.CANSparkMax.ControlType.kVoltage
+         * com.revrobotics.CANSparkMax.ControlType.kDutyCycle
+         * com.revrobotics.CANSparkMax.ControlType.kPosition
+         * com.revrobotics.CANSparkMax.ControlType.kVelocity
+         * com.revrobotics.CANSparkMax.ControlType.kVoltage
          */
-        
+
         m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
         // SmartDashboard.putNumber("ProcessVariable", m_encoder.getVelocity());
     }
 
-    public void updateSetpoint(double _setPoint){
+    public void updateSetpoint(double _setPoint) {
         setPoint = _setPoint;
     }
 }
