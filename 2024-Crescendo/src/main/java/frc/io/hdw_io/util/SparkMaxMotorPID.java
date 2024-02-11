@@ -32,8 +32,8 @@ public class SparkMaxMotorPID {
         // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
         setP(kP); setI(kI); setD(kD); setIz(kIz); setFF(kFF); setMin(kMinOutput); setMax(kMaxOutput);
-        if(sdbTag.isBlank()) sdbTag = "Motor";
-        sdbTag = _sdbTag + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
+        // if(sdbTag.isBlank()) sdbTag = "Motor";
+        sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
     }
 
@@ -56,8 +56,8 @@ public class SparkMaxMotorPID {
         // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
         setP(_p); setI(_i); setD(_d); setIz(_iz); setFF(_ff); setMin(_min); setMax(_max);
-        if(sdbTag.isBlank()) sdbTag = "Motor";
-        sdbTag = _sdbTag + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
+        // if(sdbTag.isBlank()) sdbTag = "Motor";
+        sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
     }
 
@@ -85,8 +85,8 @@ public class SparkMaxMotorPID {
                 default: System.out.println("Too many parms " + i + " " + _parms[i]);
             }
         }
-        if(sdbTag.isBlank()) sdbTag = "Motor";
-        sdbTag = _sdbTag + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
+        // if(sdbTag.isBlank()) sdbTag = "Motor";
+        sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
     }
 
