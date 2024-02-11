@@ -12,6 +12,7 @@ import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
 import frc.robot.subsystem.tests.TestMotors;
+import frc.robot.subsystem.tests.Tests;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -90,6 +91,14 @@ public class Robot extends TimedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
+        switch (Tests.) {
+            case value:
+                
+                break;
+        
+            default:
+                break;
+        }
         TestMotors.chsrInit();
         TestMotors.init();
     }
