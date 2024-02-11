@@ -38,7 +38,8 @@ public class Shooter {
     private static boolean targetAmp = false;
     private static boolean btnSpeakerRq;
     private static boolean btnAmpRq; 
-    
+
+
     private static boolean shtrSpeakerRq;
 
     /**
@@ -61,12 +62,15 @@ public class Shooter {
     public static void update() {//Determine if button or sensor needs to overide state machine sequence
         //Add code here to start state machine or override the sm sequence
         if(btnLoadForSpkr.onButtonPressed()){
-            state = 3;
+            state = 11;
         }
         else if(btnLoadForAmp.onButtonPressed()){
             state = 10;
-        }else if(btnShoot.onButtonPressed())
-            state = 3;
+        }else if(btnShoot.onButtonPressed()){
+            state = 12;
+        }else if(btnUnload.onButtonPressed()){
+            state = 30;
+        }
         smUpdate();
         sdbUpdate();
         double motorspeed = mtr_rpm;
@@ -89,7 +93,7 @@ public class Shooter {
                 cmdUpdate(hiSpd, true);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
-            case 2: // Shutdown and wait for action then go to 0
+            case 2: // Make sure the arm is down, sire
                 cmdUpdate(hiSpd, true);
                 //Snorfler.loadShooter;     //TO DO: Require to release Note
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
@@ -98,31 +102,37 @@ public class Shooter {
                 cmdUpdate(hiSpd, true);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
                 shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad//yea man stop it 😠
+
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
-            case 10:
-                cmdUpdate(loSpd, true);
+            case 10: //Load for Amp
+                cmdUpdate(loSpd, true);//slow down shooter, start snofler
                 Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
+                
                 if (stateTmr.hasExpired(0.33, state)) state++;
                 break;
             case 11: //Stop Shooter & Snorfler, Raise Arm.
                 cmdUpdate(0.0, false);
                 if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
                 break;
-            case 12: //Wait for Arm to Position
+            case 12: //Wait for trigger to shoot Speaker
                 cmdUpdate(hiSpd, false);
                 if (btnShoot.isDown() || btnAmpRq == true) state++;
+                
+                break;
             case 13: //Wait for trigger to shoot Amp
                 cmdUpdate(hiSpd, false);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
                 if (stateTmr.hasExpired(0.35, state)) state = 0;
+                break;
             case 30: //Unload
                 cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
                 Snorfler.snorfFwdRq = SnorfRq.kreverse;
                 if (stateTmr.hasExpired(0.22, state)) state = 0;
+                break;
             default: // all off
                 cmdUpdate(0.0, true); //Is it really false??
-                System.out.println("Bad sm state:" + state);
+                System.out.println("Bad sm state Shooter:" + state);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
         }
@@ -162,6 +172,7 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter_State", state);
         SmartDashboard.putNumber("MTR_speed", mtr_rpm);
         SmartDashboard.putBoolean("ShtrSpeakerRq",shtrSpeakerRq);
+      
         
     }
 

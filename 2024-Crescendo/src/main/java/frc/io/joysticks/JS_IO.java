@@ -93,7 +93,7 @@ public class JS_IO {
 
     //---- Joystick controller chooser ----
     private static SendableChooser<String> chsr = new SendableChooser<String>();
-    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo"}; //Skibdi toilet,inc.
+    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo","KeyBoard"}; //Skibdi toilet,inc.
 
     /** Setup the JS Chooser */
     public static void chsrInit(){
@@ -138,6 +138,9 @@ public class JS_IO {
             case "Nintendo":    // Nintendo only
                 a_NP();
                 break;
+            case "KeyBoard":
+                keyBoard();
+                break;
             default:            // Bad assignment
                 System.out.println("Bad JS choice - " + prvJSAssign);
                 break;
@@ -179,17 +182,18 @@ public class JS_IO {
         axRightY.setAxis(gamePad, 5);
 
         //climber
-        btnClimberEna.setButton(gamePad, 3);
+        btnClimberEna.setButton(gamePad, 3); // X - Toggles climber, what else did you expect, blud?
 
-        //Shooter
-        btnShoot.setButton(gamePad, 6);
-        btnLoadForAmp.setButton(gamePad, 2);
-        btnLoadForSpkr.setButton(gamePad, 1);
-        btnUnload.setButton(gamePad, 8);
+        //Shooter / Arm
+        btnShoot.setButton(gamePad, 6); // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        btnLoadForAmp.setButton(gamePad, 2); // B - Activates necessary subsystems to prepare to unload into Amp
+        btnLoadForSpkr.setButton(gamePad, 1); // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnUnload.setButton(gamePad, 8); // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
 
         //Snofler
-        btnSnorflerEnable.setButton(gamePad, 4);
-        btnSnorfleReject.setButton(gamePad, 5);
+        btnSnorflerEnable.setButton(gamePad, 4); // Y - Enables the Snorfler 
+        btnSnorfleReject.setButton(gamePad, 5); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+
     }
 
     // ----------- Normal 2 Joysticks -------------
@@ -199,6 +203,9 @@ public class JS_IO {
     // ----------- Nintendo gamepad -------------
     private static void a_NP() {
         btnClimberEna.setButton(neoPad, 3);
+
+    }
+    private static void keyBoard() {
 
     }
 

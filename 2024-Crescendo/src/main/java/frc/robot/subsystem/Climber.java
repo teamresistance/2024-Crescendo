@@ -68,7 +68,7 @@ public class Climber {
                 break;
             default: // all off
                 cmdUpdate(false);
-                System.out.println("Bad sm state:" + state);
+                System.out.println("Bad sm state Climber:" + state);
                 break;
 
         }

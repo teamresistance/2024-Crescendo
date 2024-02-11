@@ -50,6 +50,7 @@ public class Snorfler {
     public static SnorfRq snorfFwdRq = SnorfRq.koff;
     public static int snorfFwdState;
 
+    // has Game Piece is controlled by a Sensor(?)
     public static boolean hasGP;
     private static OnDly hasGPOnDly = new OnDly(0.35);
 
@@ -122,25 +123,18 @@ public class Snorfler {
                 break;
             case 1: // Snorfler intakes Note
                 cmdUpdate(fwdMtrSpd);
-                if(hasGP || !snorflerEnable) state++;
-                break;
-            case 2: // Center Note on wheels, Shooter NOT running
-                cmdUpdate(fwdMtrSpd);
-                if(stateTmr.hasExpired(0.02, state)) state++;
-                break;
-            case 3: //Reverse to hold Note
-                cmdUpdate(rejMtrSpd);
-                if(stateTmr.hasExpired(0.06, state)) state = 0;
-                snorflerEnable = false;
+                if((hasGP || !snorflerEnable) && stateTmr.hasExpired(0.2, state)) {
+                    state = 0; //WHEN WE GET PROGRAMMING STUFF ABOUT THE SENSOR, WE NEED TO MAKE hasGP CHANGE DEPENDENT ON OUTPUT FROM THE SENSOR
+                }
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(rejMtrSpd);
                 break;
             case 20: // Shooter request to Snorfler to load
                 cmdUpdate(loadMtrSpd);
-                if(stateTmr.hasExpired(0.1, state)) state++;
+                if(stateTmr.hasExpired(0.5, state)) state++;
                 break;
-            case 21:
+            case 21: //Shutdown
                 cmdUpdate(0.0);
                 state = 0;
                 snorfFwdRq = SnorfRq.koff;
