@@ -4,8 +4,10 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.MotorPID;
@@ -26,7 +28,7 @@ public class TestMtrFPS {
     private static MotorPID shtrBPIDCtlr = new MotorPID(shooterMtrLg, true, false, null);
 
     // joystick buttons:
-    //none at this time
+    private static Joystick np = new Joystick(4);
 
     // variables:
     // private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
@@ -55,7 +57,7 @@ public class TestMtrFPS {
         MtrCtl(int num, String desc){
             this.num = num;
             this.desc = desc;
-        };
+        }
         public String stateDesc(){return num + " - " + desc;}   //Not needed, an example
     };
     private static MtrCtl mcState;
@@ -100,6 +102,14 @@ public class TestMtrFPS {
             }
         }else{
             mcState = MtrCtl.NoMtrs;
+        }
+
+        if(np.isConnected()){
+            if(np.getRawButton(1) == true) mcState = MtrCtl.SnorfOnly;      //X Blue
+            if(np.getRawButton(4) == true) mcState = MtrCtl.Shtr41Only;     //Y Grn
+            if(np.getRawButton(2) == true) mcState = MtrCtl.Shtr42Only;     //A Red
+            if(np.getRawButton(5) == true) mcState = MtrCtl.Snorf_Shtrs;    //LB
+            if(np.getRawButton(6) == true) mcState = MtrCtl.Snorf_Shtrs41;  //RB
         }
 
         smUpdate();
