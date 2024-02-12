@@ -9,7 +9,6 @@ public class Trajectories {
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
             "Test"
-    
         };
     //
     /** Optional position for 'some' Trajectories. */
@@ -97,13 +96,29 @@ public class Trajectories {
     public static ATrajFunction[] test(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-            new Offset(12.0, 5.0, 0.0),
-            // new MoveOnHdgFwd(0.0, 5.0, 0.3),
-            new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 3.0),
-            new GoToTarget(13.0, 5.25, 0.0, 1.0, 1.0, 3.0),
-            new GoToTarget(13.0, 7.0, 0.0, 1.0, 1.0, 3.0),
-            new GoToTarget(14.55, 7.0, 0.0, 1.0, 1.0, 3.0),
-            new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 3.0),
+            new Offset(14.5, 4.6, 0.0),
+            new MoveTimed(0.5, 0.0, -0.5, 0.0, true),
+            new MoveTimed(0.5, 0.6, 0.0, 0.0, true),
+            new GoToTarget(14.5, 5.5, 0.0, 0.5, 1.0, 3.0),
+            new MoveTimed(0.5, -0.6, 0.0, 0.0, true),
+            // new MoveTimed(1.5, -0.2, -0.2, 0.0, true),
+            new GoToNote(0.9, 1.0),
+            // new MoveTimed(1.0, 0.5, 0.2, 0.0, false),
+            new GoToTarget(14.5, 5.5, 0.0, 0.5, 1.0, 3.0),
+            new MoveTimed(0.5, 0.6, 0.0, 0.0, true),
+            new GoToNote(0.9, 1.0),
+            
+            new GoToTarget(14.5, 5.5, 0.0, 0.5, 1.0, 3.0),
+            new MoveTimed(0.8, 0.6, -0.2, 0.0, true),
+            new GoToNote(0.9, 1.0),
+            
+            new GoToTarget(14.5, 5.5, 0.0, 0.5, 1.0, 3.0),
+            // new MoveOnHdgFwd(0.0, 3.0, 0.3),
+            // new MoveOnHdgRL(0.0, -5.0, 0.3),
+            // new GoToTarget(13.0, 5.25, 0.0, 1.0, 1.0, 3.0),
+            // new GoToTarget(13.0, 7.0, 0.0, 1.0, 1.0, 3.0),
+            // new GoToTarget(14.55, 7.0, 0.0, 1.0, 1.0, 3.0),
+            // new GoToTarget(14.55, 5.25, 0.0, 1.0, 1.0, 3.0),
             // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
             // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
             // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'

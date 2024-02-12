@@ -54,20 +54,7 @@ import edu.wpi.first.math.VecBuilder;
 public class Drive {
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
-    private static NavX navX = IO.navX;
-
-    // joystick:
-    private static Axis jsX = JS_IO.axLeftX;
-    private static Axis jsY = JS_IO.axLeftY;
-    private static Axis jsRot = JS_IO.axRightX;
-
-    private static Button btnGyroReset = JS_IO.btnGyroReset;
-    // public static Button autoBtn = new Button();
-    public static Button headingHoldBtn = JS_IO.headingHoldBtn;
-    public static Button lookAtNote = JS_IO.lookAtNote;
-    public static Button btnAuto = JS_IO.autoBtn;
-    public static Button btnAuto1 = JS_IO.auto1Btn;
-
+    public static NavX navX = IO.navX;
     
     // variables:
     private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
@@ -88,8 +75,8 @@ public class Drive {
     
     //PIDS
 
-    private static PIDXController pidControllerX = new PIDXController(0.2, 0.0, 0.0);
-    private static PIDXController pidControllerY = new PIDXController(0.2, 0.0, 0.0);
+    private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0);
+    private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01);
     private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0);
     
     private static double dP;
@@ -166,10 +153,10 @@ public class Drive {
     );
 
     //Setpoints for alignement
-    private static final double setPoint1X = 14.55;
-    private static final double setPoint1Y = 5.25;
-    private static final double setPoint2X = 14.35;
-    private static final double setPoint2Y = 6.5;
+    public static final double setPoint1X = 14.55;
+    public static final double setPoint1Y = 5.25;
+    public static final double setPoint2X = 14.35;
+    public static final double setPoint2Y = 6.5;
 
 
 
@@ -243,7 +230,7 @@ public class Drive {
     //     return photonPoseEstimator.update();
     // }
 
-    private static void reset(){
+    public static void reset(){
         navX.reset();
         IO.frontLeftLd.getEncoder().setPosition(0.0);
         IO.frontRightLd.getEncoder().setPosition(0.0);
@@ -280,11 +267,7 @@ public class Drive {
 
         // Checking for button presses !!! --- Moved to Drv_Teleop --- !!!
 
-        state = isFieldOriented ? 1 : 0;
-
-        if (btnGyroReset.isDown()) {
-            reset();
-        }
+        // state = isFieldOriented ? 1 : 0;
 
         // // Update the drivetrain pose
 
@@ -313,7 +296,7 @@ public class Drive {
             }
         }
         
-        // System.out.println(poseEstimator.getEstimatedPosition());
+        System.out.println(poseEstimator.getEstimatedPosition());
 
         smUpdate();
         sdbUpdate();
@@ -379,62 +362,8 @@ public class Drive {
     private static void smUpdate() {
         // System.out.println(state);
         
-        if (!auto){
-            if(Math.abs(jsX.getRaw()) > 0.1){
-                fwdSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-            }
-            else fwdSpd = 0.0;
-            if(Math.abs(jsY.getRaw()) > 0.1){
-                rlSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-            }
-            else rlSpd = 0.0;
-            if(Math.abs(jsRot.getRaw()) > 0.05){
-                rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
-            }
-            else rotSpd = 0.0;
-    }
-
-        //Autoalign stuff
-        if (btnAuto.isDown()){
-            //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            goTo(setPoint1X, setPoint1Y, 0.0, 1.0, 1.0);
-        }
-        if (btnAuto1.isDown()){
-            //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            goTo(setPoint2X, setPoint2Y, -90.0, 1.0, 1.0);
-            // double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
-            // double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
-
-            // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), -90.0);
-            // rlSpd = pidOutputX;
-            // fwdSpd = pidOutputY;
-        }
-        
         heading = IO.navX.getRotation2d();
-
-        
-        if (lookAtNote.isDown()){
-            goToNote(1.0);
-        }
-
-        if (headingHoldBtn.isDown()){
-          rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), 0.0);
-        }
-        
-        switch (state) {
-            case 0: // Robot oriented
-                cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
-                break;
-            case 1: // Field oriented
-                cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
-                break;
-            default: // all off
-                cmdUpdate(0.0, 0.0, 0.0, false);
-                System.out.println("Bad DriveMec state: " + state);
-                break;
-        }
+        cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
 
     public static void goToNote(double _spd){
@@ -468,7 +397,8 @@ public class Drive {
      * 
      */
     private static void cmdUpdate(double _fwdSpd, double _rlSpd, double _rotSpd, boolean _isFieldOriented) {
-        fwdSpd = _fwdSpd; rlSpd = _rlSpd; rotSpd = _rotSpd; isFieldOriented = _isFieldOriented;
+        double fwdSpeed, rlSpeed, rotSpeed;
+        fwdSpeed = _fwdSpd; rlSpeed = _rlSpd; rotSpeed = _rotSpd; boolean fieldOriented = _isFieldOriented;
         
         //Check any safeties, mod passed cmds if needed.
         chkInput();
@@ -478,15 +408,15 @@ public class Drive {
          */
     
         
-        if (!isFieldOriented) 
+        if (!fieldOriented)
         {
             //Robot
-            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpd, -rlSpd, rotSpd);
+            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpeed, -rlSpeed, rotSpeed);
         }
         else
         {
             //Field
-            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpd, -rlSpd, rotSpd, navX.getAngle());
+            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpeed, -rlSpeed, rotSpeed, navX.getAngle());
         }
     
         
@@ -495,14 +425,6 @@ public class Drive {
         backLeftLdPID.updateSetpoint(inputs[2] * maxRPM);
         backRightLdPID.updateSetpoint(inputs[3] * maxRPM);
         
-//
-//            System.out.println("Time: " + LocalDateTime.now());
-//            System.out.format("%-20s %-20s\n", "Wheel", "Input");
-//            System.out.format("%-20s %-20f\n", "Front Left Wheel", inputs[0] );
-//            System.out.format("%-20s %-20f\n", "Front Right Wheel", inputs[1]);
-//            System.out.format("%-20s %-20f\n", "Back Left Wheel", inputs[2] );
-//            System.out.format("%-20s %-20f\n", "Back Right Wheel", inputs[3]);
-
         //Check if updates were made in SDB
         frontLeftLdPID.update();
         backLeftLdPID.update();
@@ -650,9 +572,6 @@ public class Drive {
         SmartDashboard.putNumber("Drv/fwdSpd", fwdSpd);
         SmartDashboard.putNumber("Drv/rlSpd", rlSpd);
         SmartDashboard.putNumber("Drv/rotSpd", rotSpd);
-        SmartDashboard.putNumber("Drv/jsy", jsY.get());
-        SmartDashboard.putNumber("Drv/jsx", jsX.get());
-        SmartDashboard.putNumber("Drv/jsrot", jsRot.get());
         SmartDashboard.putNumber("Drv/hdgHold_SP", hdgHold_SP == null ? 999 : hdgHold_SP);
         SmartDashboard.putNumber("Drv/botHold_SP", botHold_SP == null ? 999 : botHold_SP);
 

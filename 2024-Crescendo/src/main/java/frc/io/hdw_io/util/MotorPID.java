@@ -5,6 +5,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -59,7 +60,7 @@ public class MotorPID {
         m_motor.setIdleMode(IdleMode.kCoast);
 
         // PID coefficients
-        kP = 4e-5; 
+        kP = 4e-5;
         kI = 0;
         kD = 0; 
         kIz = 0; 
@@ -84,6 +85,10 @@ public class MotorPID {
         SmartDashboard.putNumber("Max Output " + deviceID, kMaxOutput);
         SmartDashboard.putNumber("Min Output " + deviceID, kMinOutput);
     }
+
+    // public static void setPID(PIDController _pidController){
+    //     m_pidController.set(_pidController);
+    // }
 
     public void update(){
         // read PID coefficients from SmartDashboard

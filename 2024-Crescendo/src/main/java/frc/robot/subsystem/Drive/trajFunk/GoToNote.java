@@ -38,6 +38,7 @@ public class GoToNote extends ATrajFunction {
             // System.out.println("Delay - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
+            sendDriveCmds(0.0, -0.3, 0.0, false);
             Drive.goToNote(spd);
             if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
