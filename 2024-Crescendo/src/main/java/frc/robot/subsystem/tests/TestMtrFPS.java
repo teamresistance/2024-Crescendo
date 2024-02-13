@@ -5,12 +5,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Neo;
-import frc.io.hdw_io.util.MotorPID;
+import frc.io.hdw_io.util.SparkMaxMotorPID;
 import frc.util.Timer;
 
 public class TestMtrFPS {
@@ -24,65 +23,35 @@ public class TestMtrFPS {
     private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
     private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
     //MotorPIDController - CANSParkMax
-    private static MotorPID shtrAPIDCtlr = new MotorPID(shooterMtrLd, true, false, null);
-    private static MotorPID shtrBPIDCtlr = new MotorPID(shooterMtrLg, true, false, null);
+    private static SparkMaxMotorPID shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "Shtr");
+    private static SparkMaxMotorPID shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "Shtr");
 
     // joystick buttons:
     private static Joystick np = new Joystick(4);
 
     // variables:
-    // private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
+    private static int stateFPS; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
     private static double snorfPct_SP = 0.0;        //Chg to RPM after testing rotation
     private static double shtr41FPS_SP = 0.0;
     private static double shtr42FPS_SP = 0.0;
-    private static boolean runMtrsChoosen = false;
+    private static boolean runSnorfFPS40 = false;
+    private static boolean runShtrFPS41 = false;
+    private static boolean runShtrFPS42 = false;
+    private static boolean runBFlwr = false;
+    private static boolean runBothFPS = false;
+    private static boolean prvBothFPS = false;
     private static double testSnorfCmd;
     private static double testShtrACmd;
     private static double testShtrBCmd;
-
-    //--------- Chooser Motor Test Chooser -------
-    //Define enum for Motor Test Chooser
-    public enum MtrCtl {
-        NoMtrs        (0, "No Motors"),
-        SnorfOnly     (1, "Snorf Mtr 40"),
-        Shtr41Only    (2, "Shtr Mtr 41"),
-        Shtr42Only    (3, "Shtr Mtr 42"),
-        Shtr41_42     (4, "Shtr Mtrs 41 & 42"),
-        Snorf_Shtrs   (5, "Snorf & Shtr"),
-        Snorf_Shtrs41 (6, "Snorf & Shtrs 41 SP");
-
-        private final int num;
-        private final String desc;
-        MtrCtl(int num, String desc){
-            this.num = num;
-            this.desc = desc;
-        }
-        public String stateDesc(){return num + " - " + desc;}   //Not needed, an example
-    };
-    private static MtrCtl mcState;
-
-    //Declare the Test Motor Chooser
-    private static SendableChooser<MtrCtl> mtrToCtl = new SendableChooser<MtrCtl>();
-    /** Initialize the Test Motor Chooser */
-    public static void chsrInit(){
-        for(MtrCtl m : MtrCtl.values()){
-            mtrToCtl.addOption(m.desc, m);
-        }
-        MtrCtl dfltMtr = MtrCtl.NoMtrs; //--- Set the default chsrDesc index ----
-        mtrToCtl.setDefaultOption(dfltMtr.desc, dfltMtr);
-        SmartDashboard.putData("TestMtrs/Choice", mtrToCtl);  //Put it on the dashboard
-        SmartDashboard.putString("TestMtrs/Chosen", mtrToCtl.getSelected().desc);   //Put selected on sdb
-    }
 
     /**
      * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
      */
     public static void init() {
+        hdwInit();
         sdbInit();
-        mcState = MtrCtl.NoMtrs;
-        System.out.println(mcState);
         smUpdate();
     }
 
@@ -93,24 +62,22 @@ public class TestMtrFPS {
      * to test and issue commands.  If false turn all off.
      */
     public static void update() {
-        //Add code here to start state machine or override the sm sequence
-        if(runMtrsChoosen){
-            if (mcState != (mtrToCtl.getSelected() == null ? MtrCtl.NoMtrs.desc : mtrToCtl.getSelected())) {
-                mcState = mtrToCtl.getSelected();
-                // sdbUpdChsr();
-                System.out.println("Motor Chsn: " + mtrToCtl.getSelected());
-            }
-        }else{
-            mcState = MtrCtl.NoMtrs;
+        /* 
+         * If switch to control all the motors changes state, set the value
+         * of the individual control switches to this value.
+         * Changes values via the SDB to stay insync with it.
+         */
+        if(prvBothFPS != runBothFPS){
+            SmartDashboard.putBoolean("TestMtrsFPS/Run Snorfler 40", runBothFPS);
+            SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 41", runBothFPS);
+            SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 42", runBothFPS);
+            prvBothFPS = runBothFPS;
         }
 
-        if(np.isConnected()){
-            if(np.getRawButton(1) == true) mcState = MtrCtl.SnorfOnly;      //X Blue
-            if(np.getRawButton(4) == true) mcState = MtrCtl.Shtr41Only;     //Y Grn
-            if(np.getRawButton(2) == true) mcState = MtrCtl.Shtr42Only;     //A Red
-            if(np.getRawButton(5) == true) mcState = MtrCtl.Snorf_Shtrs;    //LB
-            if(np.getRawButton(6) == true) mcState = MtrCtl.Snorf_Shtrs41;  //RB
-        }
+        // Mux the control switches into a single number.
+        stateFPS = runSnorfFPS40 ? 1 : 0;  //Snorfler only
+        stateFPS += runShtrFPS41 ? 2 : 0;  //Shooter 41 only
+        stateFPS += runShtrFPS42 ? 4 : 0;  //Shooter 42 only
 
         smUpdate();
         sdbUpdate();
@@ -121,32 +88,34 @@ public class TestMtrFPS {
      */
     private static void smUpdate() { // State Machine Update
 
-        switch (mcState) {
-            case NoMtrs: // Everything is off.  Snorf, Shtr A, Shtr B, B follows A
+        switch (stateFPS) {
+            case 0: // Everything is off.  Snorf cmd, Shtr A cmd, Shtr B cmd, B follows A
                 cmdUpdate(0.0, 0.0, 0.0, false);
-                stateTmr.clearTimer();; // Initialize timer for covTrgr. Do nothing.
+                stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 break;
-            case SnorfOnly: // Snorfler motor only
+            case 1: // Snorfler motor only
                 cmdUpdate(snorfPct_SP, 0.0, 0.0, false);
                 break;
-            case Shtr41Only: // Shooter motor 41 only
+            case 2: // Shooter motor 41 only
                 cmdUpdate(0.0, shtr41FPS_SP, 0.0, false);
                 break;
-            case Shtr42Only: // Shooter motor 42 only
+            case 3: // Snorfler & Shooter motor 41 only
+                cmdUpdate(snorfPct_SP, shtr41FPS_SP, 0.0, false);
+                break;
+            case 4: // Shooter motor 42
                 cmdUpdate(0.0, 0.0, shtr42FPS_SP, false);
                 break;
-            case Shtr41_42: // Shooter motor 41 & 42
-                cmdUpdate(0.0, shtr41FPS_SP, shtr42FPS_SP, false);
+            case 5: // Snorfler & Shooter motor 42
+                cmdUpdate(snorfPct_SP, 0.0, shtr42FPS_SP, false);
                 break;
-            case Snorf_Shtrs: // Snorfler & Shooter motors
-                cmdUpdate(snorfPct_SP, shtr41FPS_SP, shtr42FPS_SP, false);
+            case 6: // Snorfler & Shooter motor 41
+                cmdUpdate(0.0, shtr41FPS_SP, shtr42FPS_SP, runBFlwr);
                 break;
-            case Snorf_Shtrs41: // Snorfler & Shooter motors use 41's setpoint only
-                cmdUpdate(snorfPct_SP, shtr41FPS_SP, shtr41FPS_SP, false);
+            case 7: // Snorfler & Shooter motors
+                cmdUpdate(snorfPct_SP, shtr41FPS_SP, shtr42FPS_SP, runBFlwr);
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, 0.0, false);
-                System.out.println("Test Motor Bad sm state:" + mcState.desc);
                 break;
         }
     }
@@ -161,6 +130,12 @@ public class TestMtrFPS {
      */
     private static void cmdUpdate(double snorfCmd, double shtrACmd, double shtrBCmd, boolean shtrBFlwA) {
         //Check any safeties, mod passed cmds if needed.
+
+        /*
+         * Motor B initializes no follower.  If parm passed does match motor B 
+         * follow then if parm is true set motor B follows A.  If parm is false
+         * then re-initialize motor B.
+         */
         if(shtrBFlwA != shooterMtrLg.isFollower()){
             if(shtrBFlwA){
                 shooterMtrLg.follow(shooterMtrLd);
@@ -170,9 +145,10 @@ public class TestMtrFPS {
         }
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
-        // shooterMtrLd.set(shtrACmd);
-        // shooterMtrLg.set(shtrBCmd);
-        shtrAPIDCtlr.updateSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        if(!shtrBFlwA){
+            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17);;     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        }
         //For testing
         testSnorfCmd = snorfCmd;
         testShtrACmd = shtrACmd;
@@ -183,38 +159,50 @@ public class TestMtrFPS {
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        SmartDashboard.putNumber("TestMtrs/Snorf Mtr Pct", snorfPct_SP);
-        SmartDashboard.putNumber("TestMtrs/Shtr Mtr 41 FPS", shtr41FPS_SP);
-        SmartDashboard.putNumber("TestMtrs/Shtr Mtr 42 FPS", shtr42FPS_SP);
-        SmartDashboard.putBoolean("TestMtrs/Run Mtrs Chosen", runMtrsChoosen);
+        SmartDashboard.putNumber( "TestMtrsFPS/Snorf Mtr Pct", snorfPct_SP);
+        SmartDashboard.putNumber( "TestMtrsFPS/Shtr Mtr 41 FPS", shtr41FPS_SP);
+        SmartDashboard.putNumber( "TestMtrsFPS/Shtr Mtr 42 FPS", shtr42FPS_SP);
+        SmartDashboard.putBoolean("TestMtrsFPS/Run Snorfler 40", runSnorfFPS40);
+        SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 41", runShtrFPS41);
+        SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 42", runShtrFPS42);
+        SmartDashboard.putBoolean("TestMtrsFPS/Run ALL, Snorf & Shtrs", runBothFPS);
+        SmartDashboard.putBoolean("TestMtrsFPS/Run Lg 42 to 41", runBFlwr);
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        snorfPct_SP = SmartDashboard.getNumber("TestMtrs/Snorf Mtr Pct", snorfPct_SP);
-        shtr41FPS_SP = SmartDashboard.getNumber("TestMtrs/Shtr Mtr 41 FPS", shtr41FPS_SP);
-        shtr42FPS_SP = SmartDashboard.getNumber("TestMtrs/Shtr Mtr 42 FPS", shtr42FPS_SP);
-        runMtrsChoosen = SmartDashboard.getBoolean("TestMtrs/Run Mtrs Chosen", runMtrsChoosen);
+        snorfPct_SP = SmartDashboard.getNumber(   "TestMtrsFPS/Snorf Mtr Pct", snorfPct_SP);
+        shtr41FPS_SP = SmartDashboard.getNumber(  "TestMtrsFPS/Shtr Mtr 41 FPS", shtr41FPS_SP);
+        shtr42FPS_SP = SmartDashboard.getNumber(  "TestMtrsFPS/Shtr Mtr 42 FPS", shtr42FPS_SP);
+        runSnorfFPS40 = SmartDashboard.getBoolean("TestMtrsFPS/Run Snorfler 40", runSnorfFPS40);
+        runShtrFPS41 = SmartDashboard.getBoolean( "TestMtrsFPS/Run Shooter 41", runShtrFPS41);
+        runShtrFPS42 = SmartDashboard.getBoolean( "TestMtrsFPS/Run Shooter 42", runShtrFPS42);
+        runBothFPS = SmartDashboard.getBoolean(   "TestMtrsFPS/Run ALL, Snorf & Shtrs", runBothFPS);
+        runBFlwr = SmartDashboard.getBoolean(     "TestMtrsFPS/Run Lg 42 to 41", runBFlwr);
 
         //Put other stuff to be displayed here
-        SmartDashboard.putString("TestMtrs/Chosen", mtrToCtl.getSelected().desc);
-        SmartDashboard.putString("TestMtrs/state", mcState.desc);
-        SmartDashboard.putNumber("TestMtrs/state mc", mcState.num);
-        SmartDashboard.putString("TestMtrs/state desc", mcState.stateDesc());
-        SmartDashboard.putNumber("TestMtrs/Snorf cmd issued", testSnorfCmd);
-        SmartDashboard.putNumber("TestMtrs/ShtrA cmd issued", testShtrACmd);
-        SmartDashboard.putNumber("TestMtrs/ShtrB cmd issued", testShtrBCmd);
-        SmartDashboard.putBoolean("TestMtrs/Shtr B isFollower", shooterMtrLg.isFollower());
+        SmartDashboard.putNumber( "TestMtrsFPS/state", stateFPS);
+        SmartDashboard.putBoolean("TestMtrsFPS/Shtr B isFollower", shooterMtrLg.isFollower());
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/Snorf out issued", snorfMtr.get());
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/ShtrA out issued", shooterMtrLd.get());
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/ShtrB out issued", shooterMtrLg.get());
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/Snorf cmd issued", testSnorfCmd);
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/ShtrA cmd issued", testShtrACmd);
+        SmartDashboard.putNumber( "TestMtrsFPS/Cmd/ShtrB cmd issued", testShtrBCmd);
         //Shooter Encoders
-        SmartDashboard.putNumber("TestMtrs/Enc/ShtrA FPS", shtrA_Enc.getFPS());
-        SmartDashboard.putNumber("TestMtrs/Enc/ShtrB FPS", shtrB_Enc.getFPS());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrA FPS", shtrA_Enc.getFPS());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrB FPS", shtrB_Enc.getFPS());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrA RPM", shtrA_Enc.getSpeed());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrB RPM", shtrB_Enc.getSpeed());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrA amps", shooterMtrLd.getOutputCurrent());
+        SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrB amps", shooterMtrLg.getOutputCurrent());
     }
 
     /**
      * Initialize motor configuration setup.
      */
-    public static void hdw_ioInit() {
+    public static void hdwInit() {
         snorfInit();
         shtrAInit();
         shtrBInit();
@@ -251,6 +239,7 @@ public class TestMtrFPS {
         shooterMtrLg.setIdleMode(IdleMode.kCoast);
         shooterMtrLg.clearFaults();
         shooterMtrLg.setInverted(true);
+        // shooterMtrLg.follow(shooterMtrLd);
     }
 
     // ----------------- Shooter statuses and misc.-----------------
@@ -260,14 +249,14 @@ public class TestMtrFPS {
      * @return - present state of Shooter state machine.
      */
     public static int getState() {
-        return mcState.num;
+        return stateFPS;
     }
 
     /**
      * @return If the state machine is running, not idle.
      */
     public static boolean getStatus(){
-        return mcState != MtrCtl.NoMtrs;      //This example says the sm is runing, not idle.
+        return stateFPS != 0;      //This example says the sm is runing, not idle.
     }
 
 }
