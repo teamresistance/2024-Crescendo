@@ -100,19 +100,23 @@ public class Robot extends TimedRobot {
     @Override
     public void testPeriodic() {
         Tests.update();
+        // If test selected has changed, intialize all test, turn off everything.
         if(prvTest != Tests.getTestSelected()){
             prvTest = Tests.getTestSelected();
-            switch(prvTest){
-                case kTestMtrsNone:
-                break;
-                case kTestMtrsPct:
-                    TestMtrPct.init();
-                break;
-                case kTestMtrsFPS:
-                    TestMtrFPS.init();
-                break;
-            }
+            TestMtrPct.init();
+            TestMtrFPS.init();
+            // switch(prvTest){
+            //     case kTestMtrsNone:
+            //     break;
+            //     case kTestMtrsPct:
+            //         TestMtrPct.init();
+            //     break;
+            //     case kTestMtrsFPS:
+            //         TestMtrFPS.init();
+            //     break;
+            // }
         }
+        // Then start updating the active test.
         switch(prvTest){
             case kTestMtrsNone:
             break;

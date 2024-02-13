@@ -9,6 +9,14 @@ import frc.io.hdw_io.util.Encoder_Neo;
 import frc.util.Timer;
 /**
  * Class used to test motors for the Snorfler and (2) Shooter motors.
+ * <p>
+ * There ar (3) sliders to adjust the signals to apply to the motors using power percent.
+ * <p>
+ * It has (4) switches.  (3) to apply a percent output to each motors and
+ * one that turns all on and off.
+ * <p>
+ * There is another switch that can switch whether shooter motor B (42) follows 
+ * motor A (41).
  */
 public class TestMtrPct {
     // hdw defintions:
@@ -16,7 +24,7 @@ public class TestMtrPct {
     private static CANSparkMax snorfMtr = IO.snorfMtr;
     //Shooter
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
-    private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, follows A
+    private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, can follows A
     //Shooter Encoders
     private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
     private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
@@ -27,9 +35,9 @@ public class TestMtrPct {
     // variables:
     private static int state;
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-    private static double snorfMtrPct = 0.0;        //Chg to RPM after testing rotation
-    private static double shtrMtr41Pct = 0.0;
-    private static double shtrMtr42Pct = 0.0;
+    private static double snorfMtrPct = 0.85;
+    private static double shtrMtr41Pct = 0.90;
+    private static double shtrMtr42Pct = 0.95;
     private static boolean runSnorfMtr40 = false;
     private static boolean runShtrMtr41 = false;
     private static boolean runShtrMtr42 = false;
@@ -58,12 +66,19 @@ public class TestMtrPct {
      * to test and issue commands.  If false turn all off.
      */
     public static void update() {
+        /* 
+         * If switch to control all the motors changes state, set the value
+         * of the individual control switches to this value.
+         * Changes values via the SDB to stay insync with it.
+         */
         if(prvBothMtr != runBothMtr){
             SmartDashboard.putBoolean("TestMtrsPct/Run Snorfler 40", runBothMtr);
             SmartDashboard.putBoolean("TestMtrsPct/Run Shooter 41", runBothMtr);
             SmartDashboard.putBoolean("TestMtrsPct/Run Shooter 42", runBothMtr);
             prvBothMtr = runBothMtr;
         }
+
+        // Mux the control switches into a single number.
         state = runSnorfMtr40 ? 1 : 0;  //Snorfler only
         state += runShtrMtr41 ? 2 : 0;  //Shooter 41 only
         state += runShtrMtr42 ? 4 : 0;  //Shooter 42 only
@@ -78,7 +93,7 @@ public class TestMtrPct {
     private static void smUpdate() { // State Machine Update
 
         switch (state) {
-            case 0: // Everything is off.  Snorf, Shtr A, Shtr B, B follows A
+            case 0: // Everything is off.  Snorf cmd, Shtr A cmd, Shtr B cmd, B follows A
                 cmdUpdate(0.0, 0.0, 0.0, false);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 break;
@@ -120,6 +135,12 @@ public class TestMtrPct {
      */
     private static void cmdUpdate(double snorfCmd, double shtrACmd, double shtrBCmd, boolean shtrBFlwA) {
         //Check any safeties, mod passed cmds if needed.
+
+        /*
+         * Motor B initializes no follower.  If parm passed does match motor B 
+         * follow then if parm is true set motor B follows A.  If parm is false
+         * then re-initialize motor B.
+         */
         if(shtrBFlwA != shooterMtrLg.isFollower()){
             if(shtrBFlwA){
                 shooterMtrLg.follow(shooterMtrLd);
@@ -130,7 +151,7 @@ public class TestMtrPct {
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
         shooterMtrLd.set(shtrACmd);
-        shooterMtrLg.set(shtrBFlwA ? 0.0 : shtrBCmd);
+        if(!shtrBFlwA) shooterMtrLg.set(shtrBCmd);
         //For testing
         testSnorfCmd = snorfCmd;
         testShtrACmd = shtrACmd;
@@ -221,7 +242,7 @@ public class TestMtrPct {
         shooterMtrLg.setIdleMode(IdleMode.kCoast);
         shooterMtrLg.clearFaults();
         shooterMtrLg.setInverted(true);
-        shooterMtrLg.follow(shooterMtrLd);
+        // shooterMtrLg.follow(shooterMtrLd);
     }
 
     // ----------------- Shooter statuses and misc.-----------------

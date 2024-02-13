@@ -3,8 +3,20 @@ package frc.robot.subsystem.tests;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * Class ussed to select which test to run without having to reload.
+ * Sets up a chooser that is used by Robot.java testInit & testPeriodic.
+ */
 public class Tests {
-    public enum KTests { 
+    //Hdw definition:
+    //none
+
+    // joystick buttons:
+    //none at this time
+
+    // variables:
+    // Enum of tests added to chooser.
+    public enum KTests {
         kTestMtrsNone(0, "No Test"),
         kTestMtrsPct(1, "Mtr Pct"),
         kTestMtrsFPS(2, "Mtr FPS");
@@ -43,23 +55,34 @@ public class Tests {
         for(KTests m : KTests.values()){
             testChsr.addOption(m.desc, m);
         }
-        KTests dfltTest = KTests.kTestMtrsNone; //--- Set the default chsrDesc index ----
+        KTests dfltTest = KTests.kTestMtrsPct; //--- Set the default chsrDesc index ----
         testChsr.setDefaultOption(dfltTest.desc, dfltTest);
         testSel = dfltTest;
         SmartDashboard.putData("Test/Choice", testChsr);  //Put it on the dashboard
         SmartDashboard.putString("Test/Chosen", testChsr.getSelected().desc);   //Put selected on sdb
     }
 
+    /**
+     * Initialize Tests chooser stuff. Called from testInit (maybe robotInit(?)) in
+     * Robot.java
+     */
     public static void init(){
 
     }
 
+    /**
+     * Update Test choices. Called from testPeriodic in robot.java.
+     * <p>
+     * Must be called from test to update testSel, an enum, KTest.
+     */
     public static void update(){
-        String tmp = SmartDashboard.getString("Test/Choice", testChsr.getSelected().desc);
         testSel = KTests.getKTest(SmartDashboard.getString("Test/Choice", testChsr.getSelected().desc));
         SmartDashboard.putString("Test/Chosen", testChsr.getSelected().desc);   //Put selected on sdb
     }
 
+    /**
+     * @return a KTest object that is selected in the chooser.
+     */
     public static KTests getTestSelected(){
         return testSel;
     }
