@@ -100,9 +100,9 @@ public class IO {
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);  //Follows A
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
     //Shooter Encoders
-    // 1024 ticks/rev, (0.18' * 3.14) = 0.566 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.566)*1.0  = 1810.76 ticks/ft
-    public static Encoder_Neo shtrMtrASpd = new Encoder_Neo(shooterMtrA, 1810.76);
-    public static Encoder_Neo shtrMtrBSpd = new Encoder_Neo(shooterMtrB, 1810.76);
+    // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  = 1777.91 ticks/ft
+    public static Encoder_Neo shtrMtrASpd = new Encoder_Neo(shooterMtrA, 1777.91);
+    public static Encoder_Neo shtrMtrBSpd = new Encoder_Neo(shooterMtrB, 1777.91);
 
     //Climber
     public static Solenoid climberExtSV = new Solenoid(modID, modType, 1);

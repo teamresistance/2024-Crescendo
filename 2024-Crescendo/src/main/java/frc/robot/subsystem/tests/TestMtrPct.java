@@ -35,9 +35,9 @@ public class TestMtrPct {
     // variables:
     private static int state;
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-    private static double snorfMtrPct = 0.85;
-    private static double shtrMtr41Pct = 0.90;
-    private static double shtrMtr42Pct = 0.95;
+    private static double snorfMtrPct = 0.0;
+    private static double shtrMtr41Pct = 0.0;
+    private static double shtrMtr42Pct = 0.0;
     private static boolean runSnorfMtr40 = false;
     private static boolean runShtrMtr41 = false;
     private static boolean runShtrMtr42 = false;
@@ -94,7 +94,7 @@ public class TestMtrPct {
 
         switch (state) {
             case 0: // Everything is off.  Snorf cmd, Shtr A cmd, Shtr B cmd, B follows A
-                cmdUpdate(0.0, 0.0, 0.0, false);
+                cmdUpdate(0.0, 0.0, 0.0, run42Flwr);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 break;
             case 1: // Snorfler motor only
@@ -144,6 +144,7 @@ public class TestMtrPct {
         if(shtrBFlwA != shooterMtrLg.isFollower()){
             if(shtrBFlwA){
                 shooterMtrLg.follow(shooterMtrLd);
+                shooterMtrLg.setIdleMode(IdleMode.kCoast);
             }else{
                 shtrBInit();
             }
@@ -155,7 +156,9 @@ public class TestMtrPct {
         //For testing
         testSnorfCmd = snorfCmd;
         testShtrACmd = shtrACmd;
-        testShtrBCmd = shtrBFlwA ? 0.0 : shtrBCmd;
+        if(!shtrBFlwA){
+            testShtrBCmd = shtrBCmd;
+        }
     }
 
     /*-------------------------  SDB Stuff --------------------------------------

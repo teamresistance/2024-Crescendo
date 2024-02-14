@@ -49,8 +49,16 @@ public class Encoder_Neo {
         // neoEnc.setPositionConversionFactor(tpf);
     }
 
+    // public double getFPS(){    //----- This is wrong -----
+    //     return tpf == 0.0 ? 0.0 : 60 * (neoEnc.getVelocity() / tpf);   // (RPM / tpf = fpm) * 60 = fps
+    // }
+
+    /**
+     * RPM / 60 = RPS,  RPS / 1024 tpr = tps, => RPM * (1024 / 60)[17.067] / tpf = FPS :: tpf != 0
+     * @return Feet per seconds from RPM & tpf:  RPM * k / tpf = FPS  k = (1024 / 60) = 17.0667
+     */
     public double getFPS(){
-        return tpf == 0.0 ? 0.0 : 60 * (neoEnc.getVelocity() / tpf);   // (RPM / tpf = fpm) * 60 = fps
+        return tpf == 0.0 ? 0.0 : (17.0667) * (neoEnc.getVelocity() / tpf);
     }
 
     public double getSpeed(){
