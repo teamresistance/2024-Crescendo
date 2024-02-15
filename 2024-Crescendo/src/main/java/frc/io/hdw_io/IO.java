@@ -66,7 +66,7 @@ public class IO {
     //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
-    public static double tpfAll = 12.7; //37 rotations for 10 ft
+    public static double tpfAll = 12.7; //37 rotations for 10 ft //!TODO if robot is not working or has weird movement, it could be this value
     public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63

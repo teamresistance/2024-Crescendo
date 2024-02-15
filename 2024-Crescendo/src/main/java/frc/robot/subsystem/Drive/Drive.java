@@ -75,9 +75,9 @@ public class Drive {
     
     //PIDS
 
-    private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0);
-    private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01);
-    private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0);
+    private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0); //!TODO Tune all this
+    private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01); //!TODO Tune all this
+    private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0); //!TODO Tune all this
     
     private static double dP;
     private static double dI;
@@ -270,6 +270,10 @@ public class Drive {
         // state = isFieldOriented ? 1 : 0;
 
         // // Update the drivetrain pose
+        
+        pidControllerX.setPID(dP,dI,dD);
+        pidControllerY.setPID(dP,dI,dD);
+        pidControllerZ.setPID(rP,rI,rD);
 
         poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
