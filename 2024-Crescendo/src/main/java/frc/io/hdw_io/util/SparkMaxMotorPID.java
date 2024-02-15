@@ -12,7 +12,7 @@ public class SparkMaxMotorPID {
     public SparkPIDController m_pidController;
     // PID coefficients
     private double setPoint = 0.0;
-    private String sdbTag;  //Used in sdb to individualize motor
+    private String sdbTag = "";  //Used in sdb to individualize motor
 
     private double kP = 6e-5; 
     private double kI = 0;

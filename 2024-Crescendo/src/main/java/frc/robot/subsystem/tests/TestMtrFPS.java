@@ -23,8 +23,8 @@ public class TestMtrFPS {
     private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
     private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
     //MotorPIDController - CANSParkMax
-    private static SparkMaxMotorPID shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "Shtr");
-    private static SparkMaxMotorPID shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "Shtr");
+    private static SparkMaxMotorPID shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "TestMtrsFPS");
+    private static SparkMaxMotorPID shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "TestMtrsFPS");
 
     // joystick buttons:
     private static Joystick np = new Joystick(4);
@@ -90,7 +90,7 @@ public class TestMtrFPS {
 
         switch (stateFPS) {
             case 0: // Everything is off.  Snorf cmd, Shtr A cmd, Shtr B cmd, B follows A
-                cmdUpdate(0.0, 0.0, 0.0, false);
+                cmdUpdate(0.0, 0.0, 0.0, runBFlwr);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 break;
             case 1: // Snorfler motor only
