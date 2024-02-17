@@ -164,7 +164,7 @@ public class TestMtrFPS {
         snorfMtr.set(snorfCmd);
         shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         if(!shtrBFlwA){
-            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17);;     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }
         //For testing
         testSnorfCmd = snorfCmd;
