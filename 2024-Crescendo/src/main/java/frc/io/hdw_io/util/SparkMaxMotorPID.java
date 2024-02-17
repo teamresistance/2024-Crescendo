@@ -142,6 +142,8 @@ public class SparkMaxMotorPID {
         min = SmartDashboard.getNumber(sdbTag + "Min Output ", kMinOutput);
         max = SmartDashboard.getNumber(sdbTag + "Max Output ", kMaxOutput);
 
+        SmartDashboard.putNumber(sdbTag + "Setpoint ", setPoint);
+
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         if((p != kP)) { m_pidController.setP(p); kP = p; }
         if((i != kI)) { m_pidController.setI(i); kI = i; }

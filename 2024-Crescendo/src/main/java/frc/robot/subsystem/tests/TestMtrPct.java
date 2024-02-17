@@ -35,8 +35,8 @@ public class TestMtrPct {
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
     private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, can follows A
     //Shooter Encoders
-    private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
-    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
+    private static Encoder_Neo shtrA_Enc = IO.shtrMtrAEnc;
+    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBEnc;
 
     // joystick buttons:
     //none at this time
@@ -66,6 +66,7 @@ public class TestMtrPct {
      */
     public static void init() {
         hdwInit();
+        // shtrB_Enc.setTPF(4345.9);  //Just testing for wheel speed
         sdbInit();
         smUpdate();
     }

@@ -29,8 +29,8 @@ public class TestMtrFPS {
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
     private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, follows A
     //Shooter Encoders
-    private static Encoder_Neo shtrA_Enc = IO.shtrMtrASpd;
-    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBSpd;
+    private static Encoder_Neo shtrA_Enc = IO.shtrMtrAEnc;
+    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBEnc;
     //MotorPIDController - CANSParkMax
     private static SparkMaxMotorPID shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "TestMtrsFPS");
     private static SparkMaxMotorPID shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "TestMtrsFPS");
@@ -73,6 +73,8 @@ public class TestMtrFPS {
      * to test and issue commands.  If false turn all off.
      */
     public static void update() {
+        shtrLdPIDCtlr.update();
+        shtrLgPIDCtlr.update();
         /* 
          * If switch to control all the motors changes state, set the value
          * of the individual control switches to this value.
@@ -162,9 +164,9 @@ public class TestMtrFPS {
         }
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
-        shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        shtrLdPIDCtlr.setSetpoint(shtrACmd );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         if(!shtrBFlwA){
-            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+            shtrLgPIDCtlr.setSetpoint(shtrBCmd );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }
         //For testing
         testSnorfCmd = snorfCmd;
@@ -247,6 +249,7 @@ public class TestMtrFPS {
         shooterMtrLd.setIdleMode(IdleMode.kCoast);
         shooterMtrLd.clearFaults();
         shooterMtrLd.setInverted(true);
+
     }
 
     /**
