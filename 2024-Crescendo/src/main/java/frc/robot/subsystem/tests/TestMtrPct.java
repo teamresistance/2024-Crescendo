@@ -1,3 +1,12 @@
+/*
+ * Author: Jim H, Mentor.  0086, Team Resistance
+ * For testing and training.  Example of percent motor control and encoder feedback.
+ * Also good example of SBD interaction.
+ * 
+ * History:
+ * 2/10/2024 - Original
+ * 2/17/2024 - JCH, added Encoders for NEO's
+ */
 package frc.robot.subsystem.tests;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -49,6 +58,8 @@ public class TestMtrPct {
     private static double testShtrACmd;
     private static double testShtrBCmd;
 
+    private static boolean resetEnc = false;
+
     /**
      * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
@@ -76,6 +87,12 @@ public class TestMtrPct {
             SmartDashboard.putBoolean("TestMtrsPct/Run Shooter 41", runBothMtr);
             SmartDashboard.putBoolean("TestMtrsPct/Run Shooter 42", runBothMtr);
             prvBothMtr = runBothMtr;
+        }
+
+        if(resetEnc){
+            shtrA_Enc.reset();
+            shtrB_Enc.reset();
+            SmartDashboard.putBoolean("TestMtrsPct/Enc/Reset Enc", false);
         }
 
         // Mux the control switches into a single number.
@@ -173,6 +190,7 @@ public class TestMtrPct {
         SmartDashboard.putBoolean("TestMtrsPct/Run Shooter 42", runShtrMtr42);
         SmartDashboard.putBoolean("TestMtrsPct/Run ALL, Snorf & Shtrs", runBothMtr);
         SmartDashboard.putBoolean("TestMtrsPct/Run Lg 42 to 41", run42Flwr);
+        SmartDashboard.putBoolean("TestMtrsPct/Enc/Reset Enc", resetEnc);
     }
 
     /**Update the Smartdashboard. */
@@ -186,6 +204,7 @@ public class TestMtrPct {
         runShtrMtr42 = SmartDashboard.getBoolean( "TestMtrsPct/Run Shooter 42", runShtrMtr42);
         runBothMtr = SmartDashboard.getBoolean(   "TestMtrsPct/Run ALL, Snorf & Shtrs", runBothMtr);
         run42Flwr = SmartDashboard.getBoolean(    "TestMtrsPct/Run Lg 42 to 41", run42Flwr);
+        resetEnc = SmartDashboard.getBoolean("TestMtrsPct/Enc/Reset Enc", resetEnc);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber( "TestMtrsPct/state", state);
@@ -203,6 +222,10 @@ public class TestMtrPct {
         SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrB RPM", shtrB_Enc.getSpeed());
         SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrA amps", shooterMtrLd.getOutputCurrent());
         SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrB amps", shooterMtrLg.getOutputCurrent());
+        SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrA rotations", shtrA_Enc.rotations());
+        SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrB rotations", shtrB_Enc.rotations());
+        SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrA Feet", shtrA_Enc.feet());
+        SmartDashboard.putNumber("TestMtrsPct/Enc/ShtrB Feet", shtrB_Enc.feet());
     }
 
     /**

@@ -1,3 +1,12 @@
+/*
+ * Author: Jim H, Mentor.  0086, Team Resistance
+ * For testing and training.  Example of motor velocity control and encoder feedback.
+ * Also good example of SBD interaction.
+ * 
+ * History:
+ * 2/10/2024 - Original
+ * 2/17/2024 - JCH, added Encoders for NEO's
+ */
 package frc.robot.subsystem.tests;
 
 import com.revrobotics.CANSparkBase.ControlType;
@@ -45,6 +54,8 @@ public class TestMtrFPS {
     private static double testShtrACmd;
     private static double testShtrBCmd;
 
+    private static boolean resetEnc = false;
+
     /**
      * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
@@ -72,6 +83,12 @@ public class TestMtrFPS {
             SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 41", runBothFPS);
             SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 42", runBothFPS);
             prvBothFPS = runBothFPS;
+        }
+
+        if(resetEnc){
+            shtrA_Enc.reset();
+            shtrB_Enc.reset();
+            SmartDashboard.putBoolean("TestMtrsFPS/Enc/Reset Enc", false);
         }
 
         // Mux the control switches into a single number.
@@ -167,6 +184,7 @@ public class TestMtrFPS {
         SmartDashboard.putBoolean("TestMtrsFPS/Run Shooter 42", runShtrFPS42);
         SmartDashboard.putBoolean("TestMtrsFPS/Run ALL, Snorf & Shtrs", runBothFPS);
         SmartDashboard.putBoolean("TestMtrsFPS/Run Lg 42 to 41", runBFlwr);
+        SmartDashboard.putBoolean("TestMtrsFPS/Enc/Reset Enc", resetEnc);
     }
 
     /**Update the Smartdashboard. */
@@ -180,6 +198,7 @@ public class TestMtrFPS {
         runShtrFPS42 = SmartDashboard.getBoolean( "TestMtrsFPS/Run Shooter 42", runShtrFPS42);
         runBothFPS = SmartDashboard.getBoolean(   "TestMtrsFPS/Run ALL, Snorf & Shtrs", runBothFPS);
         runBFlwr = SmartDashboard.getBoolean(     "TestMtrsFPS/Run Lg 42 to 41", runBFlwr);
+        resetEnc = SmartDashboard.getBoolean("TestMtrsFPS/Enc/Reset Enc", resetEnc);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber( "TestMtrsFPS/state", stateFPS);
