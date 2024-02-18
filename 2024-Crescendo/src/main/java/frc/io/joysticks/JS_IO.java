@@ -59,6 +59,7 @@ public class JS_IO {
     public static Button headingHoldBtn = new Button();
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
+    public static Button lookAtSpeaker = new Button();
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -146,6 +147,7 @@ public class JS_IO {
         headingHoldBtn.setButton(rightJoystick, 3);
         lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(rightJoystick, 7);
+        lookAtSpeaker.setButton(leftJoystick, 1);
     }
 
     // ----- gamePad only --------
@@ -190,5 +192,6 @@ public class JS_IO {
         headingHoldBtn.setButton(rightJoystick, 3);
         lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(rightJoystick, 7);
+        lookAtSpeaker.setButton(leftJoystick, 1);
     }
 }

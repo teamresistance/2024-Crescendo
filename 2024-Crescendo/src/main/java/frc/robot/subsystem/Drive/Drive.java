@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
@@ -158,6 +159,8 @@ public class Drive {
     public static final double setPoint2X = 14.35;
     public static final double setPoint2Y = 6.5;
 
+    //Speaker setpoint
+    public static final Translation2d speakerPos = new Translation2d(); //TODO: Fill in translation2d object with speaker coords
 
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -295,6 +298,15 @@ public class Drive {
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
+        //Look at speaker
+        if (JS_IO.lookAtSpeaker.isDown()){
+            Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+            Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+            Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+
+            //TODO: use this angle and do stuff.
+        }
+
         
         System.out.println(poseEstimator.getEstimatedPosition());
 

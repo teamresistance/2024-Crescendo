@@ -1,6 +1,7 @@
 package frc.util;
 
 public class MecanumDriveCalculator {
+    //FIELD Oriented
     public static double[] calculateMecanumDrive(double xSpeed, double ySpeed, double zRotation, double gyroAngle) {
         // Convert gyro angle from degrees to radians
         double gyroRadians = Math.toRadians(gyroAngle);
@@ -28,6 +29,7 @@ public class MecanumDriveCalculator {
         return new double[]{wheelFL, wheelFR, wheelBL, wheelBR};
     }
 
+    //ROBOT Oriented
     public static double[] calculateMecanumDriveRobot(double xSpeed, double ySpeed, double zRotation) {
         double wheelFL = ySpeed - xSpeed + zRotation;
         double wheelFR = ySpeed + xSpeed - zRotation;
