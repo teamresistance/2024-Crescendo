@@ -84,7 +84,8 @@ public class Shooter {
     /**
      * State 0: Everything Off
      * States 1-6: Shoot for Speaker
-     * States 10-
+     * States 10-13: Shoot for Amp
+     * State 14: Unload
      */
     private static void smUpdate() { // State Machine Update
     
@@ -99,15 +100,15 @@ public class Shooter {
                 break;
             case 2: // Make sure the arm is down, sire.
                 cmdUpdate(hiSpd, true);
-                //Snorfler.loadShooter;     //TO DO: Require to release Note
+                //Snorfler.loadShooter;     //TODO: Require to release Note
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break; 
             case 3: //Load for Speaker
+                cmdUpdate(loSpd, true);//slow down shooter, start snofler
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
             case 4: //Stop Shooter & Snorfler.
                 cmdUpdate(0.0, true);
-                if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
-                break;
+                if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; 
             case 5: //Wait for trigger to shoot Speaker
                 cmdUpdate(hiSpd, true);
                 if (btnShoot.isDown() || btnSpeakerRq == true) state++;
@@ -123,100 +124,46 @@ public class Shooter {
                 break;
             case 11: //Stop Shooter & Snorfler, Raise Arm.
                 cmdUpdate(0.0, false);
-                if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
-                break;
+                if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; 
             case 12: //Wait for trigger to shoot Amp.
                 cmdUpdate(hiSpd, false);
                 if (btnShoot.isDown() || btnAmpRq == true) state++;
-                else if (btnAmpShot.isDown()) state = 0;
-                
+                else if (btnAmpShot.isDown()) state = 0;  
                 break;
-            case 13: //Shoot
+            case 13: //Shoot for Amp
                 cmdUpdate(hiSpd, false);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
                 if (stateTmr.hasExpired(0.35, state)) state = 0;
                 break;
-            case 14: //load for Spkr
-                cmdUpdate(loSpd, true);//slow down shooter, start snofler
-                Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
-                
-                if (stateTmr.hasExpired(0.33, state)) state++;
-                break;
-            case 15: //Wait for trigger to shoot Shooter.
-                cmdUpdate(hiSpd, true);
-                if (btnShoot.isDown() || btnSpeakerRq == true) state++;
-                else if (btnSpkrShot.isDown()) state = 0;
-                
-                break;
-            case 16: //Shoot
-                cmdUpdate(hiSpd, true);
-                Snorfler.snorfFwdRq = SnorfRq.kforward;
-                if (stateTmr.hasExpired(0.35, state)) state = 0;
-                break;
-
-            case 30: //Unload
+            case 14: //Unload
                 cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
                 Snorfler.snorfFwdRq = SnorfRq.kreverse;
                 if (stateTmr.hasExpired(0.22, state)) state = 0;
                 break;
             default: // all off
-                cmdUpdate(0.0, true); //Is it really false??
+                cmdUpdate(0.0, true);
                 System.out.println("Bad sm state Shooter:" + state);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
         }
       
     }
-    /*
+    
     //Just an idea - improve later
     private static void adjustShooterPitch(){
         //Get the distance from the Vision class
-        double distance; //
-    }
-    private void adjustShooter() {
-        // Get the distance from the Vision class.
-        double distance; //Vision.get_distance(); //implement once actually done
-
-        // Calculate the desired pitch based on the distance.
-        double pitch = 0; //get pitch from vision
-
-        
-
-        // Adjust the pitch of the shooter.
-        setPitch(pitch);
-
-        // Control the motor and solenoids based on the adjusted pitch.
-        controlMotor(pitch);
-        controlSolenoids(pitch);
-    }
-     private void setPitch(double pitch) {
-        // Set the pitch of the shooter given vision and stuff
-    }
-    private void controlMotor(double pitch) {
-        // Map the pitch to a speed value. Improve on this later
-        double speed = mapPitchToSpeed(pitch);
-
-        // Set the speed of the shooter motors.
+        double distance; //desired pitch based on the distance?
+        double pitch = 0; 
+        double speed = 0; //Map the pitch to the speed we need to control the motors to.
+        //Maybe put controlling motors into another method if this method gets too complicated?
         shooterMtrL.set(speed);
         shooterMtrR.set(speed);
-    }
-    private double mapPitchToSpeed(double pitch) {
-        // Map the pitch to a speed value for the motors, how do to implement this?
-        double speed = 0.0;
-        return speed;
+        //Same for these too
+        arm.set(true);
+        Pitch_SV.set(true);
     }
 
-    private void controlSolenoids(double pitch) {
-        // Control the solenoids based on the pitch.
-        if (pitch > threshold) {
-            arm.set(true);
-            Pitch_SV.set(true);
-        } else {
-            arm.set(false);
-            Pitch_SV.set(false);
-        }
-    }
-    */
+    
     /* 
      * left_trigger  - triggers the left catapult
      * @param right_trigger - triggers the right catapult
@@ -247,6 +194,7 @@ public class Shooter {
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter_State", state);
         SmartDashboard.putNumber("MTR_speed", shooterMtrLd.get());
+        
         SmartDashboard.putBoolean("ShtrSpeakerRq",shtrSpeakerRq);
       
         
