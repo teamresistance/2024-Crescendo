@@ -18,6 +18,12 @@ import frc.util.Timer;
 import frc.util.timers.OnOffDly;
 public class Shooter {
     // hdw defintions:
+    private static CANSparkMax shooterMtrL = IO.shooterMtrL;
+    private static CANSparkMax shooterMtrR = IO.shooterMtrR;
+    private static Solenoid arm = IO.arm;
+    private static Solenoid Pitch_SV;
+
+    //private static Solenoid ShooterSV;
     private static CANSparkMax shooterMtrLd = IO.shooterMtrL;
     private static CANSparkMax shooterMtrLg = IO.shooterMtrR;   //Follows Ld
     private static Solenoid shooterArmUp = IO.arm;
@@ -32,22 +38,13 @@ public class Shooter {
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-    private static double hiSpeed = 0.8;
-    private static double loSpeed = 0.3;
-
-    private static OnOffDly armUpDnTmr = new OnOffDly(500, 500);    // Wait to signal up or down
-    private static boolean armUpFB = false;                         // arm on/off delayed status
-
-    /**deprecated 2024  Use kShooter*/
-    public static Boolean autoShootSpeaker = null;
-    /**
-     * Constants to call Shooter to take shot control.
-     * <p>kNoReq - No request.  Allow local control.
-     * <p>kSpkrShot - Start Shooter speaker shot   Call only once.
-     * <p>kAmpShot - Start Amp shot.  Probably not used.  Call only once.
-     */
-    public enum RQShooter {kNoReq, kSpkrShot, kAmpShot};
-    public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
+    private static double hiSpd = 0.8; // Speed to run the snorfler at
+    private static double loSpd = 0.3; // Speed to run the snorfler at
+    private static double mtr_rpm;
+    private static boolean targetAmp = false;
+    private static boolean btnSpeakerRq;
+    private static boolean btnAmpRq; 
+    private static float threshold;
 
     private static boolean shtrSpeakerRq;
     /**
@@ -83,89 +80,110 @@ public class Shooter {
         double motorSpeed = shooterMtrLd.get();
     }
 
-
+    /**
+     * Update ????. Called from teleopPeriodic in robot.java.
+     * <p>
+     * Determine any state that needs to interupt the present state, usually by way
+     * of a JS button but can be caused by other events.
+     */
+    private static void smUpdate() { // State Machine Update
     
-private static void smUpdate() { // State Machine Update
-    switch (state) {
-        case 0: // Everything is off. Decide if shooting to speaker or amp.
-            cmdUpdate(0.0, true);
-            stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
-            if(btnSpkrShot.onButtonPressed()) state = 1;  // 1st press, Speaker shot
-            if(btnAmpShot.onButtonPressed()) state = 10;     // 1st press, Amp shot
-            break;
-        //---------- Shoot at Speaker  ---------------
-        case 1: // Get shooters up to speed for Speaker shot
-            cmdUpdate(hiSpeed, true);
-            if (stateTmr.hasExpired(0.25, state)) state++;
-            break;
-        case 2: // Wait for shot or cancel
-            cmdUpdate(hiSpeed, true);
-            if(btnSpkrShot.onButtonPressed()) state = 0;          //2nd Press, Cancel Speaker shot
-            if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //Goto shot
-            break;
-        case 3: // Request snorfler to feed Note if arm dn
-            cmdUpdate(hiSpeed, true);
-            if (!armUpFB) state++;
-            break;
-        case 4: // Request snorfler to feed Note,
-            cmdUpdate(hiSpeed, true);
-            Snorfler.snorfFwdRq = SnorfRq.kforward;   // Trigger once. Self cancels after 200 mS
-            autoShoot = RQShooter.kNoReq;       // cancel auto shoot
-            state++;
-        case 5: // shoot then turn off
-            cmdUpdate(hiSpeed, true);
-            if (stateTmr.hasExpired(0.5, state)) state = 0;
-            break;
-        //----------- Shoot for Amp --------------
-        case 10: // Get shooters up to low speed for Amp preload
-            cmdUpdate(loSpeed, true);
-            if (stateTmr.hasExpired(0.25, state)) state++;
-            break;
-        case 11: // Request snorfler to feed Note,
-            cmdUpdate(loSpeed, true);
-            Snorfler.snorfFwdRq = SnorfRq.kforward;   // Trigger once. Self cancels after 200 mS
-            state++;
-        case 12: // take Note and stop shooter motor.
-            cmdUpdate(loSpeed, true);
-            if (stateTmr.hasExpired(0.5, state)) state++;
-            break;
-        case 13: // wait to raise Arm when 2nd btn press or auto
-            cmdUpdate(0.0, true);
-            if(btnAmpShot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //2nd press raise arm
-            break;
-        case 14: // wait for request to shoot (raise arm) or lower arm
-            cmdUpdate(0.0, false);
-            if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
-            if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //SHOOT!
-            break;
-        case 15: // arm raised,
-            cmdUpdate(hiSpeed, false);
-            autoShoot = RQShooter.kNoReq;    // cancel auto shoot
-            if (armUpFB) state++;           //SHOOT!
-            break;
-        case 16: // shoot and all off
-            cmdUpdate(hiSpeed, false);
-            if (stateTmr.hasExpired(0.5, state)) state = 0;
-            break;
-        //----------- Unload ---------------
-        case 20: // unload from amp shot
-            cmdUpdate(0.0, true);
-            if (!armUpFB) state++;   //wait for arm to lower FB
-            break;
-        case 21: // unload from amp shot, request snorfler to unload
-            cmdUpdate(-loSpeed, true);
-            Snorfler.snorfFwdRq = SnorfRq.kreverse;   // Trigger once, Self cancels after 330 mS
-            state++;
-        case 22: // unload from amp shot, request snorfler to unload
-            cmdUpdate(-loSpeed, true);
-            if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
-            break;
-        default: // all off
-            cmdUpdate(0.0, true);
-            System.out.println("Bad sm state:" + state);
-            break;
+        switch (state) {
+            case 0: // Everything is off
+                cmdUpdate(0.0, true);
+                stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
+                break;
+            case 1: // Get shooters up to speed
+                cmdUpdate(hiSpd, true);
+                if (stateTmr.hasExpired(0.25, state)) state++;
+                break;
+            case 2: // Make sure the arm is down, sire
+                cmdUpdate(hiSpd, true);
+                //Snorfler.loadShooter;     //TO DO: Require to release Note
+                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                break;
+            case 3: //Shoot for Amp
+                cmdUpdate(hiSpd, true);
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
+                shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad//yea man stop it 😠
+
+                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                break;
+            case 10: //Load for Amp
+                cmdUpdate(loSpd, true);//slow down shooter, start snofler
+                Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
+                
+                if (stateTmr.hasExpired(0.33, state)) state++;
+                break;
+            case 11: //Stop Shooter & Snorfler, Raise Arm.
+                cmdUpdate(0.0, false);
+                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
+                break;
+            case 12: //Wait for trigger to shoot Speaker
+                cmdUpdate(hiSpd, false);
+                if (btnShoot.isDown() || btnAmpRq == true) state++;
+                
+                break;
+            case 13: //Wait for trigger to shoot Amp
+                cmdUpdate(hiSpd, false);
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
+                if (stateTmr.hasExpired(0.35, state)) state = 0;
+                break;
+            case 30: //Unload
+                cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
+                Snorfler.snorfFwdRq = SnorfRq.kreverse;
+                if (stateTmr.hasExpired(0.22, state)) state = 0;
+                break;
+            default: // all off
+                cmdUpdate(0.0, true); //Is it really false??
+                System.out.println("Bad sm state Shooter:" + state);
+                if (stateTmr.hasExpired(0.25, state)) state++;
+                break;
         }
       
+    }
+    private void adjustShooter() {
+        // Get the distance from the Vision class.
+        double distance; //Vision.get_distance(); //implement once actually done
+
+        // Calculate the desired pitch based on the distance.
+        double pitch = 0; //get pitch from vision
+
+        
+
+        // Adjust the pitch of the shooter.
+        setPitch(pitch);
+
+        // Control the motor and solenoids based on the adjusted pitch.
+        controlMotor(pitch);
+        controlSolenoids(pitch);
+    }
+    private void setPitch(double pitch) {
+        // Set the pitch of the shooter given vision and stuff
+    }
+    private void controlMotor(double pitch) {
+        // Map the pitch to a speed value. Improve on this later
+        double speed = mapPitchToSpeed(pitch);
+
+        // Set the speed of the shooter motors.
+        shooterMtrL.set(speed);
+        shooterMtrR.set(speed);
+    }
+    private double mapPitchToSpeed(double pitch) {
+        // Map the pitch to a speed value for the motors, how do to implement this?
+        double speed = 0.0;
+        return speed;
+    }
+
+    private void controlSolenoids(double pitch) {
+        // Control the solenoids based on the pitch.
+        if (pitch > threshold) {
+            arm.set(true);
+            Pitch_SV.set(true);
+        } else {
+            arm.set(false);
+            Pitch_SV.set(false);
+        }
     }
 
     /* 
