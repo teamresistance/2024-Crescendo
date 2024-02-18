@@ -97,49 +97,49 @@ public class Shooter {
                 break;
             case 1: // Get shooters up to speed
                 cmdUpdate(hiSpd, true);
-                if (stateTmr.hasExpired(0.25, state)) state++;
+                if (stateTmr.hasExpired(0.25, state)) {state++;}
                 break;
             case 2: // Make sure the arm is down, sire
                 cmdUpdate(hiSpd, true);
                 //Snorfler.loadShooter;     //TO DO: Require to release Note
-                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                if (stateTmr.hasExpired(0.5, state)) {state = 0;}
                 break;
             case 3: //Shoot for Amp
                 cmdUpdate(hiSpd, true);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
                 shtrSpeakerRq = false; //tf is null??? hey bro no cursing; cursing bad//yea man stop it 😠
 
-                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                if (stateTmr.hasExpired(0.5, state)) {state = 0;}
                 break;
             case 10: //Load for Amp
                 cmdUpdate(loSpd, true);//slow down shooter, start snofler
                 Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
                 
-                if (stateTmr.hasExpired(0.33, state)) state++;
+                if (stateTmr.hasExpired(0.33, state)) {state++;}
                 break;
             case 11: //Stop Shooter & Snorfler, Raise Arm.
                 cmdUpdate(0.0, false);
-                if (stateTmr.hasExpired(0.5, state)) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
+                if (stateTmr.hasExpired(0.5, state)) {state++;} //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
                 break;
             case 12: //Wait for trigger to shoot Speaker
                 cmdUpdate(hiSpd, false);
-                if (btnShoot.isDown() || btnAmpRq == true) state++;
+                if (btnShoot.isDown() || btnAmpRq == true) {state++;}
                 
                 break;
             case 13: //Wait for trigger to shoot Amp
                 cmdUpdate(hiSpd, false);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
-                if (stateTmr.hasExpired(0.35, state)) state = 0;
+                if (stateTmr.hasExpired(0.35, state)) {state = 0;}
                 break;
             case 30: //Unload
                 cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
                 Snorfler.snorfFwdRq = SnorfRq.kreverse;
-                if (stateTmr.hasExpired(0.22, state)) state = 0;
+                if (stateTmr.hasExpired(0.22, state)) {state = 0;}
                 break;
             default: // all off
                 cmdUpdate(0.0, true); //Is it really false??
                 System.out.println("Bad sm state Shooter:" + state);
-                if (stateTmr.hasExpired(0.25, state)) state++;
+                if (stateTmr.hasExpired(0.25, state)) {state++;}
                 break;
         }
     }
