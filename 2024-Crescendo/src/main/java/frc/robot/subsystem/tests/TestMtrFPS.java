@@ -164,9 +164,9 @@ public class TestMtrFPS {
         }
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
-        shtrLdPIDCtlr.setSetpoint(shtrACmd );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         if(!shtrBFlwA){
-            shtrLgPIDCtlr.setSetpoint(shtrBCmd );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17 );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }
         //For testing
         testSnorfCmd = snorfCmd;
@@ -200,7 +200,7 @@ public class TestMtrFPS {
         runShtrFPS42 = SmartDashboard.getBoolean( "TestMtrsFPS/Run Shooter 42", runShtrFPS42);
         runBothFPS = SmartDashboard.getBoolean(   "TestMtrsFPS/Run ALL, Snorf & Shtrs", runBothFPS);
         runBFlwr = SmartDashboard.getBoolean(     "TestMtrsFPS/Run Lg 42 to 41", runBFlwr);
-        resetEnc = SmartDashboard.getBoolean("TestMtrsFPS/Enc/Reset Enc", resetEnc);
+        resetEnc = SmartDashboard.getBoolean(     "TestMtrsFPS/Enc/Reset Enc", resetEnc);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber( "TestMtrsFPS/state", stateFPS);
@@ -249,7 +249,7 @@ public class TestMtrFPS {
         shooterMtrLd.setIdleMode(IdleMode.kCoast);
         shooterMtrLd.clearFaults();
         shooterMtrLd.setInverted(true);
-
+        shtrLdPIDCtlr.init();
     }
 
     /**
@@ -262,6 +262,7 @@ public class TestMtrFPS {
         shooterMtrLg.clearFaults();
         shooterMtrLg.setInverted(true);
         // shooterMtrLg.follow(shooterMtrLd);
+        shtrLgPIDCtlr.init();
     }
 
     // ----------------- Shooter statuses and misc.-----------------

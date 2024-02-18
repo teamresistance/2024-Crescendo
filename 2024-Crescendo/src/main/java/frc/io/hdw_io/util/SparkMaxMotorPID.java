@@ -31,8 +31,6 @@ public class SparkMaxMotorPID {
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag){
         // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
-        setP(kP); setI(kI); setD(kD); setIz(kIz); setFF(kFF); setMin(kMinOutput); setMax(kMaxOutput);
-        // if(sdbTag.isBlank()) sdbTag = "Motor";
         sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
     }
@@ -55,9 +53,9 @@ public class SparkMaxMotorPID {
                 double _p, double _i, double _d, double _iz, double _ff, double _min, double _max ){
         // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
-        setP(_p); setI(_i); setD(_d); setIz(_iz); setFF(_ff); setMin(_min); setMax(_max);
-        // if(sdbTag.isBlank()) sdbTag = "Motor";
         sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
+        kP = _p;  kI = _i;  kD = _d;  kIz = _iz;  kFF = ff;
+        kMinOutput = _min;  kMaxOutput = _max;
         init();
     }
 
@@ -71,22 +69,20 @@ public class SparkMaxMotorPID {
      * <p> [0]kP, [1]kI, [2]kD, [3]kIz, [4]kFF, [5]kOutputMin, [6]kOutputMax
      */
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag, double[] _parms){
-        // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
+        sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         for(int i = 0; i < _parms.length; i++){
             switch(i){
-                case 0: setP(_parms[0]); break;
-                case 1: setI(_parms[1]); break;
-                case 2: setD(_parms[2]); break;
-                case 3: setIz(_parms[3]); break;
-                case 4: setFF(_parms[4]); break;
-                case 5: setMin(_parms[5]); break;
-                case 6: setMax(_parms[6]); break;
+                case 0: kP = _parms[0]; break;
+                case 1: kI = _parms[1]; break;
+                case 2: kD = _parms[2]; break;
+                case 3: kIz = _parms[3]; break;
+                case 4: kFF = _parms[4]; break;
+                case 5: kMinOutput = _parms[5]; break;
+                case 6: kMaxOutput = _parms[6]; break;
                 default: System.out.println("Too many parms " + i + " " + _parms[i]);
             }
         }
-        // if(sdbTag.isBlank()) sdbTag = "Motor";
-        sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
     }
 
@@ -100,14 +96,14 @@ public class SparkMaxMotorPID {
         // m_pidController = m_motor.getPIDController();
 
         // set PID coefficients
-        // m_pidController.setP(kP);
-        // m_pidController.setI(kI);
-        // m_pidController.setD(kD);
-        // m_pidController.setIZone(kIz);
-        // m_pidController.setFF(kFF);
-        // m_pidController.setOutputRange(kMinOutput, kMaxOutput);
+        setP(kP);
+        setI(kI);
+        setD(kD);
+        setIz(kIz);
+        setFF(kFF);
+        setMin(kMinOutput);
+        setMax(kMaxOutput);
 
-        // sdbTag += deviceID + "/";   //Used to individualize sdb
         sdbInit();  // initialize display PID coefficients on SmartDashboard
     }
 
@@ -119,13 +115,13 @@ public class SparkMaxMotorPID {
      * Initialize or reinitialize SDB PID coefficients on SmartDashboard
      */
     private void sdbInit(){
-        SmartDashboard.putNumber(sdbTag + "P Gain ", kP);
-        SmartDashboard.putNumber(sdbTag + "I Gain ", kI);
-        SmartDashboard.putNumber(sdbTag + "D Gain ", kD);
-        SmartDashboard.putNumber(sdbTag + "I Zone ", kIz);
-        SmartDashboard.putNumber(sdbTag + "Feed Forward ", kFF);
-        SmartDashboard.putNumber(sdbTag + "Max Output ", kMaxOutput);
-        SmartDashboard.putNumber(sdbTag + "Min Output ", kMinOutput);
+        // SmartDashboard.putNumber(sdbTag + "P Gain ", kP);
+        // SmartDashboard.putNumber(sdbTag + "I Gain ", kI);
+        // SmartDashboard.putNumber(sdbTag + "D Gain ", kD);
+        // SmartDashboard.putNumber(sdbTag + "I Zone ", kIz);
+        // SmartDashboard.putNumber(sdbTag + "Feed Forward ", kFF);
+        // SmartDashboard.putNumber(sdbTag + "Max Output ", kMaxOutput);
+        // SmartDashboard.putNumber(sdbTag + "Min Output ", kMinOutput);
     }
 
     /**
