@@ -19,6 +19,8 @@ public class Shooter {
     private static CANSparkMax shooterMtrL = IO.shooterMtrL;
     private static CANSparkMax shooterMtrR = IO.shooterMtrR;
     private static Solenoid arm = IO.arm;
+    private static Solenoid Pitch_SV;
+
     //private static Solenoid ShooterSV;
 
     // joystick buttons:
@@ -38,6 +40,10 @@ public class Shooter {
     private static boolean targetAmp = false;
     private static boolean btnSpeakerRq;
     private static boolean btnAmpRq; 
+    private static final double min_pitch = 0; // The minimum pitch.
+    private static final double max_pitch = 0; // The maximum pitch.
+    private static double pitch; // The pitch of the shooter.
+    private static final double threshold = 0; // The threshold for extending the solenoids.
 
 
     private static boolean shtrSpeakerRq;
@@ -135,6 +141,49 @@ public class Shooter {
                 System.out.println("Bad sm state Shooter:" + state);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
+        }
+    }
+    private void adjustShooter() {
+        // Get the distance from the Vision class.
+        double distance; //Vision.get_distance(); //implement once actually done
+
+        // Calculate the desired pitch based on the distance.
+        double pitch = 0; //get pitch from vision
+
+        
+
+        // Adjust the pitch of the shooter.
+        setPitch(pitch);
+
+        // Control the motor and solenoids based on the adjusted pitch.
+        controlMotor(pitch);
+        controlSolenoids(pitch);
+    }
+    private void setPitch(double pitch) {
+        // Set the pitch of the shooter given vision and stuff
+    }
+    private void controlMotor(double pitch) {
+        // Map the pitch to a speed value. Improve on this later
+        double speed = mapPitchToSpeed(pitch);
+
+        // Set the speed of the shooter motors.
+        shooterMtrL.set(speed);
+        shooterMtrR.set(speed);
+    }
+    private double mapPitchToSpeed(double pitch) {
+        // Map the pitch to a speed value for the motors, how do to implement this?
+        double speed = 0.0;
+        return speed;
+    }
+
+    private void controlSolenoids(double pitch) {
+        // Control the solenoids based on the pitch.
+        if (pitch > threshold) {
+            arm.set(true);
+            Pitch_SV.set(true);
+        } else {
+            arm.set(false);
+            Pitch_SV.set(false);
         }
     }
 
