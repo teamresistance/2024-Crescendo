@@ -82,10 +82,9 @@ public class Shooter {
     }
 
     /**
-     * Update ????. Called from teleopPeriodic in robot.java.
-     * <p>
-     * Determine any state that needs to interupt the present state, usually by way
-     * of a JS button but can be caused by other events.
+     * State 0: Everything Off
+     * States 1-6: Shoot for Speaker
+     * States 10-
      */
     private static void smUpdate() { // State Machine Update
     
@@ -102,12 +101,24 @@ public class Shooter {
                 cmdUpdate(hiSpd, true);
                 //Snorfler.loadShooter;     //TO DO: Require to release Note
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
+                break; 
+            case 3: //Load for Speaker
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
+            case 4: //Stop Shooter & Snorfler.
+                cmdUpdate(0.0, true);
+                if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; //I hope this is right//nah its wrong //thanks bro//yw man 😊 //thy end is now // nah id win
                 break;
-            
+            case 5: //Wait for trigger to shoot Speaker
+                cmdUpdate(hiSpd, true);
+                if (btnShoot.isDown() || btnSpeakerRq == true) state++;
+                else if (btnSpkrShot.isDown()) state = 0;
+            case 6: //Shoot for speaker
+                cmdUpdate(hiSpd,true);
+                Snorfler.snorfFwdRq = SnorfRq.kforward;
+                if (stateTmr.hasExpired(0.35, state)) state = 0;  
             case 10: //Load for Amp
                 cmdUpdate(loSpd, true);//slow down shooter, start snofler
                 Snorfler.snorfFwdRq = SnorfRq.kforward; //please improve this line; not entirely sure how to properly rq subsystems
-                
                 if (stateTmr.hasExpired(0.33, state)) state++;
                 break;
             case 11: //Stop Shooter & Snorfler, Raise Arm.
@@ -131,13 +142,13 @@ public class Shooter {
                 
                 if (stateTmr.hasExpired(0.33, state)) state++;
                 break;
-            case 15: 
+            case 15: //Wait for trigger to shoot Shooter.
                 cmdUpdate(hiSpd, true);
                 if (btnShoot.isDown() || btnSpeakerRq == true) state++;
                 else if (btnSpkrShot.isDown()) state = 0;
                 
                 break;
-            case 16:
+            case 16: //Shoot
                 cmdUpdate(hiSpd, true);
                 Snorfler.snorfFwdRq = SnorfRq.kforward;
                 if (stateTmr.hasExpired(0.35, state)) state = 0;

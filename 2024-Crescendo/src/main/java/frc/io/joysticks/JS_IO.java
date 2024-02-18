@@ -167,6 +167,12 @@ public class JS_IO {
         lookAtNote.setButton(leftJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
 
+        //shooter
+        btnSpkrShot.setButton(coJoystick, 4); 
+        btnAmpShot.setButton(coJoystick, 3);
+        btnShoot.setButton(coJoystick, 1);
+        btnUnload.setButton(coJoystick, 2);
+
         //Climber
         btnClimberEna.setButton(coJoystick, 7);
     }
