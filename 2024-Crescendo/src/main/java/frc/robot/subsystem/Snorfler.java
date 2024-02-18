@@ -45,14 +45,26 @@ public class Snorfler {
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
-    //public static Boolean snorfFwdRq = null;   // Request from Shooter subsystem, true = load, false = unload, null = ignore
-    public static enum SnorfRq{koff,kforward,kreverse};
+    //NO LONGER public static Boolean snorfFwdRq = null;   Using enum which is more self-explanatory
+    public static enum SnorfRq{ //what a complicated mess
+        koff(0,"allOff"),
+        kforward(1,"fwd"),
+        kreverse(2,"reverse");
+        
+        private final int NUM;
+        private final String DESC;
+        private SnorfRq(int num, String desc) {
+            this.NUM = num;
+            this.DESC = desc;
+        }
+    }
     public static SnorfRq snorfFwdRq = SnorfRq.koff;
     public static int snorfFwdState;
+    
 
     // has Game Piece is controlled by a Sensor(?)
     public static boolean hasGP;
-    private static OnDly hasGPOnDly = new OnDly(0.35);
+    private static OnDly hasGPOnDly = new OnDly(0.35); //hmmmmmmmmm
 
     /**
      * Initialize Snorfler stuff. Called from telopInit (maybe robotInit(?)) in
@@ -80,9 +92,9 @@ public class Snorfler {
 
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
-
-        if(snorfFwdRq == SnorfRq.kforward && state < 20) state = 20;
-        if(snorfFwdRq == SnorfRq.kreverse && state < 30) state = 30;
+        //Using enum SnorfFwdRq instead of Boolean SnorfFwdRq for humans to understand the code better.
+        if(snorfFwdRq == SnorfRq.kforward && state < 20) state = 20; //If the snorfler requests to go FWD, state = 20
+        if(snorfFwdRq == SnorfRq.kreverse && state < 30) state = 30; //If the snorfler requests to go REVERSE, state = 30
         switch (snorfFwdRq) {
             case koff:
                 snorfFwdState = 0;
@@ -124,13 +136,14 @@ public class Snorfler {
             case 1: // Snorfler intakes Note
                 cmdUpdate(fwdMtrSpd);
                 if((hasGP || !snorflerEnable) && stateTmr.hasExpired(0.2, state)) {
+                    snorflerEnable = false;
                     state = 0; //WHEN WE GET PROGRAMMING STUFF ABOUT THE SENSOR, WE NEED TO MAKE hasGP CHANGE DEPENDENT ON OUTPUT FROM THE SENSOR
                 }
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(rejMtrSpd);
                 break;
-            case 20: // Shooter request to Snorfler to load
+            case 20: // Shooter request to Snorfler to load (for amp(lifier))
                 cmdUpdate(loadMtrSpd);
                 if(stateTmr.hasExpired(0.5, state)) state++;
                 break;
@@ -189,7 +202,7 @@ public class Snorfler {
         SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
         SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
         SmartDashboard.putBoolean("Snorf/Has GP", hasGP);
-        SmartDashboard.putNumber("Snorf/FwdRq", snorfFwdState);
+        SmartDashboard.putNumber("Snorf/FwdRq", snorfFwdState); //Only exists so we can read the state of "FwdRq" in SDB //Does'nt do anything
         //0 means off
         //1 means forward
         //2 means reverse 

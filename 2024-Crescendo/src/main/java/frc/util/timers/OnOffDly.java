@@ -11,9 +11,10 @@ Desc:
 */
 
 public class OnOffDly{
-    private static long currentMSec;        //Current system mSeconds
+    private static long currentMSec;        // Current system mSeconds
     private boolean statOODly = false;      // status of on/off delay
     private boolean prvTrigger;             // previous state of the trigger
+    private boolean covTrgr;                // change of variable trigger (new) (not sure if needed)
 
     private long delayOnTm;                 // mSeconds to use for delay
     private long delayOnTmr;                // timer used by the delay
@@ -50,9 +51,13 @@ public class OnOffDly{
 
     public boolean get(){ return statOODly; }
 
-    public void setTm(long onDly, long offDly){
+    public void setTm(long onDly, long offDly) {
         this.delayOnTm = onDly > 0 ? onDly : 100;
         this.delayOffTm = offDly > 0 ? offDly : 100;
         currentMSec = System.currentTimeMillis();
+    }
+
+    public boolean hasExpired(boolean boolTrgr) {
+        return get(boolTrgr);
     }
 }

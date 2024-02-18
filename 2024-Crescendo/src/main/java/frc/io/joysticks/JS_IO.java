@@ -63,8 +63,8 @@ public class JS_IO {
     public static Button btnClimberEna = new Button();
 
     //Shooter
-    public static Button btnLoadForSpkr = new Button();
-    public static Button btnLoadForAmp = new Button();
+    public static Button btnSpkrShot = new Button();
+    public static Button btnAmpShot = new Button();
     public static Button btnShoot = new Button();
     public static Button btnUnload = new Button();
     
@@ -186,8 +186,8 @@ public class JS_IO {
 
         //Shooter / Arm
         btnShoot.setButton(gamePad, 6); // RB (Button on Left Front Edge) - Shoots game piece into Speaker
-        btnLoadForAmp.setButton(gamePad, 2); // B - Activates necessary subsystems to prepare to unload into Amp
-        btnLoadForSpkr.setButton(gamePad, 1); // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnAmpShot.setButton(gamePad, 2); // B - Activates necessary subsystems to prepare to unload into Amp
+        btnSpkrShot.setButton(gamePad, 1); // A - Activates necessary subsystems to prepare to shoot to Speaker
         btnUnload.setButton(gamePad, 8); // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
 
         //Snofler
@@ -230,8 +230,6 @@ public class JS_IO {
         btnClimberEna.setButton();
 
         //Shooter
-        btnLoadForSpkr.setButton();
-        btnLoadForAmp.setButton();
         btnShoot.setButton();
         btnUnload.setButton();
         
