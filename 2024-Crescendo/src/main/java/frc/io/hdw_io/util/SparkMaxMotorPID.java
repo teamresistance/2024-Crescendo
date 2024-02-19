@@ -189,46 +189,50 @@ public class SparkMaxMotorPID {
     }
     /** @param _d value of derivative, kD, to update */
     public void setD(double _d){
-        kP = _d;
+        kD = _d;
         m_pidController.setD(_d);
         SmartDashboard.putNumber(sdbTag + "D Gain ", _d);
     }
     /** @param _iz value of I Zone, kIz, to update */
     public void setIz(double _iz){
-        kP = _iz;
+        kIz = _iz;
         m_pidController.setIZone(_iz);
         SmartDashboard.putNumber(sdbTag + "I Zone ", _iz);
     }
     /** @param _min value of min output, kMinOutput, to update */
     public void setFF(double _ff){
-        kP = _ff;
+        kFF = _ff;
         m_pidController.setFF(_ff);
         SmartDashboard.putNumber(sdbTag + "Feed Forward ", _ff);
     }
     /** @param _min value of min output, kMinOutput, to update */
     public void setMin(double _min){
         kMinOutput = _min;
-        m_pidController.setOutputRange(_min, kMinOutput);
+        m_pidController.setOutputRange(_min, kMaxOutput);
         SmartDashboard.putNumber(sdbTag + "Min Output ", _min);
     }
     /** @param _max value of max output, kMaxOutput, to update */
     public void setMax(double _max){
         kMaxOutput = _max;
-        m_pidController.setOutputRange(kMaxOutput, _max);
+        m_pidController.setOutputRange(kMinOutput, _max);
         SmartDashboard.putNumber(sdbTag + "Max Output ", _max);
     }
 
     /** @return pid controller P value  */
+    public double getSP(){ return setPoint; }
+    /** @return pid controller P value  */
     public double getP(){ return m_pidController.getP(); }
     /** @return pid controller I value  */
     public double getI(){ return m_pidController.getI(); }
-    /** @return pid controller P value  */
-    public double getD(){ return m_pidController.getP(); }
-    /** @return pid controller P value  */
-    public double getIv(){ return m_pidController.getP(); }
+    /** @return pid controller D value  */
+    public double getD(){ return m_pidController.getD(); }
+    /** @return pid controller I Zone value  */
+    public double getIz(){ return m_pidController.getIZone(); }
+    /** @return pid controller Feed Forward value  */
+    public double getFF(){ return m_pidController.getFF(); }
     /** @return pid controller outputMin value  */
     public double getMin(){ return m_pidController.getOutputMin(); }
-    /** @return pid controller outputMin value  */
+    /** @return pid controller outputMax value  */
     public double getMax(){ return m_pidController.getOutputMax(); }
 
 

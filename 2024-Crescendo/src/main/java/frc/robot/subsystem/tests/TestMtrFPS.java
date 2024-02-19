@@ -32,8 +32,8 @@ public class TestMtrFPS {
     private static Encoder_Neo shtrA_Enc = IO.shtrMtrAEnc;
     private static Encoder_Neo shtrB_Enc = IO.shtrMtrBEnc;
     //MotorPIDController - CANSParkMax
-    private static SparkMaxMotorPID shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "TestMtrsFPS");
-    private static SparkMaxMotorPID shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "TestMtrsFPS");
+    private static SparkMaxMotorPID shtrLdPIDCtlr;
+    private static SparkMaxMotorPID shtrLgPIDCtlr;
 
     // joystick buttons:
     private static Joystick np = new Joystick(4);
@@ -55,12 +55,17 @@ public class TestMtrFPS {
     private static double testShtrBCmd;
 
     private static boolean resetEnc = false;
+    // PID parms in order: P, I, D, Iz, FF, min, max
+    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
 
     /**
      * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
      */
     public static void init() {
+        shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "TestMtrsFPS", shtrPIDParms);
+        shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "TestMtrsFPS", shtrPIDParms);
+
         hdwInit();
         sdbInit();
         smUpdate();
@@ -164,9 +169,21 @@ public class TestMtrFPS {
         }
         //Send commands to hardware
         snorfMtr.set(snorfCmd);
-        shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
-        if(!shtrBFlwA){
-            shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17 );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+
+        if(Math.abs(shtrACmd) > 3.0){
+            shtrLdPIDCtlr.setSetpoint(shtrACmd * 104.17);     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        }else{
+            shtrLdPIDCtlr.setSetpoint(0);
+            shooterMtrLd.disable();
+        }
+
+        if(Math.abs(shtrBCmd) > 3.0){
+            if(!shtrBFlwA){
+                shtrLgPIDCtlr.setSetpoint(shtrBCmd * 104.17 );     // F/S * 60/1 * 1/0.576 = FPS * 104.17
+            }
+        }else{
+            shtrLgPIDCtlr.setSetpoint(0);
+            shooterMtrLg.disable();
         }
         //For testing
         testSnorfCmd = snorfCmd;
@@ -218,6 +235,25 @@ public class TestMtrFPS {
         SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrB RPM", shtrB_Enc.getSpeed());
         SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrA amps", shooterMtrLd.getOutputCurrent());
         SmartDashboard.putNumber("TestMtrsFPS/Enc/ShtrB amps", shooterMtrLg.getOutputCurrent());
+
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/setpoint", shtrLdPIDCtlr.getSP());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/P", shtrLdPIDCtlr.getP());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/I", shtrLdPIDCtlr.getI());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/D", shtrLdPIDCtlr.getD());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/Iz", shtrLdPIDCtlr.getIz());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/FF", shtrLdPIDCtlr.getFF());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/Minoutput", shtrLdPIDCtlr.getMin());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Ld Chk/Maxoutput", shtrLdPIDCtlr.getMax());
+
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/setpoint", shtrLgPIDCtlr.getSP());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/P", shtrLgPIDCtlr.getP());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/I", shtrLgPIDCtlr.getI());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/D", shtrLgPIDCtlr.getD());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/Iz", shtrLgPIDCtlr.getIz());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/FF", shtrLgPIDCtlr.getFF());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/Minoutput", shtrLgPIDCtlr.getMin());
+        SmartDashboard.putNumber("TestMtrsFPS/pid Lg Chk/Maxoutput", shtrLgPIDCtlr.getMax());
+
     }
 
     /**
