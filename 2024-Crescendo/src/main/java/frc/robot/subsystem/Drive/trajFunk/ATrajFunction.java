@@ -63,6 +63,7 @@ public abstract class ATrajFunction {
      * @param isFieldRel- Field Oriented else Robot
      */
     public void sendDriveCmds(double fwdSpd, double rlSpd, double rotSpd, boolean isFieldRel){
+        // System.out.println(fwdSpd + " " + rlSpd + " " + rotSpd);
         Drive.setDriveCmds(fwdSpd, rlSpd, rotSpd, isFieldRel);
     }
 

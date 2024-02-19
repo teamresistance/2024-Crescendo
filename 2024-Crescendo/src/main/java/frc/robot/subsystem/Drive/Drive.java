@@ -112,9 +112,9 @@ public class Drive {
     //Photonvision
     private static AprilTagFieldLayout aprilTagFieldLayout;
 
-    private static PhotonCamera cam = new PhotonCamera("photonvision");
+    private static PhotonCamera cam = new PhotonCamera("Cam 1");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.0, -0.5, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(-0.5, 0.3, 0.5), new Rotation3d(-15.0,15.0,10.0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
     private static boolean followNote;
     private static boolean parkAtTarget;
@@ -160,7 +160,7 @@ public class Drive {
     public static final double setPoint2Y = 6.5;
 
     //Speaker setpoint
-    public static final Translation2d speakerPos = new Translation2d(); //TODO: Fill in translation2d object with speaker coords
+    public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
 
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -305,6 +305,10 @@ public class Drive {
             Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
             //TODO: use this angle and do stuff.
+            System.out.println(angleFromSpeaker);
+            
+            double pidOutputZ = pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
+            rotSpd = -pidOutputZ * 0.3;
         }
 
         
@@ -375,6 +379,7 @@ public class Drive {
         // System.out.println(state);
         
         heading = IO.navX.getRotation2d();
+        
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
 
@@ -419,16 +424,16 @@ public class Drive {
          * Each wheel has a PID controller that is then updated to match that speed.
          */
     
-        
+        System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
         if (!fieldOriented)
         {
             //Robot
-            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpeed, -rlSpeed, rotSpeed);
+            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-rlSpeed, -fwdSpeed, rotSpeed);
         }
         else
         {
             //Field
-            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpeed, -rlSpeed, rotSpeed, navX.getAngle());
+            inputs = MecanumDriveCalculator.calculateMecanumDrive(-rlSpeed, -fwdSpeed, rotSpeed, navX.getAngle());
         }
     
         
