@@ -7,12 +7,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class for the CANSparkMax PID RPM control.
+ * In order to use PID functionality for a controller, 
+ * a SparkPIDController object is constructed by calling the 
+ * getPIDController() method on an existing CANSparkMax object.
  */
 public class SparkMaxMotorPID {
     public SparkPIDController m_pidController;
     // PID coefficients
     private double setPoint = 0.0;
     private String sdbTag = "";  //Used in sdb to individualize motor
+    private boolean sdbEnable = true;
 
     private double kP = 6e-5; 
     private double kI = 0;
@@ -24,9 +28,14 @@ public class SparkMaxMotorPID {
     private double p, i, d, iz, ff, min, max;   //Used to update kP, kI, ...
 
     /**
-     * Constructor.  Default, uses default values for parms: kP, kI, kD, kIz, kFF
+     * Constructor.  In order to use PID functionality for a controller, 
+     * a SparkPIDController object is constructed by calling the 
+     * getPIDController() method on an existing CANSparkMax object.
+
+     * <p>Default, uses default tuning values for parms: kP, kI, kD, kIz, kFF
      * <p>kMinOutput & kMaxOutput.
      * @param _m_motor CANSparkMax asso. with the PID
+     * @param _sdbTag to make it unique.  Shooter41/kP.  Blank is Motor41/kP
      */
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag){
         // m_motor = _m_motor;
@@ -36,7 +45,10 @@ public class SparkMaxMotorPID {
     }
 
     /**
-     * Constructor.  use values passed for parms: kP, kI, kD, kIz, kFF
+     * Constructor.  In order to use PID functionality for a controller, 
+     * a SparkPIDController object is constructed by calling the 
+     * getPIDController() method on an existing CANSparkMax object.
+     * <p>Tuning values passed for parms: kP, kI, kD, kIz, kFF
      * <p>kMinOutput & kMaxOutput.
      * 
      * @param _m_motor CANSparkMax asso. with the PID
@@ -60,12 +72,12 @@ public class SparkMaxMotorPID {
     }
 
     /**
-     * Constructor.  use values passed for parms: kP, kI, kD, kIz, kFF
-     * <p>kMinOutput & kMaxOutput.
+     * Constructor.  use tuning values passed in an array for parms: kP, kI, kD, kIz, kFF
+     * <p>kMinOutput & kMaxOutput.  Any number of parms can be passed but must be in order.
      * 
-     * @param _m_motor
-     * @param _sdbTag
-     * @param _parms double array of up to 6 parms.  Must be entered in order:
+     * @param _m_motor CANSparkMax asso. with the PID
+     * @param _sdbTag to make it unique.  Shooter41/kP.  Blank is Motor41/kP
+     * @param _parms double array of up to 7 parms.  Must be entered in order:
      * <p> [0]kP, [1]kI, [2]kD, [3]kIz, [4]kFF, [5]kOutputMin, [6]kOutputMax
      */
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag, double[] _parms){
@@ -88,12 +100,7 @@ public class SparkMaxMotorPID {
 
     /** Initialize pid controller */
     public void init(){
-        /**
-         * In order to use PID functionality for a controller, a SparkPIDController object
-         * is constructed by calling the getPIDController() method on an existing
-         * CANSparkMax object
-         */
-        // m_pidController = m_motor.getPIDController();
+        setPoint = 0.0;
 
         // set PID coefficients
         setP(kP);
@@ -107,21 +114,15 @@ public class SparkMaxMotorPID {
         sdbInit();  // initialize display PID coefficients on SmartDashboard
     }
 
+    /**Update pid reference and sdb if enabled. */
     public void update(){
-        sdbUpdate();
+        referenceUpd();
+        if(sdbEnable) sdbUpdate();
     }
 
-    /**
-     * Initialize or reinitialize SDB PID coefficients on SmartDashboard
-     */
+    /**Initialize or reinitialize SDB PID coefficients on SmartDashboard */
     private void sdbInit(){
-        // SmartDashboard.putNumber(sdbTag + "P Gain ", kP);
-        // SmartDashboard.putNumber(sdbTag + "I Gain ", kI);
-        // SmartDashboard.putNumber(sdbTag + "D Gain ", kD);
-        // SmartDashboard.putNumber(sdbTag + "I Zone ", kIz);
-        // SmartDashboard.putNumber(sdbTag + "Feed Forward ", kFF);
-        // SmartDashboard.putNumber(sdbTag + "Max Output ", kMaxOutput);
-        // SmartDashboard.putNumber(sdbTag + "Min Output ", kMinOutput);
+        SmartDashboard.putBoolean(sdbTag + "SDB Tuning ", sdbEnable);
     }
 
     /**
@@ -129,45 +130,48 @@ public class SparkMaxMotorPID {
      * <p>Retrieve values from sdb and update kparms and pidController as needed.
      */
     private void sdbUpdate(){
-        // read PID coefficients from SmartDashboard
-        p = SmartDashboard.getNumber(  sdbTag + "P Gain ", kP);
-        i = SmartDashboard.getNumber(  sdbTag + "I Gain ", kI);
-        d = SmartDashboard.getNumber(  sdbTag + "D Gain ", kD);
-        iz = SmartDashboard.getNumber( sdbTag + "I Zone ", kIz);
-        ff = SmartDashboard.getNumber( sdbTag + "Feed Forward ", kFF);
-        min = SmartDashboard.getNumber(sdbTag + "Min Output ", kMinOutput);
-        max = SmartDashboard.getNumber(sdbTag + "Max Output ", kMaxOutput);
+        sdbEnable = SmartDashboard.getBoolean(sdbTag + "SDB Tuning ", sdbEnable);
+        if(sdbEnable){
+            // read PID coefficients from SmartDashboard
+            p = SmartDashboard.getNumber(  sdbTag + "P Gain ", kP);
+            i = SmartDashboard.getNumber(  sdbTag + "I Gain ", kI);
+            d = SmartDashboard.getNumber(  sdbTag + "D Gain ", kD);
+            iz = SmartDashboard.getNumber( sdbTag + "I Zone ", kIz);
+            ff = SmartDashboard.getNumber( sdbTag + "Feed Forward ", kFF);
+            min = SmartDashboard.getNumber(sdbTag + "Min Output ", kMinOutput);
+            max = SmartDashboard.getNumber(sdbTag + "Max Output ", kMaxOutput);
 
-        SmartDashboard.putNumber(sdbTag + "Setpoint ", setPoint);
+            SmartDashboard.putNumber(sdbTag + "Setpoint ", setPoint);
 
-        // if PID coefficients on SmartDashboard have changed, write new values to controller
-        if((p != kP)) { m_pidController.setP(p); kP = p; }
-        if((i != kI)) { m_pidController.setI(i); kI = i; }
-        if((d != kD)) { m_pidController.setD(d); kD = d; }
-        if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
-        if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
-        if((max != kMaxOutput) || (min != kMinOutput)) { 
-            m_pidController.setOutputRange(min, max); 
-            kMinOutput = min; kMaxOutput = max; 
+            // if PID coefficients on SmartDashboard have changed, write new values to controller
+            if((p != kP)) { m_pidController.setP(p); kP = p; }
+            if((i != kI)) { m_pidController.setI(i); kI = i; }
+            if((d != kD)) { m_pidController.setD(d); kD = d; }
+            if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
+            if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
+            if((max != kMaxOutput) || (min != kMinOutput)) { 
+                m_pidController.setOutputRange(min, max); 
+                kMinOutput = min; kMaxOutput = max; 
+            }
         }
+    }
 
-        /**
-         * PIDController objects are commanded to a set point using the 
-         * SetReference() method.
-         * 
-         * The first parameter is the value of the set point, whose units vary
-         * depending on the control type set in the second parameter.
-         * 
-         * The second parameter is the control type can be set to one of four 
-         * parameters:
-         *  com.revrobotics.CANSparkMax.ControlType.kDutyCycle
-         *  com.revrobotics.CANSparkMax.ControlType.kPosition
-         *  com.revrobotics.CANSparkMax.ControlType.kVelocity
-         *  com.revrobotics.CANSparkMax.ControlType.kVoltage
-         */
-        
+    /**
+     * PIDController objects are commanded to a set point using the 
+     * SetReference() method.
+     * 
+     * The first parameter is the value of the set point, whose units vary
+     * depending on the control type set in the second parameter.
+     * 
+     * The second parameter is the control type can be set to one of four 
+     * parameters:
+     * <p>  com.revrobotics.CANSparkMax.ControlType.kDutyCycle
+     * <p>  com.revrobotics.CANSparkMax.ControlType.kPosition
+     * <p>  com.revrobotics.CANSparkMax.ControlType.kVelocity
+     * <p>  com.revrobotics.CANSparkMax.ControlType.kVoltage
+     */
+    private void referenceUpd(){
         m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
-        // SmartDashboard.putNumber("ProcessVariable", m_encoder.getVelocity());
     }
 
     public void setSetpoint(double _setPoint){
@@ -179,43 +183,43 @@ public class SparkMaxMotorPID {
     public void setP(double _p){
         kP = _p;
         m_pidController.setP(_p);
-        SmartDashboard.putNumber(sdbTag + "P Gain ", _p);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "P Gain ", _p); }
     }
     /** @param _i value of integral, kI, to update */
     public void setI(double _i){
         kI = _i;
         m_pidController.setI(_i);
-        SmartDashboard.putNumber(sdbTag + "I Gain ", _i);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "I Gain ", _i); }
     }
     /** @param _d value of derivative, kD, to update */
     public void setD(double _d){
         kD = _d;
         m_pidController.setD(_d);
-        SmartDashboard.putNumber(sdbTag + "D Gain ", _d);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "D Gain ", _d); }
     }
     /** @param _iz value of I Zone, kIz, to update */
     public void setIz(double _iz){
         kIz = _iz;
         m_pidController.setIZone(_iz);
-        SmartDashboard.putNumber(sdbTag + "I Zone ", _iz);
+            if(sdbEnable){SmartDashboard.putNumber(sdbTag + "I Zone ", _iz); }
     }
     /** @param _min value of min output, kMinOutput, to update */
     public void setFF(double _ff){
         kFF = _ff;
         m_pidController.setFF(_ff);
-        SmartDashboard.putNumber(sdbTag + "Feed Forward ", _ff);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "Feed Forward ", _ff); }
     }
     /** @param _min value of min output, kMinOutput, to update */
     public void setMin(double _min){
         kMinOutput = _min;
         m_pidController.setOutputRange(_min, kMaxOutput);
-        SmartDashboard.putNumber(sdbTag + "Min Output ", _min);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "Min Output ", _min); }
     }
     /** @param _max value of max output, kMaxOutput, to update */
     public void setMax(double _max){
         kMaxOutput = _max;
         m_pidController.setOutputRange(kMinOutput, _max);
-        SmartDashboard.putNumber(sdbTag + "Max Output ", _max);
+        if(sdbEnable){SmartDashboard.putNumber(sdbTag + "Max Output ", _max); }
     }
 
     /** @return pid controller P value  */
@@ -234,6 +238,4 @@ public class SparkMaxMotorPID {
     public double getMin(){ return m_pidController.getOutputMin(); }
     /** @return pid controller outputMax value  */
     public double getMax(){ return m_pidController.getOutputMax(); }
-
-
 }

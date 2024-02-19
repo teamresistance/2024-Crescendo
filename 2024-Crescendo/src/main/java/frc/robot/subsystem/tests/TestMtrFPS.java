@@ -9,13 +9,10 @@
  */
 package frc.robot.subsystem.tests;
 
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.SparkMaxMotorPID;
@@ -36,7 +33,7 @@ public class TestMtrFPS {
     private static SparkMaxMotorPID shtrLgPIDCtlr;
 
     // joystick buttons:
-    private static Joystick np = new Joystick(4);
+    //none at this time
 
     // variables:
     private static int stateFPS; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM

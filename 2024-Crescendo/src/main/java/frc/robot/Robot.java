@@ -32,6 +32,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         IO.init();
+        Tests.chsrInit();
     }
 
     /**
@@ -91,8 +92,8 @@ public class Robot extends TimedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
-        Tests.chsrInit();
         TestMtrPct.init();
+        TestMtrFPS.init();
     }
 
     private static KTests prvTest;

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * Class ussed to select which test to run without having to reload.
+ * Class used to select which test to run without having to reload.
  * Sets up a chooser that is used by Robot.java testInit & testPeriodic.
  */
 public class Tests {
@@ -37,7 +37,6 @@ public class Tests {
         }
         public static KTests getKTest(String str){
             for(KTests kt : KTests.values()){
-                String tmp = kt.desc;
                 if( kt.desc.equals(str)) return kt;
             }
             return KTests.kTestMtrsNone;
