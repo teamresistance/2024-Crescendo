@@ -63,6 +63,15 @@ public class TestMtrFPS {
         shtrLdPIDCtlr = new SparkMaxMotorPID(shooterMtrLd, "TestMtrsFPS", shtrPIDParms);
         shtrLgPIDCtlr = new SparkMaxMotorPID(shooterMtrLg, "TestMtrsFPS", shtrPIDParms);
 
+        shtr41FPS_SP = 0.0;
+        shtr42FPS_SP = 0.0;
+        runSnorfFPS40 = false;
+        runShtrFPS41 = false;
+        runShtrFPS42 = false;
+        runBFlwr = false;
+        runBothFPS = false;
+        prvBothFPS = false;
+
         hdwInit();
         sdbInit();
         smUpdate();

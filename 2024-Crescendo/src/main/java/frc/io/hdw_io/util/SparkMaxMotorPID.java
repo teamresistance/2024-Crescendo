@@ -15,8 +15,10 @@ public class SparkMaxMotorPID {
     public SparkPIDController m_pidController;
     // PID coefficients
     private double setPoint = 0.0;
+    private double prvSetpt = 0.1;
     private String sdbTag = "";  //Used in sdb to individualize motor
-    private boolean sdbEnable = true;
+    private boolean sdbEnable = false;
+    private boolean sdbSdbEna = false;
 
     private double kP = 6e-5; 
     private double kI = 0;
@@ -38,7 +40,6 @@ public class SparkMaxMotorPID {
      * @param _sdbTag to make it unique.  Shooter41/kP.  Blank is Motor41/kP
      */
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag){
-        // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
         sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         init();
@@ -63,7 +64,6 @@ public class SparkMaxMotorPID {
      */
     public SparkMaxMotorPID(CANSparkMax _m_motor, String _sdbTag, 
                 double _p, double _i, double _d, double _iz, double _ff, double _min, double _max ){
-        // m_motor = _m_motor;
         m_pidController = _m_motor.getPIDController();
         sdbTag += _sdbTag + "/Mtr_" + _m_motor.getDeviceId() + "/";   //Used to individualize sdb
         kP = _p;  kI = _i;  kD = _d;  kIz = _iz;  kFF = ff;
@@ -98,10 +98,15 @@ public class SparkMaxMotorPID {
         init();
     }
 
-    /** Initialize pid controller */
+    /** Initialize controller */
     public void init(){
         setPoint = 0.0;
+        initPID();  // set PID coefficients
+        sdbInit();  // initialize display PID coefficients on SmartDashboard
+    }
 
+    /** Initialize pid controller parms */
+    public void initPID(){
         // set PID coefficients
         setP(kP);
         setI(kI);
@@ -117,12 +122,16 @@ public class SparkMaxMotorPID {
     /**Update pid reference and sdb if enabled. */
     public void update(){
         referenceUpd();
-        if(sdbEnable) sdbUpdate();
+        if(sdbEnable != sdbSdbEna){
+            sdbEnable = sdbSdbEna;
+            initPID();
+        } 
+        sdbUpdate();
     }
 
     /**Initialize or reinitialize SDB PID coefficients on SmartDashboard */
     private void sdbInit(){
-        SmartDashboard.putBoolean(sdbTag + "SDB Tuning ", sdbEnable);
+        SmartDashboard.putBoolean(sdbTag + "SDB Tuning Enable ", sdbEnable);
     }
 
     /**
@@ -130,7 +139,9 @@ public class SparkMaxMotorPID {
      * <p>Retrieve values from sdb and update kparms and pidController as needed.
      */
     private void sdbUpdate(){
-        sdbEnable = SmartDashboard.getBoolean(sdbTag + "SDB Tuning ", sdbEnable);
+        sdbSdbEna = SmartDashboard.getBoolean(sdbTag + "SDB Tuning Enable ", sdbEnable);
+        SmartDashboard.putNumber(sdbTag + "Setpoint ", setPoint);
+
         if(sdbEnable){
             // read PID coefficients from SmartDashboard
             p = SmartDashboard.getNumber(  sdbTag + "P Gain ", kP);
@@ -140,8 +151,6 @@ public class SparkMaxMotorPID {
             ff = SmartDashboard.getNumber( sdbTag + "Feed Forward ", kFF);
             min = SmartDashboard.getNumber(sdbTag + "Min Output ", kMinOutput);
             max = SmartDashboard.getNumber(sdbTag + "Max Output ", kMaxOutput);
-
-            SmartDashboard.putNumber(sdbTag + "Setpoint ", setPoint);
 
             // if PID coefficients on SmartDashboard have changed, write new values to controller
             if((p != kP)) { m_pidController.setP(p); kP = p; }
@@ -171,7 +180,10 @@ public class SparkMaxMotorPID {
      * <p>  com.revrobotics.CANSparkMax.ControlType.kVoltage
      */
     private void referenceUpd(){
-        m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
+        if(prvSetpt != setPoint){
+            prvSetpt = setPoint;
+            m_pidController.setReference(setPoint, CANSparkMax.ControlType.kVelocity);
+        }
     }
 
     public void setSetpoint(double _setPoint){

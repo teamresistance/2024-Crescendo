@@ -106,16 +106,6 @@ public class Robot extends TimedRobot {
             prvTest = Tests.getTestSelected();
             TestMtrPct.init();
             TestMtrFPS.init();
-            // switch(prvTest){
-            //     case kTestMtrsNone:
-            //     break;
-            //     case kTestMtrsPct:
-            //         TestMtrPct.init();
-            //     break;
-            //     case kTestMtrsFPS:
-            //         TestMtrFPS.init();
-            //     break;
-            // }
         }
         // Then start updating the active test.
         switch(prvTest){
