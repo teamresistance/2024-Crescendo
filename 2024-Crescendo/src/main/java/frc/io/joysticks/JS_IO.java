@@ -60,6 +60,24 @@ public class JS_IO {
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
 
+        //Climber
+        public static Button btnClimberEna = new Button();
+
+        //Shooter
+        public static Button btnSpkrShot = new Button();
+        public static Button btnAmpShot = new Button();
+        public static Button btnShoot = new Button();
+        public static Button btnUnload = new Button();
+        
+        // and Amp and Reject↑↑↑↑
+        
+        //Snorfler
+        public static Button btnSnorflerEnable = new Button();
+        public static Button btnSnorfleReject = new Button();
+        //Snorfler Booleans!!
+        public static Boolean snorflerEnable = false;
+        public static boolean snorfFwdRq = false;    
+
     // Constructor not needed, bc
     public JS_IO() {
         init();
@@ -158,11 +176,25 @@ public class JS_IO {
         axRightX.setAxis(gamePad, 4);
         axRightY.setAxis(gamePad, 5);
 
-        
+        //Drive buttons
         autoBtn.setButton(gamePad, 1);
         headingHoldBtn.setButton(gamePad, 2);
         lookAtNote.setButton(gamePad, 3);
         btnGyroReset.setButton(gamePad, 4);
+
+        //Snofler
+        btnSnorflerEnable.setButton(gamePad, 4);// Y - Enables the Snorfler 
+        btnSnorfleReject.setButton(gamePad, 5); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+
+        //Shooter / Arm buttons
+        btnSpkrShot.setButton(coJoystick, 4);   // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnAmpShot.setButton(coJoystick, 3);    // B - Activates necessary subsystems to prepare to unload into Amp
+        btnShoot.setButton(coJoystick, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        btnUnload.setButton(coJoystick, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+
+        //Climber Buttons
+        btnClimberEna.setButton(coJoystick, 7); // X - Toggles climber, what else did you expect, blud?
+
     }
 
     // ----------- Normal 2 Joysticks -------------
@@ -175,20 +207,33 @@ public class JS_IO {
 
     // ----------- Case Default -----------------
     private static void caseDefault() {
-        //3JS
-
-        axLeftX.setAxis(leftJoystick, 0);       //Common call for each JS x & Y
-        axLeftY.setAxis(leftJoystick, 1);
-        axRightX.setAxis(rightJoystick, 0);
-        axRightY.setAxis(rightJoystick, 1);
-        axCoDrvX.setAxis(coJoystick, 0);
-        axCoDrvY.setAxis(coJoystick, 1);
+        //Axis
+        axLeftX.setAxis();       //Common call for each JS x & Y
+        axLeftY.setAxis();
+        axRightX.setAxis();
+        axRightY.setAxis();
+        axCoDrvX.setAxis();
+        axCoDrvY.setAxis();
 
         //2024 Stuff
-        autoBtn.setButton(leftJoystick, 11);
-        auto1Btn.setButton(leftJoystick, 9);
-        headingHoldBtn.setButton(leftJoystick, 12);
-        lookAtNote.setButton(rightJoystick, 1);
-        btnGyroReset.setButton(leftJoystick, 10);
+        autoBtn.setButton();
+        auto1Btn.setButton();
+        headingHoldBtn.setButton();
+        lookAtNote.setButton();
+        btnGyroReset.setButton();
+
+        //Snofler
+        btnSnorflerEnable.setButton();
+        btnSnorfleReject.setButton();
+
+        //Shooter / Arm buttons
+        btnSpkrShot.setButton();
+        btnAmpShot.setButton();
+        btnShoot.setButton();
+        btnUnload.setButton();
+
+        //Climber Buttons
+        btnClimberEna.setButton();
+
     }
 }

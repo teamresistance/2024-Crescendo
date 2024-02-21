@@ -1,3 +1,13 @@
+/*
+ * Author(s) - Wafflesnack
+ * History
+ * jch - 2/1/2024 - Fixed feet() and getFPS()
+ * waffle - 2/1/2019
+ * 
+ * Desc:
+ * Standardize SparkMax Encoder interface with other various encoders.
+ */
+
 package frc.io.hdw_io.util;
 
 import com.revrobotics.CANSparkMax;
@@ -24,7 +34,7 @@ public class Encoder_Neo {
 
     /**@return calculated feet from ticks. */
     public double feet(){
-        return tpf == 0.0 ? 0.0 : rotations() / tpf;
+        return tpf == 0.0 ? 0.0 : rotations() * 1024 / tpf;
     }
 
     /**@return calculated degrees from ticks. */
@@ -49,10 +59,21 @@ public class Encoder_Neo {
         // neoEnc.setPositionConversionFactor(tpf);
     }
 
+    /**
+     * RPM / 60 = RPS,  RPS / 1024 tpr = tps, => RPM * (1024 / 60)[17.067] / tpf = FPS :: tpf != 0
+     * @return Feet per seconds from RPM & tpf:  RPM * k / tpf = FPS  k = (1024 / 60) = 17.0667
+     */
     public double getFPS(){
-        return tpf == 0.0 ? 0.0 : 60 * (neoEnc.getVelocity() / tpf);   // (RPM / tpf = fpm) * 60 = fps
+        return tpf == 0.0 ? 0.0 : (17.0667) * (neoEnc.getVelocity() / tpf);
     }
 
+    /**
+     * Get the velocity of the motor. This returns the 
+     * native units of 'RPM' by default, and can be changed by 
+     * a scale factor using setVelocityConversionFactor().
+     * 
+     * @return Number the RPM of the motor by default
+     */
     public double getSpeed(){
         return neoEnc.getVelocity();
     }

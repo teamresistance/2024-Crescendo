@@ -4,14 +4,15 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
-import frc.robot.subsystem.tests.TestMotors;
+import frc.robot.subsystem.tests.TestMtrFPS;
+import frc.robot.subsystem.tests.TestMtrPct;
+import frc.robot.subsystem.tests.Tests;
+import frc.robot.subsystem.tests.Tests.KTests;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -90,14 +91,32 @@ public class Robot extends TimedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
-        TestMotors.chsrInit();
-        TestMotors.init();
+        TestMtrPct.init();
+        TestMtrFPS.init();
     }
 
+    private static KTests prvTest;
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
-        TestMotors.update();
+        Tests.update();
+        // If test selected has changed, intialize all test, turn off everything.
+        if(prvTest != Tests.getTestSelected()){
+            prvTest = Tests.getTestSelected();
+            TestMtrPct.init();
+            TestMtrFPS.init();
+        }
+        // Then start updating the active test.
+        switch(prvTest){
+            case kTestMtrsNone:
+            break;
+            case kTestMtrsPct:
+                TestMtrPct.update();
+            break;
+            case kTestMtrsFPS:
+                TestMtrFPS.update();
+            break;
+        }
     }
 
     /** This function is called once when the robot is first started up. */

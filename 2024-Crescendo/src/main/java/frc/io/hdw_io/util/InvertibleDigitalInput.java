@@ -1,18 +1,21 @@
 package frc.io.hdw_io.util;
 /*
-Author: Shreya
-History:
-JCH - 11/8/2019 - added additional functions.  isActive/Deactive & onAactive/Deactive
-S - 11/8/2019 - Original Release
-
-Desc:
-Sets the feedback from a digital input to normally closed.
+ * Author: Shreya
+ * History:
+ * JCH - 02/02/2024 - Deprecated.  Replaced with frc.io.hdw_io.util.DigitalInput extends WPI DigitalInput.
+ * JCH - 11/8/2019 - added additional functions.  isActive/Deactive & onAactive/Deactive
+ * S - 11/8/2019 - Original Release
+ * 
+ * Desc:
+ * Sets the feedback from a digital input to normally closed.
 */
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * Creates a DigitalIput that can return an invarted status.
+ * <p>02/02/2024 - Deprecated.  Replaced with frc.io.hdw_io.util.DigitalInput 
+ * extends WPI DigitalInput.
  */
 public class InvertibleDigitalInput {
     private DigitalInput limitSwitch;

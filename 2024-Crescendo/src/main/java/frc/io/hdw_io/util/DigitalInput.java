@@ -1,15 +1,16 @@
-package frc.io.hdw_io.util;
-/*
-Author: Shreya
-History:
-JCH - 02/03/2024 - Rewrote InvertibleDigitalinput as Extend Digitalinput
-JCH - 11/8/2019 - added additional functions.  isActive/Deactive & onAactive/Deactive
-Shr - 11/8/2019 - Original Release
 
-Desc:
-Sets the feedback from a digital input to normally closed.
+/*
+ * Author: Shreya
+ * History:
+ * JCH - 02/03/2024 - Rewrote InvertibleDigitalinput as Extend Digitalinput
+ * JCH - 11/8/2019 - added additional functions.  isActive/Deactive & onAactive/Deactive
+ * Shr - 11/8/2019 - Original Release
+ * 
+ * Desc:
+ * Sets the feedback from a digital input to normally closed.
 */
 
+package frc.io.hdw_io.util;
 /**
  * Extends edu.wpi.first.wpilibj.DigitalInput adding the ability to 
  * invert the hardware input.
