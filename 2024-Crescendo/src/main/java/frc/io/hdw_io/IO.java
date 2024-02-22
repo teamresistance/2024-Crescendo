@@ -96,16 +96,20 @@ public class IO {
 
     //Shooter
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
-    public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);  //Follows A
+    public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
+    public static Solenoid shooterPitchSV = new Solenoid(modID, modType, 1);    //This or
+    public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
 
     //Shooter Encoders
     // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  = 1777.91 ticks/ft
     public static Encoder_Neo shtrMtrAEnc = new Encoder_Neo(shooterMtrA, 1777.91);
     public static Encoder_Neo shtrMtrBEnc = new Encoder_Neo(shooterMtrB, 1777.91);
 
-    //Climber
-    public static Solenoid climberExtSV = new Solenoid(modID, modType, 1);
+    /* Climber (2) actuators. To save air volumn, only 1 is used to raise the hook 
+     * but 2 to lower the hook with the weight of the robot also. */
+    public static Solenoid climberExtSV = new Solenoid(modID, modType, 2);  //Single Actuator
+    public static Solenoid climberRetSV = new Solenoid(modID, modType, 3);  //Dual Actuator
 
     /**
      * Initialize any hardware
