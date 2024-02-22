@@ -49,9 +49,9 @@ public class IO {
     // Drive Motors
     //There is only 4 motors controlling wheels this year, not 2 per
     public static CANSparkMax motorFrontLeft  = new CANSparkMax(11, MotorType.kBrushless);
-    public static CANSparkMax motorBackLeft   = new CANSparkMax(13, MotorType.kBrushless);    
-    public static CANSparkMax motorFrontRight = new CANSparkMax(15, MotorType.kBrushless) ;
-    public static CANSparkMax motorBackRight  = new CANSparkMax(17, MotorType.kBrushless);
+    public static CANSparkMax motorBackLeft   = new CANSparkMax(12, MotorType.kBrushless);    
+    public static CANSparkMax motorFrontRight = new CANSparkMax(13, MotorType.kBrushless) ;
+    public static CANSparkMax motorBackRight  = new CANSparkMax(14, MotorType.kBrushless);
     /**
      * Array that contains all the drive motors for certain logic
      */
@@ -65,10 +65,10 @@ public class IO {
     //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
-    public static double tpfAll = 12.7; //37 rotations for 10 ft
-    public static double frontLeftTPF = tpfAll;            // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    public static double backLeftTPF = tpfAll;        // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
-    public static double frontRightTPF = tpfAll;      // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double tpfAll = 4346.0;       //12.7;?? //37 rot for 10' = 3.7'/rot * 1024 ticks = 3789.
+    public static double frontLeftTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double backLeftTPF = tpfAll;  // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+    public static double frontRightTPF = tpfAll;// 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     // Encoders
     public static Encoder_Neo frontLeftEnc = new Encoder_Neo(motorFrontLeft, frontLeftTPF);
@@ -76,7 +76,6 @@ public class IO {
     public static Encoder_Neo frontRightEnc = new Encoder_Neo(motorFrontRight, frontRightTPF);
     public static Encoder_Neo backRightEnc = new Encoder_Neo(motorBackRight, backRightTPF);
     public static boolean resetEnc = false; 
-
 
     // Kinematics for Drive Train.
     // Locations of the wheels relative to the robot center.

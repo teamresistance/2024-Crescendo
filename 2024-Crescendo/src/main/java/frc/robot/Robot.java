@@ -9,6 +9,7 @@ import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
+import frc.robot.subsystem.tests.TestHdw;
 import frc.robot.subsystem.tests.TestMtrFPS;
 import frc.robot.subsystem.tests.TestMtrPct;
 import frc.robot.subsystem.tests.Tests;
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        Tests.chsrInit();
         IO.init();
     }
 
@@ -91,6 +93,7 @@ public class Robot extends TimedRobot {
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
+        TestHdw.init();
         TestMtrPct.init();
         TestMtrFPS.init();
     }
@@ -103,12 +106,16 @@ public class Robot extends TimedRobot {
         // If test selected has changed, intialize all test, turn off everything.
         if(prvTest != Tests.getTestSelected()){
             prvTest = Tests.getTestSelected();
+            TestHdw.init();
             TestMtrPct.init();
             TestMtrFPS.init();
         }
         // Then start updating the active test.
         switch(prvTest){
             case kTestMtrsNone:
+            break;
+            case kTestHdw:
+                TestHdw.update();
             break;
             case kTestMtrsPct:
                 TestMtrPct.update();

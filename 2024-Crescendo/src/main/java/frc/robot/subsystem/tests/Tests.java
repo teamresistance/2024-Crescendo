@@ -25,8 +25,9 @@ public class Tests {
     // Enum of tests added to chooser.
     public enum KTests {
         kTestMtrsNone(0, "No Test"),
-        kTestMtrsPct(1, "Mtr Pct"),
-        kTestMtrsFPS(2, "Mtr FPS");
+        kTestHdw(1, "Test All Hdw"),
+        kTestMtrsPct(2, "Mtr Pct"),
+        kTestMtrsFPS(3, "Mtr FPS");
 
         private final int num;
         private final String desc;
@@ -61,7 +62,7 @@ public class Tests {
         for(KTests m : KTests.values()){
             testChsr.addOption(m.desc, m);
         }
-        KTests dfltTest = KTests.kTestMtrsPct; //--- Set the default chsrDesc index ----
+        KTests dfltTest = KTests.kTestHdw; //--- Set the default chsrDesc index ----
         testChsr.setDefaultOption(dfltTest.desc, dfltTest);
         testSel = dfltTest;
         SmartDashboard.putData("Test/Choice", testChsr);  //Put it on the dashboard
