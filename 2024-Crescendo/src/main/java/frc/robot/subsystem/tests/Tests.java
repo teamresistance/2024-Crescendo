@@ -66,6 +66,10 @@ public class Tests {
         testChsr.setDefaultOption(dfltTest.desc, dfltTest);
         testSel = dfltTest;
         SmartDashboard.putData("Test/Choice", testChsr);  //Put it on the dashboard
+        chsrUpdate();
+    }
+
+    public static void chsrUpdate(){
         SmartDashboard.putString("Test/Chosen", testChsr.getSelected().desc);   //Put selected on sdb
     }
 
