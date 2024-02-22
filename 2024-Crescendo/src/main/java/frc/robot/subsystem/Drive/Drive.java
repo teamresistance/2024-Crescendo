@@ -45,6 +45,7 @@ import frc.io.hdw_io.util.NavX;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
+import frc.robot.Robot;
 import frc.util.MecanumDriveCalculator;
 // import frc.util.Apriltags;
 import frc.util.PIDXController;
@@ -122,7 +123,7 @@ public class Drive {
 
     public static double offSetX = 12.0;
     public static double offSetY = 5.0;
-    public static double offSetRot = 0.0;
+    public static double offSetRot = 180.0;
 
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
@@ -145,7 +146,7 @@ public class Drive {
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getRotation2d(), 
+            navX.getInvRotation2d(), 
             new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
@@ -244,12 +245,12 @@ public class Drive {
         IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition());
 
         // Get the rotation of the robot from the gyro.
-        var gyroAngle = navX.getRotation2d();
+        // var gyroAngle = navX.getRotation2d();
         
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getRotation2d(), 
+            navX.getInvRotation2d(), 
             new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
@@ -274,7 +275,7 @@ public class Drive {
 
         // // Update the drivetrain pose
 
-        poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
+        poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.frontLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.frontRightLd.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.backLeftLd.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.backRightLd.getEncoder().getPosition()/tpf)
         ));
@@ -298,17 +299,25 @@ public class Drive {
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
+
+        
+        Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+        Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+        Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+
+        //TODO: use this angle and do stuff.
+        System.out.println(angleFromSpeaker);
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
-            Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
-            Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
-            Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+            // Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+            // Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+            // Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
             //TODO: use this angle and do stuff.
-            System.out.println(angleFromSpeaker);
+            // System.out.println(angleFromSpeaker);
             
             double pidOutputZ = pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
-            rotSpd = -pidOutputZ * 0.3;
+            rotSpd = -pidOutputZ;
         }
 
         
@@ -378,7 +387,7 @@ public class Drive {
     private static void smUpdate() {
         // System.out.println(state);
         
-        heading = IO.navX.getRotation2d();
+        heading = IO.navX.getInvRotation2d();
         
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
@@ -424,7 +433,7 @@ public class Drive {
          * Each wheel has a PID controller that is then updated to match that speed.
          */
     
-        System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
+        // System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
         if (!fieldOriented)
         {
             //Robot

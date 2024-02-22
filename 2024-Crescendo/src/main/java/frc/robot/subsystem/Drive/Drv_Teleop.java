@@ -105,12 +105,13 @@ public class Drv_Teleop extends Drive {
             }
             else rotSpd = 0.0;
         }
+        smUpdate();
 
         //Autoalign stuff
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            goTo(setPoint1X, setPoint1Y, 0.0, 1.0, 1.0);
+            goTo(setPoint1X, setPoint1Y, 180.0, 1.0, 1.0);
         }
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is
@@ -130,7 +131,6 @@ public class Drv_Teleop extends Drive {
           rotSpd = pidHdg.calculateX(Drive.navX.getNormalizedTo180(), 0.0);
         }
 
-        smUpdate();
         sdbUpdate();
     }
 
