@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Neo;
-import frc.io.hdw_io.util.InvertibleDigitalInput;
+import frc.io.hdw_io.util.DigitalInput;
 import frc.io.hdw_io.util.NavX;
 
 public class TestHdw {
@@ -50,7 +50,7 @@ public class TestHdw {
 
     //Snorfler
     private static CANSparkMax snorfMtr = IO.snorfMtr;
-    private static InvertibleDigitalInput snorHasGP = IO.snorHasGP;
+    private static DigitalInput snorHasGP = IO.snorHasGP;
 
     //Shooter
     private static CANSparkMax shooterMtrA = IO.shooterMtrA;

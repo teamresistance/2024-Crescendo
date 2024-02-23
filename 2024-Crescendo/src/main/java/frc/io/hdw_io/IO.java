@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
+import frc.robot.subsystem.MotorPID_NEO;
 
 
 public class IO {
@@ -92,7 +93,7 @@ public class IO {
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
-    public static InvertibleDigitalInput snorHasGP = new InvertibleDigitalInput(1, false);
+    public static DigitalInput snorHasGP = new DigitalInput(1, false);
 
     //Shooter
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
@@ -178,6 +179,8 @@ public class IO {
 
     private static double mecDistX = 0.0;
     private static double mecDistY = 0.0;
+
+	public static MotorPID_NEO MotorPID_NEO;
     /**
      * Calc distance on a Mecanum drive for single direction movement.
      * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.

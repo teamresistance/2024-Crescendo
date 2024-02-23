@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
 import frc.io.joysticks.util.Pov;
+import edu.wpi.first.wpilibj.PS4Controller;
 
 //TODO: ASSIGN BUTTON PORTS FOR EACH BUTTON INITIALIZED !!!
 
@@ -35,7 +36,7 @@ public class JS_IO {
     public static Joystick coJoystick = new Joystick(2);    // Co-Dvr JS
     public static Joystick gamePad = new Joystick(3);       // Normal mode only (not Dual Trigger mode)
     public static Joystick neoPad = new Joystick(4);        // Nintendo pamepad
-
+    public static Joystick Ps4Ctrl = new Joystick(5);
     // Drive
     public static Axis axLeftY = new Axis();        // Left JS Y - Added for testing in Drive3
     public static Axis axLeftX = new Axis();        // Left JS X
@@ -93,7 +94,7 @@ public class JS_IO {
 
     //---- Joystick controller chooser ----
     private static SendableChooser<String> chsr = new SendableChooser<String>();
-    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo"};
+    private static final String[] chsrDesc = {"3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo", "ps4"};
 
     /** Setup the JS Chooser */
     public static void chsrInit(){
@@ -138,6 +139,8 @@ public class JS_IO {
             case "Nintendo":    // Nintendo only
                 a_NP();
                 break;
+            case "ps4":
+                Ps4();
             default:            // Bad assignment
                 System.out.println("Bad JS choice - " + prvJSAssign);
                 break;
@@ -177,23 +180,23 @@ public class JS_IO {
         axRightY.setAxis(gamePad, 5);
 
         //Drive buttons
-        autoBtn.setButton(gamePad, 1);
-        headingHoldBtn.setButton(gamePad, 2);
-        lookAtNote.setButton(gamePad, 3);
-        btnGyroReset.setButton(gamePad, 4);
+        //autoBtn.setButton(gamePad, 1);
+        //headingHoldBtn.setButton(gamePad, 2);
+        //lookAtNote.setButton(gamePad, 3);
+        //btnGyroReset.setButton(gamePad, 4);
 
         //Snofler
-        btnSnorflerEnable.setButton(gamePad, 4);// Y - Enables the Snorfler 
-        btnSnorfleReject.setButton(gamePad, 5); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+        btnSnorflerEnable.setButton(gamePad, 2);// Y - Enables the Snorfler 
+        btnSnorfleReject.setButton(gamePad, 1); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
 
         //Shooter / Arm buttons
-        btnSpkrShot.setButton(coJoystick, 4);   // A - Activates necessary subsystems to prepare to shoot to Speaker
-        btnAmpShot.setButton(coJoystick, 3);    // B - Activates necessary subsystems to prepare to unload into Amp
-        btnShoot.setButton(coJoystick, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
-        btnUnload.setButton(coJoystick, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+        btnSpkrShot.setButton(gamePad, 4);   // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnAmpShot.setButton(gamePad, 3);    // B - Activates necessary subsystems to prepare to unload into Amp
+        btnShoot.setButton(gamePad, 5);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        btnUnload.setButton(gamePad, 6);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
 
         //Climber Buttons
-        btnClimberEna.setButton(coJoystick, 7); // X - Toggles climber, what else did you expect, blud?
+        btnClimberEna.setButton(gamePad, 7); // X - Toggles climber, what else did you expect, blud?
 
     }
 
@@ -203,6 +206,33 @@ public class JS_IO {
 
     // ----------- Nintendo gamepad -------------
     private static void a_NP() {
+    }
+
+    private static void Ps4() {
+        axLeftX.setAxis(Ps4Ctrl, 0);       //Added to test drive3
+        axLeftY.setAxis(Ps4Ctrl, 1);
+        axRightX.setAxis(Ps4Ctrl, 4);
+        axRightY.setAxis(Ps4Ctrl, 5);
+
+        //Drive buttons
+        //autoBtn.setButton(Ps4Ctrl, 1);
+        //headingHoldBtn.setButton(Ps4Ctrl, 2);
+       // lookAtNote.setButton(Ps4Ctrl, 3);
+        //btnGyroReset.setButton(Ps4Ctrl, 4);
+
+        //Snofler
+        btnSnorflerEnable.setButton(Ps4Ctrl, 6);// Y - Enables the Snorfler 
+        btnSnorfleReject.setButton(Ps4Ctrl, 5); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+
+        //Shooter / Arm buttons
+        btnSpkrShot.setButton(Ps4Ctrl, 4);   // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnAmpShot.setButton(Ps4Ctrl, 3);    // B - Activates necessary subsystems to prepare to unload into Amp
+        btnShoot.setButton(Ps4Ctrl, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        btnUnload.setButton(Ps4Ctrl, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+
+        //Climber Buttons
+        btnClimberEna.setButton(Ps4Ctrl, 7); // X - Toggles climber, what else did you expect, blud?
+
     }
 
     // ----------- Case Default -----------------
