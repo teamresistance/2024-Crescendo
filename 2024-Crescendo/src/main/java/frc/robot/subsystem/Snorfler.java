@@ -22,14 +22,9 @@ import frc.util.timers.OnDly;
 import com.revrobotics.CANSparkMax;
 
 /**
- * Handles picking up game pieces from the floor.
- * When enabled forward & interior intake motors run.
- * If the object is an orange cone and is intake nose first 
- * (pointy end) a bar is lowered to flip the cone 
- * in the other direction so the base enters first.
- * <p>If the wrong or multiple objects enter, the driver
- * can press a button to reverse the motors and reject 
- * the object.
+ * Controls the Snorfler intake from the floor to holding position.
+ * Passing it to the Shooter when shooting at the Speaker or Amp.
+ * Retrieving it from the Shooter when unloading.
  */
 public class Snorfler {
 
@@ -54,10 +49,9 @@ public class Snorfler {
 
     //yesNO LONGER public static Boolean snorfFwdRq = null;   Using enum which is more self-explanatory
     public static enum SnorfRq{ 
-        kDefault(-1, "Default"),
-        kOff(0,"All Off"),
-        kForward(1,"Forward"),
-        kReverse(2,"Reverse");
+        kOff(0,"Not Required"),     //No other subsystem requesting operation
+        kForward(1,"Forward"),      //Shooter request to load for speaker or amp
+        kReverse(2,"Reverse");      //Shooter request to unload
         
         private final int NUM;
         private final String DESC;
@@ -69,7 +63,6 @@ public class Snorfler {
         public final String DESC(){ return DESC; }
     }
     public static SnorfRq snorfFwdRq = SnorfRq.kOff;
-    public static int snorfFwdState;
 
     /** has Game Piece is controlled by a Sensor and delay on timer. */
     public static boolean hasGP_FB;
@@ -104,21 +97,6 @@ public class Snorfler {
 
         if(snorfFwdRq == SnorfRq.kForward && state < 20) state = 20;
         if(snorfFwdRq == SnorfRq.kReverse && state < 30) state = 30;
-        switch (snorfFwdRq) {
-            case kOff:
-                snorfFwdState = 0;
-                break;
-            case kForward:
-                snorfFwdState = 1;
-                break;
-            case kReverse:
-                snorfFwdState = 2;
-                break;
-        
-            default:
-                snorfFwdState = -1;
-                break;
-        }
 
         hasGP_FB = hasGPOnDly.get(snorfhasGP.get());   //Used in state 1
 
@@ -129,7 +107,7 @@ public class Snorfler {
     /**
      * State Machine Update
      * <p> 0 - disabled - Motor off
-     * <p> 1 - 3 - enabled, snorfling
+     * <p> 1 - enabled, snorfling
      * <p> 10 -  Reject, reverse snorfler
      * <p> 20 - 21 - Shooter request to load Note
      * <p> 30 - 31 - Shooter request to unload Note
@@ -146,10 +124,9 @@ public class Snorfler {
                 cmdUpdate(fwdMtrSpd);
                 if((hasGP_FB || !snorflerEnable) && stateTmr.hasExpired(0.2, state)) {
                     snorflerEnable = false;
-                    state = 0; 
-                    hasGP_FB = snorfhasGP.get(); 
-                break;
+                    state = 0;
                 }
+                break;
             case 10: // Snorfler Reject
                 cmdUpdate(rejMtrSpd);
                 break;
@@ -192,23 +169,21 @@ public class Snorfler {
     public static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         SmartDashboard.putNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
+        SmartDashboard.putNumber("Snorf/Rej Motor Spd", rejMtrSpd);
     }
 
     /**Update the Smartdashboard. */
     public static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
+        fwdMtrSpd = SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
+        rejMtrSpd = SmartDashboard.getNumber("Snorf/Rej Motor Spd", rejMtrSpd);
 
         SmartDashboard.putNumber("Snorf/state", state);
         SmartDashboard.putNumber("Snorf/Mtr Cmd", snorflerMtr.get());
         SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
         SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
         SmartDashboard.putBoolean("Snorf/Has GP", hasGP_FB);
-        SmartDashboard.putNumber("Snorf/FwdRq", snorfFwdState); //Only exists so we can read the state of "FwdRq" in SDB //Does'nt do anything
-        //0 means off
-        //1 means forward
-        //2 means reverse 
-        
+        SmartDashboard.putString("Snorf/FwdRq", snorfFwdRq.DESC());   
     }
 
     // ----------------- Snorfler statuses and misc.-----------------

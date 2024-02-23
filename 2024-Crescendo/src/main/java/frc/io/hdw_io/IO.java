@@ -97,7 +97,7 @@ public class IO {
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
-    public static Solenoid shooterPitchSV = new Solenoid(modID, modType, 1);    //This or
+    public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 1);    //This or
     public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
     public static CANSparkMax mtrVariablePitch = new CANSparkMax(44, MotorType.kBrushless);
 

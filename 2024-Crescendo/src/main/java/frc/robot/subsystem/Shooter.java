@@ -1,49 +1,51 @@
-/*
-Author(s): All y'all
-
-History:
-J&A - 2/22/2024 - Original Release
-
-Desc: Controls the Shooter speed, aimimng pitch, arm down for Speaker, up for Amp
-*/
-
 package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.MotorPID_NEO;
+import frc.io.hdw_io.util.MotorPID;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
-import frc.robot.subsystem.Climber.Climber_FB;
-import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Snorfler.SnorfRq;
+import frc.util.PropMath;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
-import frc.io.hdw_io.util.MotorPID_NEO;
 
 /**
- * Enter a description of this subsystem.
+ * The Shooter shoots Notes into the Speaker, Arm down or the Amp, Arm up.
+ * <p>
+ * Shooting is a 2 button process, button to Load / prep then button to shoot.
+ * <p>
+ * Or a request can be made from Autonomous with kSpkrShot or kAmpShot.
+ * <p>
+ * When shooting for the Speaker, button btnSpkrShot is pressed, the Shooter motor comes up 
+ * to RPM speed.  A second press of btnSpkrShot the shooter motors are shutsown.  Another press
+ * again brings the motors up to speed.  This can continue until btnShoot is pressed.  
+ * When btnShoot is pressed a request for the Snorfler to inject, spin forward, 
+ * is issued and then both are shutdowns after 0.5 seconds.
+ * <p>
+ * When shooting for the Amp, button btnAmpShot is pressed, the Shooter motor comes up to slow 
+ * RPM speed, a request for the Snorfler to inject, spin forward, is issued and then both 
+ * are shutdown after 0.15 seconds.  The Note is now held by the Shooter.  A second press of 
+ * the Amp shot button raises the Arm to Amp position..  Another press will lower the arm.  This
+ * can continue until btnShoot is pressed.  When btnShoot is pressed and the Arm is
+ * in position, Shooter shoots and all are shutdown after 0.5 seconds and the Arm returned to
+ * home position.
+ * <p>
+ * If the shooter has been loaded for Amp but needs to be unloaded a button, btnUnload, is pressed.  
+ * The arm is lowered and when the Arm is in home position a request is made to the Snorfler 
+ * to reverse and the Shooter motor is reversed for 0.25 seconds then all are canceled.
  */
 public class Shooter {
-    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
     // hdw defintions:
-    private static CANSparkMax shooterMtrA = IO.shooterMtrA;
-    private static CANSparkMax shooterMtrB = IO.shooterMtrB;
-    private static Solenoid arm = IO.shooterArmUpSV;
-    private static Solenoid Pitch_SV;
-    private static MotorPID_NEO shooterMtrAPID;
-    private static MotorPID_NEO mtrVariablePitchPID;
-    private static CANSparkMax mtrVariablePitch = IO.mtrVariablePitch;
-    
-    //private static MotorPID_NEO shooterMtrBPID = new MotorPID_NEO(shooterMtrB,"ShooterB");
-    
-
-    //private static Solenoid ShooterSV;
-    
-    private static Solenoid shooterArmUp = IO.shooterArmUpSV;
+    private static CANSparkMax shtrMtrA = IO.shooterMtrA;
+    private static CANSparkMax shtrMtrB = IO.shooterMtrB;
+    private static MotorPID_NEO shtrMtrPidA;
+    private static MotorPID_NEO shtrMtrPidB;
+    private static Solenoid shtrArmUp = IO.shooterArmUpSV;  //true for Amp
+    private static Solenoid shtrPitchLo = IO.shooterPitchLoSV;  //true for Amp
 
     // joystick buttons:
     private static Button btnSpkrShot = JS_IO.btnSpkrShot;  //Begin speaker shot, mtrs up to speed
@@ -55,223 +57,256 @@ public class Shooter {
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-    private static double hiSpd = 0.8; // Speed to run the snorfler at
-    private static double loSpd = 0.3; // Speed to run the snorfler at
-    private static double mtr_rpm; //motor speed in rotations per min
-    //private static boolean targetAmp = false;
-    private static boolean btnSpeakerRq; //button for speaker request
-    private static boolean btnAmpRq; //button for amp request
-    //private static float threshold;
-    private static Climber_FB ClimberState;
+    //Presently - 2 shooting pitch, 40 or 55.  55 is close 5' to 7'.  Farther then 7'
+    //pitch drops to 40 for 6' to 8'.  Both start high to low FPS to use the arc.
+    //FPS setpoint is interpolated between 2 feet points to the associated 2 FPS points.
+    private static double distToTarget = 4.8;
+    private static boolean shotIsFar = false;    //Used to ajust shooter lo or hi, 40 or 53 degrees
+    private static double[][] clsDistToFPS = {{4.8, 6.0, 7.0},{55.0, 48.0, 42.0}};
+    private static double[][] farDistToFPS = {{6.0, 7.0, 8.0},{55.0, 48.0, 42.0}};
+    private static double fpsMax = 55.0;
+    private static double shtrAFPS_SP;
+    private static double shtrBFPS_SP;
+    private static double shtrsFPS_Lo = 10.0;   //For Amp load and unload
+    // PID parms in order: P, I, D, Iz, FF, min, max
+    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
 
-    private static boolean armUp_FB = false; // Boolean to determine whether the arm is up or down
-    private static OnOffDly armFBDly = new OnOffDly(500, 500); //delay for rising or lowering the arm
-    public static enum ShooterRq{
-        kDefault(-1, "Default"),
-        kIgnore(0,"All off"),
-        kForward(1, "Forward"),
-        kReverse(2,"Reverse");
-        
-
-        private final int NUM;
-        private final String DESC;
-        private ShooterRq(int num, String desc){
-            this.NUM = num;
-            this.DESC = desc;
-
-            
-        }
-        public final int NUM(){ return NUM; }
-        public final String DESC(){ return DESC; }
-        
-        
-        
-    }
-    
+    private static OnOffDly armUpDnTmr = new OnOffDly(500, 500);    // Wait to signal up or down
+    private static boolean armUpFB = false;                         // arm on/off delayed status
 
     /**
-     * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
+     * Constants to call Shooter to take shot control.
+     * <p>kNoReq - No request.  Allow local control.
+     * <p>kSpkrShot - Start Shooter speaker shot   Call only once.
+     * <p>kAmpShot - Start Amp shot.  Probably not used.  Call only once.
+     */
+    public enum RQShooter {kNoReq, kSpkrShot, kAmpShot, kClimbLock};
+    public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
+
+    /**
+     * Initialize Shooter stuff. Called from auto/telopInit (maybe robotInit(?)) in
      * Robot.java
      */
-    public static void init() { //Initialize anything to start from a known condition
+    public static void init() {
+        shtrMtrPidA = new MotorPID_NEO(shtrMtrA, "TestMtrsFPS", shtrPIDParms);
+        shtrMtrPidB = new MotorPID_NEO(shtrMtrB, "TestMtrsFPS", shtrPIDParms);
+
+        shtrAFPS_SP = 0.0;
+        shtrBFPS_SP = 0.0;
+
+        cmdUpdate(0.0, 0.0, false, false);  // Make sure all is off
+        state = 0;              // Start at state 0
+        clearOnPresses();       //Clear all button onpress signals
+        autoShoot = RQShooter.kNoReq;    //No request from autonoomous
         sdbInit();
-        cmdUpdate(0.0, 0.0, true); // Make sure all is off
-        state = 0; // Start at state 0
-
-        shooterMtrAPID = new MotorPID_NEO(shooterMtrA,"ShooterA", shtrPIDParms);
-        ClimberState = Climber_FB.kDown;
-    
-
-        
-        //cmdUpdate(state, getStatus(), getStatus());
     }
 
     /**
-     * Update ????. Called from teleopPeriodic in robot.java.
+     * Update Shooter Called from auto/teleopPeriodic in robot.java.
      * <p>
      * Determine any state that needs to interupt the present state, usually by way
      * of a JS button but can be caused by other events.
      */
-    public static void update() {//Determine if button or sensor needs to overide state machine sequence
+    public static void update() {
         //Add code here to start state machine or override the sm sequence
-        
-        if (btnAmpShot.onButtonPressed()){ //amp
-            state = 15;
-        } else if (btnSpkrShot.onButtonPressed()){ //speaker
-            state = 1;
-        } else if (btnUnload.onButtonPressed()){ //remove note from shooter
-            state = 30;
-        }
-        
-        if (Climber_FB)
+        if(btnUnload.onButtonPressed()) state = 20;
+        if(autoShoot == RQShooter.kClimbLock) state = 30;
+
+        /*
+         * All other buttons are handled in smUpdate
+         * btnLoadForSpeaker - 1st press ramp up motors for speaker shot
+         * 2nd press cancel Speaker shot else btnShoot shoot.
+         * btnLoadForAmp - 1st press ramp to speed, 2nd press raise arm
+         * 3rd press lowwer arm else btnShoot to shoot.
+         * btnUnloadShooter - 1st press unload Note to Snorfler
+         * 2nd press too late done.
+         */
+
+        // if(btnLoadForSpeaker.onButtonPressed()) state = 1;
+        // if(btnLoadForAmp.onButtonPressed()) state = 10;
+        // if(btnUnloadShooter.onButtonPressed()) state = 20;
+
+        armStatUpdate();    //Update arm on/off delayed status
+
         smUpdate();
         sdbUpdate();
-
-        armUp_FB = armFBDly.get(arm.get());
     }
 
-  
- 
-    private static void smUpdate(){ 
-        
-        switch(state){
-        case 0: //Everything is off
-            cmdUpdate(0.0, 0.0, true);
-            stateTmr.clearTimer();
-            break;
-
-        // ----------- Speaker Cycle ------------------
-        case 1: //Start Shooter cycle for speaker
-            // Bottom shooter motor is some fraction of the top motor's speed (currently we guess around half)
-            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true); //start shooter
-            if(stateTmr.hasExpired(0.25, 1)) {
-                state++;
-            }
-        case 2: //Wait to shoot at speaker or cancel shot
-            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
-            if(btnSpkrShot.onButtonPressed()) state = 0;
-            if(btnShoot.onButtonPressed()) state++;
-            if(stateTmr.hasExpired(0.25, 2)) {
-                state++;
-            }
-        case 3: //Shoot at speaker!
-            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
-            if(stateTmr.hasExpired(0.5, state)) state = 0;
-            break;
-        // ---------- Amp Cycle --------
-     
-        case 15: // amp shoot start and start loading for amp
-            cmdUpdate(0, 0, false); //bring arm up
-            if(stateTmr.hasExpired(0.2, 15)) {
-                state++;
-            }
-        case 16: //spin up motors now that the arm is raised
-            cmdUpdate(10,10,false);
-            if(stateTmr.hasExpired(0.25, 16)) {
-                state++;
-            }
-            break;
-        case 17: //wait for trigger
-            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), false);
-            if(btnAmpShot.onButtonPressed()) state--;
-            if(btnShoot.onButtonPressed()) state--;
-        case 18:
-            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), false);
-            if(stateTmr.hasExpired(0.2, 18)) {
-                state++;
-            }
-        case 19:
-            cmdUpdate(0, 0., false);
-            state = 0;
-            
-           
-
-    
-        break;
-        
-        case 30: // unload note start
-            cmdUpdate(-90, -90, true);
-            if(stateTmr.hasExpired(0.15, 30)) {
-                state = 0; //unloaded the note
-            }
-            break;
-
-        default: 
-            cmdUpdate(0, 0, true);
-            System.out.println("Shooter encountered invalid state!");
-            break;
-        }
-        
-    }
-    private static void VelCtlr(){
-
-    }
-    //Just an idea - improve later
     /**
-             *   When shooting to the speaker, the distance of the shooter (at least when doing 2 pitch)
-             *   controls the speed of the shooter motors.
-             *  
-             *   On variable pitch, the angle of the shooter is what varies with distance, the speed of
-             *   the shooter is constant, most likely at max speed.
-             *  
-             *   Additionally, the top motor will run faster than the bottom motor.
-             *   The current thoughts is that the bottom motor is about half the speed of the top,
-             *   but the true value is going to have to be found in testing (HOORAY)
-             */
-    private static void Pitch_Adjust(){
-        //Get the distance from the Vision class
-        double distToTarget; //distance to the pitch
-        double speed = hiSpd; //Shooter motors will most likely be at the highest speed
-        double pitch = 0; //returned from equation
-
-        arm.set(true);
-        Pitch_SV.set(true);
-    }
-
-    
-    /**
-     * left_trigger  - triggers the left catapult
-     * right_trigger - triggers the right catapult
-     * 
-     * @param mtr_speedA
-     * @param mtr_speedB    
-     * @param arm_down      Whether or not the arm of the shooter is up or down (up for amp, down for speaker)
+     * State machine update for shooter
+     * <p>state 0 - All off.  Wait for shoot Spaeker or Amp
+     * <p>state 1-3 - shoot for speaker
+     * <p>state10-14 - shoot for amp
+     * <p>state 20 - unload from Amp
      */
-    private static void cmdUpdate(double mtr_speedA, double mtr_speedB, boolean arm_down) {
-        shooterMtrA.set(mtr_speedA);
-        shooterMtrB.set(mtr_speedB);
-        shooterArmUp.set(arm_down);
-        
+    private static void smUpdate() { // State Machine Update
+
+        switch (state) {
+            case 0: // Everything is off
+                cmdUpdate(0.0, 0.0, false, false);
+                stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
+                if(btnSpkrShot.onButtonPressed()) state = 1;  // 1st press, Speaker shot
+                if(btnAmpShot.onButtonPressed()) state = 10;     // 1st press, Amp shot
+                if(autoShoot != RQShooter.kNoReq) state = autoShoot == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
+                break;
+            //---------- Shoot at Speaker  ---------------
+            case 1: // Get shooters up to speed for Speaker shot
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                if (stateTmr.hasExpired(0.25, state)) state++;
+                break;
+            case 2: // Wait for shot or cancel
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                if(btnSpkrShot.onButtonPressed()) state = 0;          //2nd Press, Cancel Speaker shot
+                if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //Goto shot
+                break;
+            case 3: // Confirm if arm dn
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                if (!armUpFB) state++;
+                break;
+            case 4: // Request snorfler to feed Note,
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                Snorfler.snorfFwdRq = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
+                autoShoot = RQShooter.kNoReq;       // cancel auto shoot if active
+                state++;
+            case 5: // Wait for shot then go to turn off
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                break;
+            //----------- Shoot for Amp --------------
+            case 10: // Get shooters up to low speed for Amp preload
+                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
+                if (stateTmr.hasExpired(0.06, state)) state++;
+                break;
+            case 11: // Request snorfler to feed Note, go to next state (no break)
+                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
+                Snorfler.snorfFwdRq = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
+                state++;
+            case 12: // Wait to take Note
+                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
+                if (stateTmr.hasExpired(0.5, state)) state++;
+                break;
+            case 13: // wait to raise Arm on 2nd btn press or auto
+                cmdUpdate(0.0, 0.0, false, false);
+                if(btnAmpShot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //2nd press raise arm
+                break;
+            case 14: // raise arm, wait for request to shoot or on another button press lower arm
+                cmdUpdate(0.0, 0.0, true, false);
+                if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
+                if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //SHOOT!
+                break;
+            case 15: // check for arm raised
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, true, false);
+                autoShoot = RQShooter.kNoReq;    // cancel auto shoot
+                if (armUpFB) state++;           //SHOOT!
+                break;
+            case 16: // shoot and all off
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, true, false);
+                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                break;
+            //----------- Unload from aborted Amp shot ---------------
+            case 20: // Check Arm is down
+                cmdUpdate(0.0, 0.0, false, false);
+                if (!armUpFB) state++;   //wait for arm to lower FB
+                break;
+            case 21: // unload from amp shot, request snorfler to unload
+                cmdUpdate(-shtrsFPS_Lo, -shtrsFPS_Lo, false, false);
+                Snorfler.snorfFwdRq = SnorfRq.kReverse;   // Trigger once, Self cancels after 330 mS
+                state++;
+            case 22: // unload from amp shot, request snorfler to unload
+                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false );
+                if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
+                break;
+            case 30: // Climbing.  Arm MUST be down
+                cmdUpdate(0.0, 0.0, false, false );
+                break;
+            default: // all off
+                cmdUpdate(0.0, 0.0, false, false);
+                System.out.println("Bad Shooter sm state:" + state);
+                break;
+        }
+        clearOnPresses();
+    }
+
+    /**
+     * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
+     * 
+     * @param mtrAFPS - speed of the lead moter, lag follows
+     * @param armUpCmd - command to raise arm
+     * 
+     */
+    private static void cmdUpdate(double mtrAFPS, double mtrBFPS, boolean pitchLoCmd, boolean armUpCmd) {
+        //Check any safeties, mod passed cmds if needed.
+        //Send commands to hardware
+        if(Math.abs(mtrAFPS) > 3.0){
+                shtrMtrPidA.setSetpoint(mtrAFPS * 104.17 ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        }else{
+            shtrMtrPidA.setSetpoint(0.0);
+            shtrMtrA.disable();
+        }
+
+        if(Math.abs(mtrBFPS) > 3.0){
+                shtrMtrPidA.setSetpoint(mtrBFPS * 104.17 ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        }else{
+            shtrMtrPidB.setSetpoint(0.0);
+            shtrMtrB.disable();
+        }
+
+        //Safety, if climber is not down then DO NOT raise arm
+        shtrArmUp.set(Climber.getStatus() ? false : armUpCmd);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        // SmartDashboard.putBoolean("Shooter/Sumpthin", sumpthin.get()); y
+        // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        // sumpthin = SmartDashboard.getBoolean("Shooter/Sumpthin", sumpthin.get());
+        // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
 
         //Put other stuff to be displayed here
-        SmartDashboard.putNumber("Shooter_State", state);
-        SmartDashboard.putNumber("MTR_speedA", shooterMtrA.get());
-        SmartDashboard.putNumber("MTR_speedB", shooterMtrB.get());
-        SmartDashboard.putBoolean("arm_down", shooterArmUp.get());
-        SmartDashboard.putBoolean("PitchSV", Pitch_SV.get());        
-        SmartDashboard.putBoolean("Shooter/Enabled", (getStatus()));
-
+        SmartDashboard.putNumber("Shooter/state", state);
+        SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
+        SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUpFB);
     }
 
-    // ----------------- Shooter statuses and misc.-----------------
+    // ----------------- Shooter statuses and misc.----------------
+    private static void calcShotDist(){
+        // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
+        if(distToTarget > clsDistToFPS[0][clsDistToFPS.length - 1]) shotIsFar = true;
+        if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+        if(shotIsFar){
+            shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+        }else{
+            shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+        }
+        shtrBFPS_SP = 0.8 * shtrAFPS_SP;
+    }
+
     /**
-     * @return true if the shooter arm hass been commanded up for a 500 mS delay.
-     * or down for a 500 mS delay.
+     * When Arm is commanded up FB shows true after a time delay.
+     * <p>When Arm is commanded off FB shows false after a time delay.
      */
-    public static boolean getArmUp_FB(){ return armUp_FB; }
+    private static void armStatUpdate(){
+        armUpFB = armUpDnTmr.get(shtrArmUp.get());
+    }
+
+    /** @return true if the shooter arm is up for the Amp else false.  */
+    public static boolean armIsUp(){ return armUpFB; }
+
+    /**
+     * A onPress is held by the hardware until read.  If pressed before needed
+     * code executes immediately.  Clear the onPress until expected onPress.
+     */
+    private static void clearOnPresses(){
+        btnSpkrShot.clearOnPrsRel();
+        btnAmpShot.clearOnPrsRel();
+        btnUnload.clearOnPrsRel();
+        btnShoot.clearOnPrsRel();
+    }
 
     /**
      * Probably shouldn't use this bc the states can change. Use statuses.
@@ -289,15 +324,4 @@ public class Shooter {
         return state != 0;      //This example says the sm is runing, not idle.
     }
 
-    /**
-     * Returns the speed of the motors in rpm for use in PID
-     * 
-     * @return speed in rpm for specfically the top shooter motor
-     */
-    public static double getSpeakerShootSpeed() {
-        double distance = Drive.getDistanceFromSpeaker(); //distance of robot from speaker
-        
-        return distance; // later we'll use some equation or whatever onto distance to get motor speed,
-                         // but for right now, just return the distance until we figure it out as a placeholder
-    }
 }
