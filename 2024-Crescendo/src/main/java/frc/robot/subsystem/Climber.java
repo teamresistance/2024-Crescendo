@@ -32,7 +32,20 @@ public class Climber {
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static boolean climberEna = false; // Boolean to determine whether the climber is activated  or not
     private static Timer stateTmr = new Timer(0.05);// SSSState Timer   
-    
+    public static enum Climber_FB{ //Climber Feadbackk
+        climberUp(0,"UP"),
+        climberDown(1,"Down"),
+        climberLocked(2,"Locked");
+
+        private final int NUM;
+        private final String DESC;
+        private Climber_FB (int num, String desc) {
+            this.NUM = num;
+            this.DESC = desc;
+        }
+        public final int NUM(){ return NUM; }
+        public final String DESC(){ return DESC; }
+    }
     
 
     

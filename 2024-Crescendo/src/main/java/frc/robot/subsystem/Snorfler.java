@@ -54,6 +54,7 @@ public class Snorfler {
 
     //yesNO LONGER public static Boolean snorfFwdRq = null;   Using enum which is more self-explanatory
     public static enum SnorfRq{ 
+        kDefault(-1, "Default"),
         kOff(0,"All Off"),
         kForward(1,"Forward"),
         kReverse(2,"Reverse");
