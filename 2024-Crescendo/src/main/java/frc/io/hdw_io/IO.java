@@ -99,6 +99,7 @@ public class IO {
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
     public static Solenoid shooterPitchSV = new Solenoid(modID, modType, 1);    //This or
     public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
+    public static CANSparkMax mtrVariablePitch = new CANSparkMax(44, MotorType.kBrushless);
 
     //Shooter Encoders
     // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  = 1777.91 ticks/ft

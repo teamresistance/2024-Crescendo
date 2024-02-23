@@ -2,7 +2,7 @@
 Author(s): All y'all
 
 History:
-J&A - 2/21/2024 - Original Release
+J&A - 2/22/2024 - Original Release
 
 Desc: Controls the Shooter speed, aimimng pitch, arm down for Speaker, up for Amp
 */
@@ -17,6 +17,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
+import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Snorfler.SnorfRq;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
@@ -33,6 +34,9 @@ public class Shooter {
     private static Solenoid arm = IO.shooterArmUpSV;
     private static Solenoid Pitch_SV;
     private static MotorPID_NEO shooterMtrAPID;
+    private static MotorPID_NEO mtrVariablePitchPID;
+    private static CANSparkMax mtrVariablePitch = IO.mtrVariablePitch;
+    
     //private static MotorPID_NEO shooterMtrBPID = new MotorPID_NEO(shooterMtrB,"ShooterB");
     
 
@@ -60,6 +64,26 @@ public class Shooter {
 
     private static boolean armUp_FB = false; // Boolean to determine whether the arm is up or down
     private static OnOffDly armFBDly = new OnOffDly(500, 500); //delay for rising or lowering the arm
+    public static enum ShooterRq{
+        kIgnore(0,"All off"),
+        kForward(1, "Forward"),
+        kReverse(2,"Reverse");
+        
+
+        private final int NUM;
+        private final String DESC;
+        private ShooterRq(int num, String desc){
+            this.NUM = num;
+            this.DESC = desc;
+
+            
+        }
+        public final int NUM(){ return NUM; }
+        public final String DESC(){ return DESC; }
+        
+        
+        
+    }
     
 
     /**
@@ -72,6 +96,9 @@ public class Shooter {
         state = 0; // Start at state 0
 
         shooterMtrAPID = new MotorPID_NEO(shooterMtrA,"ShooterA", shtrPIDParms);
+    
+
+        
         //cmdUpdate(state, getStatus(), getStatus());
     }
 
@@ -98,81 +125,9 @@ public class Shooter {
         armUp_FB = armFBDly.get(arm.get());
     }
 
-    /**
-     * State 0: Everything Off
-     * States 1-6: Shoot for Speaker
-     * States 10-13: Shoot for Amp
-     * State 14: Unload
-     */
-    /*private static void smUpdate() { // State Machine Update
-    
-        switch (state) {
-            case 0: // Everything is off
-                cmdUpdate(0.0, true);
-                stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
-                break;
-            case 1:
-
-                break;
-
-
-
-
-            // case 1: // Get shooters up to speed. Waits 250ms until making sure arm is down
-            //     cmdUpdate(hiSpd, true);
-            //     if (stateTmr.hasExpired(0.25, state)) state++;
-            //     break;
-            // case 2: // Make sure the arm is down
-            //     cmdUpdate(hiSpd, true);
-            //     //Snorfler.loadShooter;     //TODO: Require to release Note
-            //     if (stateTmr.hasExpired(0.5, state)) state = 0;
-            //     break; 
-            // case 3: //Load for Speaker
-            //     cmdUpdate(loSpd, true);//slow down shooter, start snofler
-            //     Snorfler.snorfFwdRq = SnorfRq.kForward;
-            //     if (stateTmr.hasExpired(0.33, state)) state++;
-            // case 4: //Stop Shooter & Snorfler.
-            //     cmdUpdate(0.0, true);
-            //     if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; 
-            // case 5: //Wait for trigger to shoot Speaker
-            //     cmdUpdate(hiSpd, true);
-            //     if (btnShoot.isDown() || btnSpeakerRq == true) state++;
-            //     else if (btnSpkrShot.isDown()) state = 0;
-            // case 6: //Shoot for speaker
-            //     cmdUpdate(hiSpd,true);
-            //     Snorfler.snorfFwdRq = SnorfRq.kForward;
-            //     if (stateTmr.hasExpired(0.35, state)) state = 0;  
-            // case 10: //Load for Amp
-            //     cmdUpdate(loSpd, true);//slow down shooter, start snofler
-            //     Snorfler.snorfFwdRq = SnorfRq.kForward; //please improve this line; not entirely sure how to properly rq subsystems
-            //     if (stateTmr.hasExpired(0.33, state)) state++;
-            //     break;
-            // case 11: //Stop Shooter & Snorfler, Raise Arm.
-            //     cmdUpdate(0.0, false);
-            //     if (stateTmr.hasExpired(0.5, state) && btnAmpShot.onButtonPressed()) state++; 
-            // case 12: //Wait for trigger to shoot Amp.
-            //     cmdUpdate(hiSpd, false);
-            //     if (btnShoot.isDown() || btnAmpRq == true) state++;
-            //     else if (btnAmpShot.isDown()) state = 0;  
-            //     break;
-            // case 13: //Shoot for Amp
-            //     cmdUpdate(hiSpd, false);
-            //     Snorfler.snorfFwdRq = SnorfRq.kForward;
-            //     if (stateTmr.hasExpired(0.35, state)) state = 0;
-            //     break;
-            // case 14: //Unload
-            //     cmdUpdate(-loSpd, true); //PAY ATTENTION TO THE NEGATIVE WHEN REPLACING loSpd
-            //     Snorfler.snorfFwdRq = SnorfRq.kReverse;
-            //     if (stateTmr.hasExpired(0.22, state)) state = 0;
-            //     break;
-            default: // all off
-                cmdUpdate(0.0, true);
-                System.out.println("Bad sm state Shooter:" + state);
-                if (stateTmr.hasExpired(0.25, state)) state++;
-                break;
-        }    }*/
+  
  
-    public static void smUpdate(){ //should it be private 
+    private static void smUpdate(){ 
         
         switch(state){
         case 0: //Everything is off
@@ -180,7 +135,74 @@ public class Shooter {
             stateTmr.clearTimer();
             break;
 
-            /**
+        // ----------- Speaker Cycle ------------------
+        case 1: //Start Shooter cycle for speaker
+            // Bottom shooter motor is some fraction of the top motor's speed (currently we guess around half)
+            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true); //start shooter
+            if(stateTmr.hasExpired(0.25, 1)) {
+                state++;
+            }
+        case 2: //Wait to shoot at speaker or cancel shot
+            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
+            if(btnSpkrShot.onButtonPressed()) state = 0;
+            if(btnShoot.onButtonPressed()) state++;
+            if(stateTmr.hasExpired(0.25, 2)) {
+                state++;
+            }
+        case 3: //Shoot at speaker!
+            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
+            if(stateTmr.hasExpired(0.5, state)) state = 0;
+            break;
+        // ---------- Amp Cycle --------
+     
+        case 15: // amp shoot start and start loading for amp
+            cmdUpdate(0, 0, false); //bring arm up
+            if(stateTmr.hasExpired(0.2, 15)) {
+                state++;
+            }
+        case 16: //spin up motors now that the arm is raised
+            cmdUpdate(10,10,false);
+            if(stateTmr.hasExpired(0.25, 16)) {
+                state++;
+            }
+            break;
+        case 17: //wait for trigger
+            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), false);
+            if(btnAmpShot.onButtonPressed()) state--;
+            if(btnShoot.onButtonPressed()) state--;
+        case 18:
+            cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), false);
+            if(stateTmr.hasExpired(0.2, 18)) {
+                state++;
+            }
+        case 19:
+            cmdUpdate(0, 0., false);
+            state = 0;
+            
+           
+
+    
+        break;
+        
+        case 30: // unload note start
+            cmdUpdate(-90, -90, true);
+            if(stateTmr.hasExpired(0.15, 30)) {
+                state = 0; //unloaded the note
+            }
+            break;
+
+        default: 
+            cmdUpdate(0, 0, true);
+            System.out.println("Shooter encountered invalid state!");
+            break;
+        }
+        
+    }
+    private static void VelCtlr(){
+
+    }
+    //Just an idea - improve later
+    /**
              *   When shooting to the speaker, the distance of the shooter (at least when doing 2 pitch)
              *   controls the speed of the shooter motors.
              *  
@@ -191,40 +213,11 @@ public class Shooter {
              *   The current thoughts is that the bottom motor is about half the speed of the top,
              *   but the true value is going to have to be found in testing (HOORAY)
              */
-        case 1: //Start Shooter cycle for speaker
-            cmdUpdate(hiSpd, hiSpd, true); //start shooter
-            if(stateTmr.hasExpired(0.25, 1)) {
-                state++;
-            }
-        
-        case 15: // amp shoot start and start loading for amp
-            cmdUpdate(0, 0, false); //bring arm up
-            if(stateTmr.hasExpired(0.2, 15)) {
-                state++;
-            }
-        case 16: //spin up motors now that the arm is raised
-            cmdUpdate();
-        break;
-        
-        case 30: // unload note start
-            cmdUpdate(-90, -90, true);
-            if(stateTmr.hasExpired(0.15, 30)) {
-                state = 0; //unloaded the note
-            }
-            break;
-        }
-        
-    }
-    private static void VelCtlr(){
-
-    }
-    //Just an idea - improve later
     private static void Pitch_Adjust(){
         //Get the distance from the Vision class
         double distToTarget; //distance to the pitch
         double speed = hiSpd; //Shooter motors will most likely be at the highest speed
         double pitch = 0; //returned from equation
-    
 
         arm.set(true);
         Pitch_SV.set(true);
@@ -263,6 +256,7 @@ public class Shooter {
         SmartDashboard.putNumber("MTR_speedA", shooterMtrA.get());
         SmartDashboard.putNumber("MTR_speedB", shooterMtrB.get());
         SmartDashboard.putBoolean("arm_down", shooterArmUp.get());
+        SmartDashboard.putBoolean("PitchSV", Pitch_SV.get());        
         SmartDashboard.putBoolean("Shooter/Enabled", (getStatus()));
 
     }
@@ -290,4 +284,15 @@ public class Shooter {
         return state != 0;      //This example says the sm is runing, not idle.
     }
 
+    /**
+     * Returns the speed of the motors in rpm for use in PID
+     * 
+     * @return speed in rpm for specfically the top shooter motor
+     */
+    public static double getSpeakerShootSpeed() {
+        double distance = Drive.getDistanceFromSpeaker(); //distance of robot from speaker
+        
+        return distance; // later we'll use some equation or whatever onto distance to get motor speed,
+                         // but for right now, just return the distance until we figure it out as a placeholder
+    }
 }

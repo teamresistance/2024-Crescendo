@@ -125,6 +125,8 @@ public class Drive {
     public static double offSetY = 5.0;
     public static double offSetRot = 180.0;
 
+    public static Translation2d robotToSpeaker;
+
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
     //Odometry
@@ -301,7 +303,7 @@ public class Drive {
         }
 
         
-        Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+        robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
@@ -338,6 +340,10 @@ public class Drive {
 
     /**@return true wkgScale is greater then 0.0, limit mecDrv max output. */
     public static boolean isScaled() {return wkgScale > 0.0;}
+
+    public static double getDistanceFromSpeaker() {
+        return Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2));
+    }
 
     /**
      * Set all drive motors to brake if true else coast

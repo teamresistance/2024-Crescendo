@@ -23,8 +23,6 @@ public class Climber {
     // hdw defintions:
     private static Solenoid climberExtSV = IO.climberExtSV;
     private static Solenoid climberRetSV = IO.climberRetSV;
-    private static Solenoid climbTriggerSV = IO.climbTriggerSV;
-
 
     // joystick buttons:
     private static Button btnClimberEna = JS_IO.btnClimberEna;
@@ -32,10 +30,14 @@ public class Climber {
 
     // variables:
     private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
-    private static boolean climberEna = false; // Boolean to determine whether the climber is activated  or not lol
-    private static Timer stateTmr = new Timer(0.05);// SState Timer   
+    private static boolean climberEna = false; // Boolean to determine whether the climber is activated  or not
+    private static Timer stateTmr = new Timer(0.05);// SSSState Timer   
+    
+    
+
+    
     public static void init() {
-        cmdUpdate(false, false, false);   // Climber is retracted, down
+        cmdUpdate(false, false);   // Climber is retracted, down
         state = 0;          // Start at state 0
         sdbInit();
     }
@@ -67,27 +69,27 @@ public class Climber {
 
         switch (state) {
             case 0: // Everything is off
-                cmdUpdate(false, false, false);
+                cmdUpdate(false, false);
                 break;
             case 1: // Retract Solenoid to angle the dual solenoid extensions in place 
                 if(stateTmr.hasExpired(0.05, state)){
-                cmdUpdate(false, true, false);
+                cmdUpdate(false, true);
                 state++;
                 }
                 break;
             case 2: // Extends the dual solenoids vertically
                 if(stateTmr.hasExpired(0.5, state)){
-                    cmdUpdate(true, true, false);
+                    cmdUpdate(true, true);
                     state++;
                 }
                 break;
             case 3: // Retracts the solenoids for the robot to pull itself up when hooked onto the chain
                 if(stateTmr.hasExpired(0.5, state)){
-                    cmdUpdate(false, true, false);
+                    cmdUpdate(false, true);
                 }
                 break; 
             default: // all off
-                cmdUpdate(false, false, false);
+                cmdUpdate(false, false);
                 System.out.println("Bad sm state Climber:" + state);
                 break;
 
@@ -100,12 +102,11 @@ public class Climber {
      * @param climbExt - extend climber solenoid
      * 
      */
-    private static void cmdUpdate(boolean climbExt, boolean climbRet, boolean climbtrigger) {
+    private static void cmdUpdate(boolean climbExt, boolean climbRet) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         climberExtSV.set(climbExt);
         climberRetSV.set(climbRet);
-        climbTriggerSV.set(climbtrigger);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
