@@ -26,13 +26,14 @@ import frc.io.hdw_io.util.MotorPID_NEO;
  * Enter a description of this subsystem.
  */
 public class Shooter {
+    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
     // hdw defintions:
     private static CANSparkMax shooterMtrA = IO.shooterMtrA;
     private static CANSparkMax shooterMtrB = IO.shooterMtrB;
     private static Solenoid arm = IO.shooterArmUpSV;
     private static Solenoid Pitch_SV;
     private static MotorPID_NEO shooterMtrAPID;
-    private static MotorPID_NEO shooterMtrBPID = new MotorPID_NEO(shooterMtrB,"ShooterB");
+    //private static MotorPID_NEO shooterMtrBPID = new MotorPID_NEO(shooterMtrB,"ShooterB");
     
 
     //private static Solenoid ShooterSV;
@@ -59,6 +60,7 @@ public class Shooter {
 
     private static boolean armUp_FB = false; // Boolean to determine whether the arm is up or down
     private static OnOffDly armFBDly = new OnOffDly(500, 500); //delay for rising or lowering the arm
+    
 
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
@@ -68,7 +70,8 @@ public class Shooter {
         sdbInit();
         cmdUpdate(0.0, 0.0, true); // Make sure all is off
         state = 0; // Start at state 0
-        shooterMtrAPID = new MotorPID_NEO(shooterMtrA,"ShooterA");
+
+        shooterMtrAPID = new MotorPID_NEO(shooterMtrA,"ShooterA", shtrPIDParms);
         //cmdUpdate(state, getStatus(), getStatus());
     }
 
@@ -200,7 +203,7 @@ public class Shooter {
                 state++;
             }
         case 16: //spin up motors now that the arm is raised
-            cmdUpdate()
+            cmdUpdate();
         break;
         
         case 30: // unload note start
@@ -218,13 +221,11 @@ public class Shooter {
     //Just an idea - improve later
     private static void Pitch_Adjust(){
         //Get the distance from the Vision class
-        double distance; //distance to the pithc
-        double pitch = 0; 
-        double speed = 0; //Map the pitch to the speed we need to control the motors to.
-        //Maybe put controlling motors into another method if this method gets too complicated?
-        shooterMtrA.set(speed);
-        shooterMtrB.set(speed);
-        //Same for these too
+        double distToTarget; //distance to the pitch
+        double speed = hiSpd; //Shooter motors will most likely be at the highest speed
+        double pitch = 0; //returned from equation
+    
+
         arm.set(true);
         Pitch_SV.set(true);
     }
@@ -239,8 +240,8 @@ public class Shooter {
      * @param arm_down      Whether or not the arm of the shooter is up or down (up for amp, down for speaker)
      */
     private static void cmdUpdate(double mtr_speedA, double mtr_speedB, boolean arm_down) {
-        shooterMtrA.VelCtlr(shooterMtrA,"Shooter");
-        shooterMtrB.VelCtrl()
+        shooterMtrA.set(mtr_speedA);
+        shooterMtrB.set(mtr_speedB);
         shooterArmUp.set(arm_down);
         
     }
@@ -261,11 +262,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter_State", state);
         SmartDashboard.putNumber("MTR_speedA", shooterMtrA.get());
         SmartDashboard.putNumber("MTR_speedB", shooterMtrB.get());
-
+        SmartDashboard.putBoolean("arm_down", shooterArmUp.get());
         SmartDashboard.putBoolean("Shooter/Enabled", (getStatus()));
-        
-        
-        SmartDashboard.putBoolean("ShtrSpeakerRq",btnSpeakerRq);
+
     }
 
     // ----------------- Shooter statuses and misc.-----------------
