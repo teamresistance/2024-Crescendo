@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
-import frc.robot.subsystem.MotorPID_NEO;
-
 
 public class IO {
     

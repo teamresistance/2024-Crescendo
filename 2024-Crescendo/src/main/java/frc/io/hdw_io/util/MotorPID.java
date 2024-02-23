@@ -14,12 +14,11 @@ public class MotorPID {
     private RelativeEncoder m_encoder; //This may say it's unused, it absolutely IS used
     private double setPoint = 0.0;
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
-    private boolean m_isInverted, m_isLagInverted;
+    private boolean m_isInverted;
 
-    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, boolean _m_isLagInverted, SparkPIDController _m_pidController){
+    public MotorPID(CANSparkMax _m_motor, boolean _m_isInverted, SparkPIDController _m_pidController){
         m_motor = _m_motor;
         m_isInverted = _m_isInverted;
-        m_isLagInverted = _m_isLagInverted;
         m_pidController = _m_pidController;
     }
 

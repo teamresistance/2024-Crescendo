@@ -61,23 +61,27 @@ public class JS_IO {
     // public static Button resetGyroBtn = new Button();
     public static Button lookAtNote = new Button();
 
-        //Climber
-        public static Button btnClimberEna = new Button();
+    //Climber
+    public static Button btnClimberEna = new Button();
 
-        //Shooter
-        public static Button btnSpkrShot = new Button();
-        public static Button btnAmpShot = new Button();
-        public static Button btnShoot = new Button();
-        public static Button btnUnload = new Button();
-        
-        // and Amp and Reject↑↑↑↑
-        
-        //Snorfler
-        public static Button btnSnorflerEnable = new Button();
-        public static Button btnSnorfleReject = new Button();
-        //Snorfler Booleans!!
-        public static Boolean snorflerEnable = false;
-        public static boolean snorfFwdRq = false;    
+    //Shooter
+    public static Button btnSpkrShot = new Button();
+    public static Button btnAmpShot = new Button();
+    public static Button btnShoot = new Button();
+    public static Button btnUnload = new Button();
+    
+    // and Amp and Reject↑↑↑↑
+    
+    //Snorfler
+    public static Button btnSnorflerEnable = new Button();
+    public static Button btnSnorfleReject = new Button();
+    //Snorfler Booleans!!
+    public static Boolean snorflerEnable = false;
+    public static boolean snorfFwdRq = false;    
+
+    //Hold angle to look at speaker
+    public static Button lookAtSpeaker = new Button();
+
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -167,6 +171,8 @@ public class JS_IO {
         headingHoldBtn.setButton(leftJoystick, 12);
         lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
+        lookAtSpeaker.setButton(leftJoystick, 1);
+
     }
 
     // ----- gamePad only --------
@@ -264,6 +270,8 @@ public class JS_IO {
 
         //Climber Buttons
         btnClimberEna.setButton();
+        lookAtSpeaker.setButton();
+
 
     }
 }

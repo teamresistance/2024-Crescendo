@@ -1,9 +1,11 @@
 package frc.robot.subsystem.Drive;
 
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import java.time.LocalDateTime;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -26,6 +28,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
@@ -42,29 +45,18 @@ import frc.io.hdw_io.util.NavX;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
+import frc.robot.Robot;
 import frc.util.MecanumDriveCalculator;
 // import frc.util.Apriltags;
 import frc.util.PIDXController;
+import frc.util.PropMath;
 import frc.util.Timer;
 import edu.wpi.first.math.VecBuilder;
 
 public class Drive {
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
-    private static NavX navX = IO.navX;
-
-    // joystick:
-    private static Axis jsX = JS_IO.axLeftX;
-    private static Axis jsY = JS_IO.axLeftY;
-    private static Axis jsRot = JS_IO.axRightX;
-
-    private static Button btnGyroReset = JS_IO.btnGyroReset;
-    // public static Button autoBtn = new Button();
-    public static Button headingHoldBtn = JS_IO.headingHoldBtn;
-    public static Button lookAtNote = JS_IO.lookAtNote;
-    public static Button btnAuto = JS_IO.autoBtn;
-    public static Button btnAuto1 = JS_IO.auto1Btn;
-
+    public static NavX navX = IO.navX;
     
     // variables:
     private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
@@ -84,21 +76,32 @@ public class Drive {
     private static double rotSpd;
     
     //PIDS
-    private static PIDXController pidControllerX = new PIDXController(1.0, 0.000, 0.01);
-    private static PIDXController pidControllerY = new PIDXController(0.5, 0.000, 0.055);
-    private static PIDController pidControllerZ = new PIDController(0.02, 0.00, 0.0);
+
+    private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0);
+    private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01);
+    private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0);
+    
+    private static double dP;
+    private static double dI;
+    private static double dD;
+    
+    private static double rP;
+    private static double rI;
+    private static double rD;
+
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
     public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
+
 
     private static double[] inputs;
     
     //Velocity Controlled Mecanum
-    public static final double maxRPM = 5700;
+    public static final double maxRPM = 20000;
 
-    public static MotorPID frontLeftLdPID = new MotorPID(IO.motorFrontLeft, false, false, IO.motorFrontLeft.getPIDController());
-    public static MotorPID backLeftLdPID = new MotorPID(IO.motorBackLeft, false, false, IO.motorBackLeft.getPIDController());
-    public static MotorPID frontRightLdPID = new MotorPID(IO.motorFrontRight, true, false, IO.motorFrontRight.getPIDController());
-    public static MotorPID backRightLdPID = new MotorPID(IO.motorBackRight, true, false, IO.motorBackRight.getPIDController());
+    public static MotorPID frontLeftLdPID = new MotorPID(IO.motorFrontLeft, false, IO.motorFrontLeft.getPIDController());
+    public static MotorPID backLeftLdPID = new MotorPID(IO.motorBackLeft, false, IO.motorBackLeft.getPIDController());
+    public static MotorPID motorFrontRightPID = new MotorPID(IO.motorFrontRight, true, IO.motorFrontRight.getPIDController());
+    public static MotorPID motorBackRightPID = new MotorPID(IO.motorBackRight, true, IO.motorBackRight.getPIDController());
 
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -110,9 +113,17 @@ public class Drive {
     //Photonvision
     private static AprilTagFieldLayout aprilTagFieldLayout;
 
-    private static PhotonCamera cam = new PhotonCamera("photonvision");
+    private static PhotonCamera cam = new PhotonCamera("Cam 1");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 1.0), new Rotation3d(0,0,0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(-0.5, 0.3, 0.5), new Rotation3d(-15.0,15.0,10.0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+
+    private static boolean followNote;
+    private static boolean parkAtTarget;
+    public static boolean auto;
+
+    public static double offSetX = 12.0;
+    public static double offSetY = 5.0;
+    public static double offSetRot = 180.0;
 
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
@@ -124,31 +135,33 @@ public class Drive {
     // IO.kinematics,
     // navX.getRotation2d(),
     // new MecanumDriveWheelPositions(
-    //     IO.frontLeftLd.getEncoder().getPosition(), IO.frontRightLd.getEncoder().getPosition(),
-    //     IO.backLeftLd.getEncoder().getPosition(), IO.backRightLd.getEncoder().getPosition()
+    //     IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
+    //     IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition()
     // ),
     // new Pose2d(0.0, 0.0, new Rotation2d())
     // );
 
-    private static final double tpf = 12.7;
+    private static final double tpf = 12.7; //ticks per foot
 
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getRotation2d(), 
+            navX.getInvRotation2d(), 
             new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(12.8, 5.5, new Rotation2d())
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
     );
 
     //Setpoints for alignement
-    private static final double setPoint1X = 15.0;
-    private static final double setPoint1Y = 5.5;
-    private static final double setPoint2X = 12.8;
-    private static final double setPoint2Y = 5.5;
+    public static final double setPoint1X = 14.55;
+    public static final double setPoint1Y = 5.25;
+    public static final double setPoint2X = 14.35;
+    public static final double setPoint2Y = 6.5;
 
+    //Speaker setpoint
+    public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
 
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -178,6 +191,9 @@ public class Drive {
      */
     public static void init() {
         sdbInit();
+        // pidControllerX = new PIDXController(dP, dI, dD);
+        // pidControllerY = new PIDXController(dP, dI, dD);
+        // pidControllerZ = new PIDXController(rP, rI, rD);
         state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold
@@ -193,8 +209,8 @@ public class Drive {
         
         frontLeftLdPID.init();
         backLeftLdPID.init();
-        frontRightLdPID.init();
-        backRightLdPID.init();
+        motorFrontRightPID.init();
+        motorBackRightPID.init();
 
         reset();
 
@@ -218,7 +234,7 @@ public class Drive {
     //     return photonPoseEstimator.update();
     // }
 
-    private static void reset(){
+    public static void reset(){
         navX.reset();
         IO.motorFrontLeft.getEncoder().setPosition(0.0);
         IO.motorFrontRight.getEncoder().setPosition(0.0);
@@ -229,17 +245,17 @@ public class Drive {
         IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
 
         // Get the rotation of the robot from the gyro.
-        var gyroAngle = navX.getRotation2d();
+        // var gyroAngle = navX.getRotation2d();
         
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getRotation2d(), 
+            navX.getInvRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
             ),
-            new Pose2d(12.8, 5.5, new Rotation2d())
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
     }
 
@@ -255,19 +271,11 @@ public class Drive {
 
         // Checking for button presses !!! --- Moved to Drv_Teleop --- !!!
 
-        state = isFieldOriented ? 1 : 0;
-
-        if (btnGyroReset.isDown()) {
-            // botHold_SP = null;
-            // hdgHold_SP = null;
-            IO.navX.reset();
-            reset();
-            // IO.coorXY.reset();
-        }
+        // state = isFieldOriented ? 1 : 0;
 
         // // Update the drivetrain pose
 
-        poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
+        poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
         ));
@@ -287,9 +295,29 @@ public class Drive {
 
                 // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-                System.out.println("Estimated pose: " + estimatedPose);
+                // System.out.println("Estimated pose: " + estimatedPose);
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
+        }
+
+        
+        Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+        Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+        Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+
+        //TODO: use this angle and do stuff.
+        System.out.println(angleFromSpeaker);
+        //Look at speaker
+        if (JS_IO.lookAtSpeaker.isDown()){
+            // Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+            // Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+            // Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+
+            //TODO: use this angle and do stuff.
+            // System.out.println(angleFromSpeaker);
+            
+            double pidOutputZ = pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
+            rotSpd = -pidOutputZ;
         }
 
         
@@ -358,64 +386,31 @@ public class Drive {
      */
     private static void smUpdate() {
         // System.out.println(state);
-        fwdSpd = jsX.getRaw();
-        rlSpd = jsY.getRaw();
-        rotSpd = jsRot.getRaw();
         
-        //Northstar stuff
+        heading = IO.navX.getInvRotation2d();
+        
+        cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
+    }
 
-
-        //Autoalign stuff
-        if (btnAuto.isDown()){
-            //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint1X);
-            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint1Y);
-            rlSpd = pidOutputX;
-            fwdSpd = pidOutputY;
-        }
-        if (btnAuto1.isDown()){
-            //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            double pidOutputX = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getX(), setPoint2X);
-            double pidOutputY = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getY(), setPoint2Y);
-            rlSpd = pidOutputX;
-            fwdSpd = pidOutputY;
-        }
-
+    public static void goToNote(double _spd){
         //Limelight stuff
         double x = tx.getDouble(0.0);
-        double y = ty.getDouble(0.0);
-        double area = ta.getDouble(0.0);
-        
-        heading = IO.navX.getRotation2d();
-
-        
-        if (lookAtNote.isDown() && x != 0.0){
+        if (x != 0.0){
             double pidOutputZ = -pidControllerZ.calculate(0.0, x);
-            rotSpd = -pidOutputZ;
-            // rlSpd = 0;
+            rotSpd = -pidOutputZ * _spd;
         }
-        if (lookAtNote.isUp()){
-            // robotOriented = false;
-        }
+    }
 
-        if (headingHoldBtn.isDown()){
-          rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), 0.0);
-        }
-        
-        switch (state) {
-            case 0: // Robot oriented
-                cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
-                break;
-            case 1: // Field oriented
-                cmdUpdate(fwdSpd, rlSpd, rotSpd, true);
-                break;
-            default: // all off
-                cmdUpdate(0.0, 0.0, 0.0, false);
-                System.out.println("Bad DriveMec state: " + state);
-                break;
-        }
+    public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
+        double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
+        double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        // double pidOutputZ = -pidControllerZ.calculate(navX.getYaw(), hdg);
+
+        // rotSpd = -pidOutputZ * rotSpd;
+
+        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
+        rlSpd = pidOutputX * spd;
+        fwdSpd = pidOutputY * spd;
     }
 
     /**
@@ -428,7 +423,8 @@ public class Drive {
      * 
      */
     private static void cmdUpdate(double _fwdSpd, double _rlSpd, double _rotSpd, boolean _isFieldOriented) {
-        fwdSpd = _fwdSpd; rlSpd = _rlSpd; rotSpd = _rotSpd; isFieldOriented = _isFieldOriented;
+        double fwdSpeed, rlSpeed, rotSpeed;
+        fwdSpeed = _fwdSpd; rlSpeed = _rlSpd; rotSpeed = _rotSpd; boolean fieldOriented = _isFieldOriented;
         
         //Check any safeties, mod passed cmds if needed.
         chkInput();
@@ -437,29 +433,29 @@ public class Drive {
          * Each wheel has a PID controller that is then updated to match that speed.
          */
     
-        
-        if (!isFieldOriented) 
+        // System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
+        if (!fieldOriented)
         {
             //Robot
-            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-fwdSpd, -rlSpd, rotSpd);
+            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-rlSpeed, -fwdSpeed, rotSpeed);
         }
         else
         {
             //Field
-            inputs = MecanumDriveCalculator.calculateMecanumDrive(-fwdSpd, -rlSpd, rotSpd, navX.getAngle());
+            inputs = MecanumDriveCalculator.calculateMecanumDrive(-rlSpeed, -fwdSpeed, rotSpeed, navX.getAngle());
         }
     
         
         frontLeftLdPID.updateSetpoint(inputs[0] * maxRPM);
-        frontRightLdPID.updateSetpoint(inputs[1] * maxRPM);
+        motorFrontRightPID.updateSetpoint(inputs[1] * maxRPM);
         backLeftLdPID.updateSetpoint(inputs[2] * maxRPM);
-        backRightLdPID.updateSetpoint(inputs[3] * maxRPM);
+        motorBackRightPID.updateSetpoint(inputs[3] * maxRPM);
         
         //Check if updates were made in SDB
         frontLeftLdPID.update();
         backLeftLdPID.update();
-        frontRightLdPID.update();
-        backRightLdPID.update();
+        motorFrontRightPID.update();
+        motorBackRightPID.update();
     }
 
     /**
@@ -580,16 +576,28 @@ public class Drive {
         SmartDashboard.putNumber("Drv/Test/tstDVar4", 0.30);  //tstDVar4);
         SmartDashboard.putBoolean("Drv/Test/tstBVar1",false); // tstBVar1);
         SmartDashboard.putBoolean("Drv/Test/tstBVar2",false); // tstBVar2);
+
+        SmartDashboard.putNumber("Drv/Test/dP", 0.2);
+        SmartDashboard.putNumber("Drv/Test/dI", 0.000);
+        SmartDashboard.putNumber("Drv/Test/dD", 0.06);
+        
+        SmartDashboard.putNumber("Drv/Test/rP", 0.008);
+        SmartDashboard.putNumber("Drv/Test/rI", 0.000);
+        SmartDashboard.putNumber("Drv/Test/rD", 0.0);
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
+        dP = SmartDashboard.getNumber("Drv/Test/dP", 0.2);
+        dI = SmartDashboard.getNumber("Drv/Test/dI", 0.000);
+        dD = SmartDashboard.getNumber("Drv/Test/dD", 0.06);
+        rP = SmartDashboard.getNumber("Drv/Test/rP", 0.008);
+        rI = SmartDashboard.getNumber("Drv/Test/rI", 0.000);
+        rD = SmartDashboard.getNumber("Drv/Test/rD", 0.0);
+        
         SmartDashboard.putNumber("Drv/fwdSpd", fwdSpd);
         SmartDashboard.putNumber("Drv/rlSpd", rlSpd);
         SmartDashboard.putNumber("Drv/rotSpd", rotSpd);
-        SmartDashboard.putNumber("Drv/jsy", jsY.get());
-        SmartDashboard.putNumber("Drv/jsx", jsX.get());
-        SmartDashboard.putNumber("Drv/jsrot", jsRot.get());
         SmartDashboard.putNumber("Drv/hdgHold_SP", hdgHold_SP == null ? 999 : hdgHold_SP);
         SmartDashboard.putNumber("Drv/botHold_SP", botHold_SP == null ? 999 : botHold_SP);
 
@@ -603,6 +611,7 @@ public class Drive {
         SmartDashboard.putNumber("SP/FrontRight SP", inputs[1] * maxRPM);
         SmartDashboard.putNumber("SP/BackLeft SP", inputs[2] * maxRPM);
         SmartDashboard.putNumber("SP/BackRight SP", inputs[3] * maxRPM);
+        // SmartDashboard.putNumber("", )
         
         // SmartDashboard.putNumber("Drv/coorX", IO.coorXY.getX());
         // SmartDashboard.putNumber("Drv/coorY", IO.coorXY.getY());
@@ -629,4 +638,4 @@ public class Drive {
     public Drive() { // Mecanum Drive
         //Nothing at this time.
     }
-}
+}       
