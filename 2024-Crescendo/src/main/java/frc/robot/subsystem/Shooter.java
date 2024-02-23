@@ -190,17 +190,17 @@ public class Shooter {
                 if(btnAmpShot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //2nd press raise arm
                 break;
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
-                cmdUpdate(0.0, 0.0, true, false);
+                cmdUpdate(0.0, 0.0, false, true);
                 if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
                 if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, true, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, true);
                 autoShoot = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUpFB) state++;           //SHOOT!
-                break;
+                break;  
             case 16: // shoot and all off
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, true, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, true);
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
             //----------- Unload from aborted Amp shot ---------------
@@ -230,8 +230,10 @@ public class Shooter {
     /**
      * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
      * 
-     * @param mtrAFPS - speed of the lead moter, lag follows
-     * @param armUpCmd - command to raise arm
+     * @param mtrAFPS - speed of the top moter
+     * @param mtrBFPS - speed of the bottom moter
+     * @param pitchLoCmd - command to raise arm
+     * @param armUpCmd - command to extend hooks
      * 
      */
     private static void cmdUpdate(double mtrAFPS, double mtrBFPS, boolean pitchLoCmd, boolean armUpCmd) {
@@ -252,7 +254,7 @@ public class Shooter {
         }
 
         //Safety, if climber is not down then DO NOT raise arm
-        shtrArmUp.set(Climber.getStatus() ? false : armUpCmd);
+        shtrArmUp.set(Climber.climberIsVert() ? false : armUpCmd);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
@@ -271,6 +273,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter/state", state);
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
         SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUpFB);
+        SmartDashboard.putBoolean("Shooter/Clmbr Is Vert", Climber.climberIsVert());
+        SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
+        SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
     }
 
     // ----------------- Shooter statuses and misc.----------------

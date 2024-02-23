@@ -17,7 +17,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
-import frc.robot.subsystem.Climber.Climber_FB;
+// import frc.robot.subsystem.Climber.Climber_FB;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Snorfler.SnorfRq;
 import frc.util.Timer;
@@ -62,7 +62,7 @@ public class ShooterSave {
     private static boolean btnSpeakerRq; //button for speaker request
     private static boolean btnAmpRq; //button for amp request
     //private static float threshold;
-    private static Climber_FB ClimberState;
+    // private static Climber_FB ClimberState;
 
     private static boolean armUp_FB = false; // Boolean to determine whether the arm is up or down
     private static OnOffDly armFBDly = new OnOffDly(500, 500); //delay for rising or lowering the arm
@@ -151,9 +151,7 @@ public class ShooterSave {
             cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
             if(btnSpkrShot.onButtonPressed()) state = 0;
             if(btnShoot.onButtonPressed()) state++;
-            if(stateTmr.hasExpired(0.25, 2)) {
-                state++;
-            }
+            if(stateTmr.hasExpired(0.25, state)) state++;
         case 3: //Shoot at speaker!
             cmdUpdate(getSpeakerShootSpeed(), 0.6 * getSpeakerShootSpeed(), true);
             if(stateTmr.hasExpired(0.5, state)) state = 0;

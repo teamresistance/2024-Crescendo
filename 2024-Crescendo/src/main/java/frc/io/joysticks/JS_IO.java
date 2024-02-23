@@ -212,6 +212,18 @@ public class JS_IO {
 
     // ----------- Nintendo gamepad -------------
     private static void a_NP() {
+        //Snorfler
+        btnSnorflerEnable.setButton(neoPad, 3);
+        btnSnorfleReject.setButton(neoPad, 2);
+
+        //Shooter
+        btnSpkrShot.setButton(neoPad, 5);
+        btnAmpShot.setButton(neoPad, 6);
+        btnShoot.setButton(neoPad, 1);
+        btnUnload.setButton(neoPad, 4);
+
+        //Climber
+        btnClimberEna.setButton(neoPad, 10);
     }
 
     private static void Ps4() {

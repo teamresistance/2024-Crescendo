@@ -110,6 +110,7 @@ public class IO {
      * but 2 to lower the hook with the weight of the robot also. */
     public static Solenoid climberExtSV = new Solenoid(modID, modType, 2);  //Single Actuator
     public static Solenoid climberRetSV = new Solenoid(modID, modType, 3);  //Dual Actuator
+    public static Solenoid climberVertSV = new Solenoid(modID, modType, 4);  //Dual Actuator
 
     /**
      * Initialize any hardware

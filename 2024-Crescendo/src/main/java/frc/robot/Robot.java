@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
+import frc.robot.subsystem.Climber;
+import frc.robot.subsystem.Shooter;
+import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
 import frc.robot.subsystem.tests.TestHdw;
@@ -33,6 +37,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         Tests.chsrInit();
+        JS_IO.init();
         IO.init();
     }
 
@@ -46,36 +51,47 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         Tests.chsrUpdate();
+        JS_IO.update();
     }
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
+        // IO.navX.reset();
+        // Drive.init();
+        // Drv_Teleop.init();
+        Snorfler.init();
+        Shooter.init();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        // Drive.update();
+        // Drv_Teleop.update();
+        Snorfler.update();
+        Shooter.update();
     }
 
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
-        
-        IO.navX.reset();
-        IO.init();
-        JS_IO.init();
-        Drive.init();
-        Drv_Teleop.init();
+        // IO.navX.reset();
+        // Drive.init();
+        // Drv_Teleop.init();
+        Snorfler.init();
+        Shooter.init();
+        Climber.init();
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        IO.update();
-        JS_IO.update();
-        Drive.update();
-        Drv_Teleop.update();
+        // Drive.update();
+        // Drv_Teleop.update();
+        Snorfler.update();
+        Shooter.update();
+        Climber.update();
     }
 
     /** This function is called once when the robot is disabled. */

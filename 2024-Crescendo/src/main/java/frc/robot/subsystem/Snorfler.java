@@ -132,11 +132,13 @@ public class Snorfler {
                 break;
             case 20: // Shooter request to Snorfler to load for amplifier
                 cmdUpdate(loadMtrSpd);
+                snorfFwdRq = SnorfRq.kOff;
                 if(stateTmr.hasExpired(0.5, state)) {state=0;}
                 break;
 
             case 30: // Shooter request to Snorfler to unload
                 cmdUpdate(rejMtrSpd);
+                snorfFwdRq = SnorfRq.kOff;
                 if(stateTmr.hasExpired(0.33, state)) {state = 0;}
                 break;
 
