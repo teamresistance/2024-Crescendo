@@ -73,4 +73,11 @@ public class Button{
 	public boolean onButtonReleased() {
 		return exists ? joystick.getRawButtonReleased(buttonID) : existDflt;
 	}
+
+	public void clearOnPrsRel(){
+		if(exists){
+			joystick.getRawButtonPressed(buttonID);
+			joystick.getRawButtonReleased(buttonID);
+		}
+	}
 }
