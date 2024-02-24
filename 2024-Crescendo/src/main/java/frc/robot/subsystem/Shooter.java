@@ -51,8 +51,8 @@ public class Shooter {
     // hdw defintions:
     private static CANSparkMax shtrMtrA = IO.shooterMtrA;   // Top roller motor
     private static CANSparkMax shtrMtrB = IO.shooterMtrB;   // Bottom roller motor
-    private static MotorPID_NEO shtrMtrPidA;    // PID control for RPM (RPM / 104 = FPS)
-    private static MotorPID_NEO shtrMtrPidB;
+    private static MotorPID_NEO shtrMtrAPid;    // PID control for RPM (RPM / 104 = FPS)
+    private static MotorPID_NEO shtrMtrBPid;
     private static Encoder_Neo shtrAEncoder;    // Feedback in RPM
     private static Encoder_Neo shtrBEncoder;
     private static Solenoid shtrArmUp = IO.shooterArmUpSV;
@@ -101,8 +101,8 @@ public class Shooter {
     public static void init() {
         // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
         shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
-        shtrMtrPidA = new MotorPID_NEO(shtrMtrA, "TestMtrsFPS", shtrPIDParms);
-        shtrMtrPidB = new MotorPID_NEO(shtrMtrB, "TestMtrsFPS", shtrPIDParms);
+        shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
+        shtrMtrBPid = new MotorPID_NEO(shtrMtrB, "Shooter", shtrPIDParms);
         shtrAEncoder = new Encoder_Neo(shtrMtrA, 1777.41);
         shtrBEncoder = new Encoder_Neo(shtrMtrB, 1777.41);
         clsDistToFPS = new double[][] {{4.8, 6.0, 7.0},{fpsMax, 48.0, 42.0}};  //Segmented Line close
@@ -166,25 +166,25 @@ public class Shooter {
                 break;
             //---------- Shoot at Speaker  ---------------
             case 1: // Get shooters up to speed for Speaker shot
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if (stateTmr.hasExpired(0.25, state)) state++;
                 break;
             case 2: // Wait for shot or cancel
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if(btnSpkrShot.onButtonPressed()) state = 0;    //2nd Press, Cancel Speaker shot
                 if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //Goto shot
                 break;
             case 3: // Confirm if arm dn
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if (!armUpFB) state++;
                 break;
             case 4: // Request snorfler to feed Note,
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 Snorfler.snorfFwdRq = SnorfRq.kForward; // Trigger once. Self cancels after 200 mS
                 autoShoot = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
             case 5: // Wait for shot then go to turn off
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
+                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
             //----------- Shoot for Amp --------------
@@ -210,12 +210,12 @@ public class Shooter {
                 if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, true);
+                cmdUpdate(0.0, 0.0, false, true);
                 autoShoot = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUpFB) state++;           //SHOOT!
                 break;  
             case 16: // shoot and all off
-                cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, true);
+                cmdUpdate(fpsMax, fpsMax, false, true);
                 if (stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
             //----------- Unload from aborted Amp shot ---------------
@@ -255,19 +255,22 @@ public class Shooter {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         if(Math.abs(mtrAFPS) > 3.0){
-                shtrMtrPidA.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
-            shtrMtrPidA.setSetpoint(0.0);
+            shtrMtrAPid.setSetpoint(0.0);
             shtrMtrA.disable();
         }
+        shtrMtrAPid.update();   //Update the PID reference
 
         if(Math.abs(mtrBFPS) > 3.0){
-                shtrMtrPidA.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
-            shtrMtrPidB.setSetpoint(0.0);
+            shtrMtrBPid.setSetpoint(0.0);
             shtrMtrB.disable();
         }
+        shtrMtrBPid.update();   //Update the PID reference
 
+        shtrPitchLo.set(pitchLoCmd);
         //Safety, if climber is not down then DO NOT raise arm
         shtrArmUp.set(Climber.climberIsVert() ? false : armUpCmd);
     }
@@ -293,7 +296,7 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
 
-        SmartDashboard.putBoolean("Shooter/Dist/dist to target", shotIsFar);
+        SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
         SmartDashboard.putNumber("Shooter/Dist/Motor A FPS SP", shtrAFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor B FPS SP", shtrBFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor A FPS FB", shtrAEncoder.getSpeed());
@@ -305,7 +308,7 @@ public class Shooter {
     // ----------------- Shooter statuses and misc.----------------
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
-        if(distToTarget > clsDistToFPS[0][clsDistToFPS.length - 1]) shotIsFar = true;
+        if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
         if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
         if(shotIsFar){
             shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);

@@ -32,8 +32,9 @@ public class Climber {
     // hdw defintions:
     /* 2 actuators are used to raise and lower the hooks.  1 low pressure to raise
      * the hooks with 1 actuator.  Another to lower using both actuators. */
-    private static Solenoid climberExtSV = IO.climberExtSV;     // low pressure to extend hooks
-    private static Solenoid climberRetSV = IO.climberRetSV;     // hi pressure to retract hooks
+    private static Solenoid climberExt1SV = IO.climberExt1SV;   // low pressure to extend hooks
+    private static Solenoid climberRet1SV = IO.climberRet1SV;   // hi pressure to retract hooks
+    private static Solenoid climberRet2SV = IO.climberRet1SV;   // hi pressure to retract hooks
     private static Solenoid climberVertSV = IO.climberVertSV;   // trip to raise arm to vertical
 
     // joystick buttons:
@@ -53,6 +54,7 @@ public class Climber {
         climberVert_FB = false;     // Needed since cmdUpdate issue true only
         climberVertSV.set(false);   // Needed since cmdUpdate issue true only
         state = 0;                  // Start at state 0
+        clearOnPresses();           //Clear all button onpress signals
         sdbInit();
     }
 
@@ -68,7 +70,7 @@ public class Climber {
             climberEna = !climberEna;
         }
 
-        climberUp_FB = climberUpTmr.get(climberExtSV.get());    // Update up feedback
+        climberUp_FB = climberUpTmr.get(climberExt1SV.get());    // Update up feedback
         if(climberVertSV.get()) climberVert_FB = true;          // Once vertical MUST remain vertical.
 
         smUpdate();
@@ -112,6 +114,7 @@ public class Climber {
                 System.out.println("Bad sm state Climber:" + state);
                 break;
         }
+        clearOnPresses();       //Clear all button onpress signals
     }
 
     /**
@@ -126,8 +129,9 @@ public class Climber {
         //Send commands to hardware
         if(climbVert) climberVertSV.set(true);  //Once vertical MUST remain vertical.
 
-        climberExtSV.set(climbExt);
-        climberRetSV.set(climbExt);
+        climberExt1SV.set(climbExt);
+        climberRet1SV.set(climbExt);
+        climberRet2SV.set(climbExt);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
@@ -147,8 +151,9 @@ public class Climber {
         SmartDashboard.putBoolean("Climber/Enable", climberEna);
         SmartDashboard.putBoolean("Climber/Hooks Up FB", climberUp_FB);
         SmartDashboard.putBoolean("Climber/Arm Vert FB", climberVert_FB);
-        SmartDashboard.putBoolean("Climber/Ext SV", climberExtSV.get());
-        SmartDashboard.putBoolean("Climber/Ret SV", climberExtSV.get());
+        SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
+        SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
+        SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
         SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
     }
 
@@ -159,6 +164,14 @@ public class Climber {
 
     /** @return true if the climber has been command to raise vertical */
     public static boolean climberIsUp(){ return climberUp_FB; }
+
+    /**
+     * A onPress is held by the hardware until read.  If pressed before needed
+     * code executes immediately.  Clear the onPress until expected onPress.
+     */
+    private static void clearOnPresses(){
+        btnClimberEna.clearOnPrsRel();
+    }
 
     /**
      * Probably shouldn't use this bc the states can change. Use statuses.

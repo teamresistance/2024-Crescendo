@@ -73,6 +73,7 @@ public class Snorfler {
      * Robot.java
      */
     public static void init() {
+        clearOnPresses();
         sdbInit();
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
@@ -147,6 +148,7 @@ public class Snorfler {
                 System.out.println("Bad Snorfle State: " + state);
                 break;
         }
+        clearOnPresses();
     }
 
     /**
@@ -189,6 +191,15 @@ public class Snorfler {
     }
 
     // ----------------- Snorfler statuses and misc.-----------------
+    /**
+     * A onPress is held by the hardware until read.  If pressed before needed
+     * code executes immediately.  Clear the onPress until expected onPress.
+     */
+    private static void clearOnPresses(){
+        btnSnorflerEnable.clearOnPrsRel();
+        btnSnorfleReject.clearOnPrsRel();
+    }
+
     /**
      * Probably shouldn't use this bc the states can change. Use statuses.
      * 
