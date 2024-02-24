@@ -26,8 +26,8 @@ public class TestMtrFPS {
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
     private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, follows A
     //Shooter Encoders
-    private static Encoder_Neo shtrA_Enc = IO.shtrMtrAEnc;
-    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBEnc;
+    private static Encoder_Neo shtrA_Enc;
+    private static Encoder_Neo shtrB_Enc;
     //MotorPIDController - CANSParkMax
     private static MotorPID_NEO shtrLdPIDCtlr;
     private static MotorPID_NEO shtrLgPIDCtlr;
@@ -53,15 +53,19 @@ public class TestMtrFPS {
 
     private static boolean resetEnc = false;
     // PID parms in order: P, I, D, Iz, FF, min, max
-    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
+    private static double[] shtrPIDParms;
 
     /**
      * Initialize Motor Tests stuff. Called from testInit (maybe robotInit(?)) in
      * Robot.java
      */
     public static void init() {
+        // PID parms in order: P, I, D, Iz, FF, min, max
+        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
         shtrLdPIDCtlr = new MotorPID_NEO(shooterMtrLd, "TestMtrsFPS", shtrPIDParms);
         shtrLgPIDCtlr = new MotorPID_NEO(shooterMtrLg, "TestMtrsFPS", shtrPIDParms);
+        shtrA_Enc = new Encoder_Neo(shooterMtrLd, 1777.41);
+        shtrB_Enc = new Encoder_Neo(shooterMtrLg, 1777.41);
 
         shtr41FPS_SP = 0.0;
         shtr42FPS_SP = 0.0;

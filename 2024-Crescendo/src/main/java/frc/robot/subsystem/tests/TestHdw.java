@@ -59,11 +59,11 @@ public class TestHdw {
 
     //Shooter Encoders
     // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  = 1777.91 ticks/ft
-    private static Encoder_Neo shtrMtrAEnc = IO.shtrMtrAEnc;
-    private static Encoder_Neo shtrMtrBEnc = IO.shtrMtrBEnc;
+    private static Encoder_Neo shtrMtrAEnc;
+    private static Encoder_Neo shtrMtrBEnc;
 
     //Climber
-    private static Solenoid climberExtSV = IO.climberExtSV;
+    private static Solenoid climberExtSV = IO.climberExt1SV;
 
 
     // joystick buttons:
@@ -86,6 +86,9 @@ public class TestHdw {
     private static boolean climberUp = false;
 
     public static void init(){
+        shtrMtrAEnc = new Encoder_Neo(shooterMtrA, 1777.41);
+        shtrMtrBEnc = new Encoder_Neo(shooterMtrB, 1777.41);
+
         hdwInit();
         sdbInit();
     }

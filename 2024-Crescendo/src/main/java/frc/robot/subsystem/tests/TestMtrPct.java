@@ -35,8 +35,8 @@ public class TestMtrPct {
     private static CANSparkMax shooterMtrLd = IO.shooterMtrA;   //Lead
     private static CANSparkMax shooterMtrLg = IO.shooterMtrB;   //Lag, can follows A
     //Shooter Encoders
-    private static Encoder_Neo shtrA_Enc = IO.shtrMtrAEnc;
-    private static Encoder_Neo shtrB_Enc = IO.shtrMtrBEnc;
+    private static Encoder_Neo shtrA_Enc;
+    private static Encoder_Neo shtrB_Enc;
 
     // joystick buttons:
     //none at this time
@@ -65,6 +65,9 @@ public class TestMtrPct {
      * Robot.java
      */
     public static void init() {
+        shtrA_Enc = new Encoder_Neo(shooterMtrLd, 1777.41);
+        shtrB_Enc = new Encoder_Neo(shooterMtrLg, 1777.41);
+
         hdwInit();
         // shtrB_Enc.setTPF(4345.9);  //Just testing for wheel speed
         sdbInit();
