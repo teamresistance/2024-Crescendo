@@ -2,7 +2,8 @@
 Author(s): Nick
 
 History:
-J&A - 2/21/2024 - Original Release
+Nick - 2/21/2024 - Original Release
+JCH - 2/24/2024 - cleanup & simulator testing
 
 Desc: Controls lifting the climbing arm/hook.
 */
@@ -19,32 +20,39 @@ import frc.util.Timer;
 import frc.util.timers.OnOffDly;
 
 /**
- * Enter a description of this subsystem.
+ * The Climber is used to raise the robot on a chain at the end game.
+ * <p>
+ * To Climb btnClimberTgl is pressed to raise the climber verticle
+ * then extend the climber (hooks) up.  
+ * The button can be press again to lower the Climber but will remain verticle.  
+ * When the Climber is up, the driver moves to the chain and presses 
+ * the button to toggle and retract the Climber, raising the robot.
  */
 public class Climber {
     // hdw defintions:
-    private static Solenoid climberExtSV = IO.climberExtSV;
-    private static Solenoid climberRetSV = IO.climberRetSV;
-    private static Solenoid climberVertSV = IO.climberVertSV;
+    /* 2 actuators are used to raise and lower the hooks.  1 low pressure to raise
+     * the hooks with 1 actuator.  Another to lower using both actuators. */
+    private static Solenoid climberExtSV = IO.climberExtSV;     // low pressure to extend hooks
+    private static Solenoid climberRetSV = IO.climberRetSV;     // hi pressure to retract hooks
+    private static Solenoid climberVertSV = IO.climberVertSV;   // trip to raise arm to vertical
 
     // joystick buttons:
-    private static Button btnClimberEna = JS_IO.btnClimberEna;
+    private static Button btnClimberEna = JS_IO.btnClimberEna;  // toggle hooks up & down
     
-
     // variables:
-    private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
-    private static boolean climberEna = false; // Boolean to determine whether the climber is activated  or not
-    private static Timer stateTmr = new Timer(0.05);// State Timer
-    private static OnOffDly climberUpTmr = new OnOffDly(500, 500);
-    private static boolean climberUp_FB = false;
-    private static boolean climberVert_FB = false;
+    private static int state;                   // state machine value
+    private static boolean climberEna = false;  // Boolean to determine whether the climber is activated  or not
+    private static Timer stateTmr = new Timer(0.05);                // State Timer
+    private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber status
+    private static boolean climberUp_FB = false;    // time delayed feedback for if the hooks are up or dn
+    private static boolean climberVert_FB = false;  // time delayed feedback for if the arm has been cmd vert.
 
     public static void init() {
         climberEna = false;
-        climberVert_FB = false;
-        cmdUpdate(false, false);   // Climber is retracted, down
-        climberVertSV.set(false);   //Needed since cmdUpdate issue true only
-        state = 0;          // Start at state 0
+        cmdUpdate(false, false);    // Climber is retracted, down
+        climberVert_FB = false;     // Needed since cmdUpdate issue true only
+        climberVertSV.set(false);   // Needed since cmdUpdate issue true only
+        state = 0;                  // Start at state 0
         sdbInit();
     }
 
@@ -60,7 +68,8 @@ public class Climber {
             climberEna = !climberEna;
         }
 
-        climberUp_FB = climberUpTmr.get(climberExtSV.get());
+        climberUp_FB = climberUpTmr.get(climberExtSV.get());    // Update up feedback
+        if(climberVertSV.get()) climberVert_FB = true;          // Once vertical MUST remain vertical.
 
         smUpdate();
         sdbUpdate();
@@ -69,7 +78,7 @@ public class Climber {
     /**
      * State machine update.  Called from update
      * 0 - SV retracted, down & horzital
-     * 1 - shooter arm down check & request
+     * 1 - Shooter arm down, check & request
      * 2 - hooks retracted, dn & climber arm vertical
      * 3 - hooks extended, up
      */
@@ -106,7 +115,7 @@ public class Climber {
     }
 
     /**
-     * Issue clomber SV cmd.
+     * Issue climber SV cmd.
      * 
      * @param climbExt extend/retract climber actuators to extend hooks
      * @param climbVert extend climber actuator to go vertical
@@ -115,10 +124,7 @@ public class Climber {
     private static void cmdUpdate(boolean climbExt, boolean climbVert) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
-        if(climbVert){
-            climberVertSV.set(true);
-            climberVert_FB = true; //Once vertical MUST remain vertical.
-        }
+        if(climbVert) climberVertSV.set(true);  //Once vertical MUST remain vertical.
 
         climberExtSV.set(climbExt);
         climberRetSV.set(climbExt);
