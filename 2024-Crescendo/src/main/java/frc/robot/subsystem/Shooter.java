@@ -1,11 +1,20 @@
+/*
+ * Author(s): All y'all
+ * 
+ * History:
+ * All - 2/21/2024 - Original Release
+ * 
+ * Desc: Controls lifting the climbing arm/hook.
+ */
+
 package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
+import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.MotorPID_NEO;
-import frc.io.hdw_io.util.MotorPID;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.robot.subsystem.Snorfler.SnorfRq;
@@ -40,12 +49,14 @@ import frc.util.timers.OnOffDly;
  */
 public class Shooter {
     // hdw defintions:
-    private static CANSparkMax shtrMtrA = IO.shooterMtrA;
-    private static CANSparkMax shtrMtrB = IO.shooterMtrB;
-    private static MotorPID_NEO shtrMtrPidA;
+    private static CANSparkMax shtrMtrA = IO.shooterMtrA;   // Top roller motor
+    private static CANSparkMax shtrMtrB = IO.shooterMtrB;   // Bottom roller motor
+    private static MotorPID_NEO shtrMtrPidA;    // PID control for RPM (RPM / 104 = FPS)
     private static MotorPID_NEO shtrMtrPidB;
-    private static Solenoid shtrArmUp = IO.shooterArmUpSV;  //true for Amp
-    private static Solenoid shtrPitchLo = IO.shooterPitchLoSV;  //true for Amp
+    private static Encoder_Neo shtrAEncoder;    // Feedback in RPM
+    private static Encoder_Neo shtrBEncoder;
+    private static Solenoid shtrArmUp = IO.shooterArmUpSV;
+    private static Solenoid shtrPitchLo = IO.shooterPitchLoSV;
 
     // joystick buttons:
     private static Button btnSpkrShot = JS_IO.btnSpkrShot;  //Begin speaker shot, mtrs up to speed
@@ -55,30 +66,30 @@ public class Shooter {
     private static Button btnUnload = JS_IO.btnUnload;      //Unload Shooter. Note to Snorfler
 
     // variables:
-    private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
+    private static int state; // state machine
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-    //Presently - 2 shooting pitch, 40 or 55.  55 is close 5' to 7'.  Farther then 7'
-    //pitch drops to 40 for 6' to 8'.  Both start high to low FPS to use the arc.
-    //FPS setpoint is interpolated between 2 feet points to the associated 2 FPS points.
-    private static double distToTarget = 4.8;
-    private static boolean shotIsFar = false;    //Used to ajust shooter lo or hi, 40 or 53 degrees
-    private static double[][] clsDistToFPS = {{4.8, 6.0, 7.0},{55.0, 48.0, 42.0}};
-    private static double[][] farDistToFPS = {{6.0, 7.0, 8.0},{55.0, 48.0, 42.0}};
+    /* Presently - 2 shooting pitchs, 40 or 55.  55 is close 5' to 7'.  Farther then 7'
+     * pitch drops to 40 for 6' to 8'.  Both start high to low FPS to use the arc.
+     * FPS setpoint is interpolated between 2 feet points to the associated 2 FPS points. */
+    private static boolean shotIsFar = false;   //Used to ajust shooter lo or hi, 40 or 53 degrees
+    private static double distToTarget = 4.8;   //Used to interpoltae FPS from arrays below
+    private static double[][] clsDistToFPS;     //Array for Segmented Line close
+    private static double[][] farDistToFPS;     //Array for Segmented Line far
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
     private static double shtrsFPS_Lo = 10.0;   //For Amp load and unload
-    // PID parms in order: P, I, D, Iz, FF, min, max
-    private static double[] shtrPIDParms = {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
+    private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
     private static OnOffDly armUpDnTmr = new OnOffDly(500, 500);    // Wait to signal up or down
     private static boolean armUpFB = false;                         // arm on/off delayed status
 
     /**
      * Constants to call Shooter to take shot control.
-     * <p>kNoReq - No request.  Allow local control.
-     * <p>kSpkrShot - Start Shooter speaker shot   Call only once.
-     * <p>kAmpShot - Start Amp shot.  Probably not used.  Call only once.
+     * <p> kNoReq - No request.  Allow local control.
+     * <p> kSpkrShot - Start Shooter speaker shot   Call only once.
+     * <p> kAmpShot - Start Amp shot.  Probably not used.  Call only once.
+     * <p> kClimbLock - Arm lockout from climber.  Both CANNOT be up.
      */
     public enum RQShooter {kNoReq, kSpkrShot, kAmpShot, kClimbLock};
     public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
@@ -88,8 +99,14 @@ public class Shooter {
      * Robot.java
      */
     public static void init() {
+        // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
+        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
         shtrMtrPidA = new MotorPID_NEO(shtrMtrA, "TestMtrsFPS", shtrPIDParms);
         shtrMtrPidB = new MotorPID_NEO(shtrMtrB, "TestMtrsFPS", shtrPIDParms);
+        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1777.41);
+        shtrBEncoder = new Encoder_Neo(shtrMtrB, 1777.41);
+        clsDistToFPS = new double[][] {{4.8, 6.0, 7.0},{fpsMax, 48.0, 42.0}};  //Segmented Line close
+        farDistToFPS = new double[][] {{6.0, 7.0, 8.0},{fpsMax, 48.0, 42.0}};  //Segmented Line far
 
         shtrAFPS_SP = 0.0;
         shtrBFPS_SP = 0.0;
@@ -122,11 +139,8 @@ public class Shooter {
          * 2nd press too late done.
          */
 
-        // if(btnLoadForSpeaker.onButtonPressed()) state = 1;
-        // if(btnLoadForAmp.onButtonPressed()) state = 10;
-        // if(btnUnloadShooter.onButtonPressed()) state = 20;
-
         armStatUpdate();    //Update arm on/off delayed status
+        calcShotDist();     //gets dist to target from vision and sets shotIsFar & FPS setpoints
 
         smUpdate();
         sdbUpdate();
@@ -135,9 +149,10 @@ public class Shooter {
     /**
      * State machine update for shooter
      * <p>state 0 - All off.  Wait for shoot Spaeker or Amp
-     * <p>state 1-3 - shoot for speaker
-     * <p>state10-14 - shoot for amp
-     * <p>state 20 - unload from Amp
+     * <p>state 1-5 - shoot for speaker
+     * <p>state10-16 - shoot for amp
+     * <p>state 20 22 - unload from Amp
+     * <p>state 40 - arm up lock up by climber
      */
     private static void smUpdate() { // State Machine Update
 
@@ -145,8 +160,8 @@ public class Shooter {
             case 0: // Everything is off
                 cmdUpdate(0.0, 0.0, false, false);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
-                if(btnSpkrShot.onButtonPressed()) state = 1;  // 1st press, Speaker shot
-                if(btnAmpShot.onButtonPressed()) state = 10;     // 1st press, Amp shot
+                if(btnSpkrShot.onButtonPressed()) state = 1;    // 1st press, Speaker shot
+                if(btnAmpShot.onButtonPressed()) state = 10;    // 1st press, Amp shot
                 if(autoShoot != RQShooter.kNoReq) state = autoShoot == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
                 break;
             //---------- Shoot at Speaker  ---------------
@@ -156,7 +171,7 @@ public class Shooter {
                 break;
             case 2: // Wait for shot or cancel
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
-                if(btnSpkrShot.onButtonPressed()) state = 0;          //2nd Press, Cancel Speaker shot
+                if(btnSpkrShot.onButtonPressed()) state = 0;    //2nd Press, Cancel Speaker shot
                 if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //Goto shot
                 break;
             case 3: // Confirm if arm dn
@@ -165,8 +180,8 @@ public class Shooter {
                 break;
             case 4: // Request snorfler to feed Note,
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
-                Snorfler.snorfFwdRq = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
-                autoShoot = RQShooter.kNoReq;       // cancel auto shoot if active
+                Snorfler.snorfFwdRq = SnorfRq.kForward; // Trigger once. Self cancels after 200 mS
+                autoShoot = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
             case 5: // Wait for shot then go to turn off
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, false, false);
@@ -240,14 +255,14 @@ public class Shooter {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         if(Math.abs(mtrAFPS) > 3.0){
-                shtrMtrPidA.setSetpoint(mtrAFPS * 104.17 ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrPidA.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrPidA.setSetpoint(0.0);
             shtrMtrA.disable();
         }
 
         if(Math.abs(mtrBFPS) > 3.0){
-                shtrMtrPidA.setSetpoint(mtrBFPS * 104.17 ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrPidA.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrPidB.setSetpoint(0.0);
             shtrMtrB.disable();
@@ -261,13 +276,14 @@ public class Shooter {
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
+        SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
+        distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -276,6 +292,14 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Clmbr Is Vert", Climber.climberIsVert());
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
+
+        SmartDashboard.putBoolean("Shooter/Dist/dist to target", shotIsFar);
+        SmartDashboard.putNumber("Shooter/Dist/Motor A FPS SP", shtrAFPS_SP);
+        SmartDashboard.putNumber("Shooter/Dist/Motor B FPS SP", shtrBFPS_SP);
+        SmartDashboard.putNumber("Shooter/Dist/Motor A FPS FB", shtrAEncoder.getSpeed());
+        SmartDashboard.putNumber("Shooter/Dist/Motor B FPS FB", shtrBEncoder.getSpeed());
+        SmartDashboard.putNumber("Shooter/Dist/Motor A RPM FB", shtrAEncoder.getFPS());
+        SmartDashboard.putNumber("Shooter/Dist/Motor B RPM FB", shtrBEncoder.getFPS());
     }
 
     // ----------------- Shooter statuses and misc.----------------
