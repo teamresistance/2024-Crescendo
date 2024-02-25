@@ -91,22 +91,21 @@ public class IO {
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
-    public static DigitalInput snorHasGP = new DigitalInput(1, false);
+    public static DigitalInput snorHasGP = new DigitalInput(1, true);
 
     //Shooter
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
-    public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 0);
-    public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 1);    //This or
+    public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 15);
+    public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 14);    //This or
     public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
-    public static CANSparkMax mtrVariablePitch = new CANSparkMax(44, MotorType.kBrushless);
 
-    public static Solenoid climberVertSV = new Solenoid(modID, modType, 2);  //Raise tovertical
+    public static Solenoid climberVertSV = new Solenoid(modID, modType, 13);  //Raise tovertical
     /* Climber (2) actuators. To save air volumn, only 1 is used to raise, extend, the hook 
      * but 2 to lower, retract, the hook with the weight of the robot also. */
-    public static Solenoid climberExt1SV = new Solenoid(modID, modType, 3);  //Raise hooks 1 only
-    public static Solenoid climberRet1SV = new Solenoid(modID, modType, 4);  //Lower hooks 1
-    public static Solenoid climberRet2SV = new Solenoid(modID, modType, 5);  //Lower hooks 2
+    public static Solenoid climberExt1SV = new Solenoid(modID, modType, 12);  //Raise hooks 1 only
+    public static Solenoid climberRet1SV = new Solenoid(modID, modType, 11);  //Lower hooks 1
+    public static Solenoid climberRet2SV = new Solenoid(modID, modType, 10);  //Lower hooks 2
 
     /**
      * Initialize any hardware
