@@ -221,6 +221,7 @@ public class JS_IO {
         btnAmpShot.setButton(neoPad, 6);
         btnShoot.setButton(neoPad, 1);
         btnUnload.setButton(neoPad, 4);
+        
 
         //Climber
         btnClimberEna.setButton(neoPad, 10);

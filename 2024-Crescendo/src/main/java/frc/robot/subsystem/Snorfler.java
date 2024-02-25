@@ -17,6 +17,7 @@ import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.util.Timer;
+import frc.util.timers.OffDly;
 import frc.util.timers.OnDly;
 
 import com.revrobotics.CANSparkMax;
@@ -39,9 +40,9 @@ public class Snorfler {
     // variables:
     private static int state; // Snorfler state machine. 0=Off by pct, 1=On by velocity, RPM
     public static boolean snorflerEnable = false;  // Snorfler Enable
-    private static double fwdMtrSpd = 0.8;      // Snorfling speed
-    private static double rejMtrSpd = -0.35;    // Reject Snorfling speed
-    private static double loadMtrSpd = 0.05;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double fwdMtrSpd = 0.85;      // Snorfling speed
+    private static double rejMtrSpd = 0.7;    // Reject Snorfling speed
+    private static double loadMtrSpd = 0.75;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
@@ -64,9 +65,9 @@ public class Snorfler {
     }
     public static SnorfRq snorfFwdRq = SnorfRq.kOff;
 
-    /** has Game Piece is controlled by a Sensor and delay on timer. */
+    /** has Game Piece is controlled by a Sensor and  delay on timer. */
     public static boolean hasGP_FB;
-    private static OnDly hasGPOnDly = new OnDly(0.35); //Delay on feedback of hdw snorfHasGP
+    private static OffDly hasGPOffDly = new OffDly(1.0); //Delay off feedback of hdw snorfHasGP
 
     /**
      * Initialize Snorfler stuff. Called from telopInit (maybe robotInit(?)) in
@@ -99,7 +100,7 @@ public class Snorfler {
         if(snorfFwdRq == SnorfRq.kForward && state < 20) state = 20;
         if(snorfFwdRq == SnorfRq.kReverse && state < 30) state = 30;
 
-        hasGP_FB = hasGPOnDly.get(snorfhasGP.get());   //Used in state 1
+        hasGP_FB = hasGPOffDly.get(snorfhasGP.get());   //Used in state 1
 
         smUpdate();
         sdbUpdate();
@@ -123,24 +124,29 @@ public class Snorfler {
                 break;
             case 1: // Snorfler enabled, retriving note, Spdfwd
                 cmdUpdate(fwdMtrSpd);
-                if((hasGP_FB || !snorflerEnable) && stateTmr.hasExpired(0.2, state)) {
+                // if((hasGP_FB || !snorflerEnable) && stateTmr.hasExpired(0.0, state)) {
+                if((hasGP_FB || !snorflerEnable)) {
                     snorflerEnable = false;
-                    state = 0;
+                    state++;
                 }
                 break;
+            case 2: // Snorfler enabled, retriving note, Spdfwd
+                cmdUpdate(-rejMtrSpd);
+                if(stateTmr.hasExpired(0.1, state)) state = 0;
+                break;
             case 10: // Snorfler Reject
-                cmdUpdate(rejMtrSpd);
+                cmdUpdate(-rejMtrSpd);
                 break;
             case 20: // Shooter request to Snorfler to load for amplifier
                 cmdUpdate(loadMtrSpd);
                 snorfFwdRq = SnorfRq.kOff;
-                if(stateTmr.hasExpired(0.5, state)) {state=0;}
+                if(stateTmr.hasExpired(0.5, state)) state=0;
                 break;
 
             case 30: // Shooter request to Snorfler to unload
-                cmdUpdate(rejMtrSpd);
+                cmdUpdate(-rejMtrSpd);
                 snorfFwdRq = SnorfRq.kOff;
-                if(stateTmr.hasExpired(0.33, state)) {state = 0;}
+                if(stateTmr.hasExpired(0.75, state)) state = 0;
                 break;
 
             default: // all off

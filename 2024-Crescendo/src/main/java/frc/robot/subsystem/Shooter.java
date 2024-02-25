@@ -78,7 +78,7 @@ public class Shooter {
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
-    private static double shtrsFPS_Lo = 10.0;   //For Amp load and unload
+    private static double shtrsFPS_Lo = 25.0;   //For Amp load and unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
     private static OnOffDly armUpDnTmr = new OnOffDly(500, 500);    // Wait to signal up or down
@@ -198,7 +198,7 @@ public class Shooter {
                 state++;
             case 12: // Wait to take Note
                 cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
-                if (stateTmr.hasExpired(0.5, state)) state++;
+                if (stateTmr.hasExpired(0.1, state)) state++;
                 break;
             case 13: // wait to raise Arm on 2nd btn press or auto
                 cmdUpdate(0.0, 0.0, false, false);
@@ -280,6 +280,7 @@ public class Shooter {
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
+        SmartDashboard.putNumber("Shooter/FPS Lo", shtrsFPS_Lo);
     }
 
     /**Update the Smartdashboard. */
@@ -287,6 +288,7 @@ public class Shooter {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
         distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);
+        shtrsFPS_Lo = SmartDashboard.getNumber("Shooter/FPS Lo", shtrsFPS_Lo);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
