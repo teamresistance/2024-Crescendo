@@ -36,7 +36,7 @@ public class ShooterSave {
     private static Solenoid Pitch_SV;
     private static MotorPID_NEO shooterMtrAPID;
     private static MotorPID_NEO mtrVariablePitchPID;
-    private static CANSparkMax mtrVariablePitch = IO.mtrVariablePitch;
+    private static CANSparkMax mtrVariablePitch = IO.shtrPitchMtr;
     
     //private static MotorPID_NEO shooterMtrBPID = new MotorPID_NEO(shooterMtrB,"ShooterB");
     
