@@ -34,7 +34,7 @@ public class Climber {
      * the hooks with 1 actuator.  Another to lower using both actuators. */
     private static Solenoid climberExt1SV = IO.climberExt1SV;   // low pressure to extend hooks
     private static Solenoid climberRet1SV = IO.climberRet1SV;   // hi pressure to retract hooks
-    private static Solenoid climberRet2SV = IO.climberRet1SV;   // hi pressure to retract hooks
+    private static Solenoid climberRet2SV = IO.climberRet2SV;   // hi pressure to retract hooks
     private static Solenoid climberVertSV = IO.climberVertSV;   // trip to raise arm to vertical
 
     // joystick buttons:
