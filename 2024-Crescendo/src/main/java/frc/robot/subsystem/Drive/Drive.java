@@ -12,6 +12,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 // import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -41,6 +42,7 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.MotorPID;
+import frc.io.hdw_io.util.MotorPID_Flex;
 import frc.io.hdw_io.util.NavX;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Axis;
@@ -98,10 +100,10 @@ public class Drive {
     //Velocity Controlled Mecanum
     public static final double maxRPM = 20000;
 
-    public static MotorPID frontLeftLdPID = new MotorPID(IO.motorFrontLeft, false, IO.motorFrontLeft.getPIDController());
-    public static MotorPID backLeftLdPID = new MotorPID(IO.motorBackLeft, false, IO.motorBackLeft.getPIDController());
-    public static MotorPID motorFrontRightPID = new MotorPID(IO.motorFrontRight, true, IO.motorFrontRight.getPIDController());
-    public static MotorPID motorBackRightPID = new MotorPID(IO.motorBackRight, true, IO.motorBackRight.getPIDController());
+    public static MotorPID_Flex frontLeftLdPID =     new MotorPID_Flex(IO.motorFrontLeft, "Drive");
+    public static MotorPID_Flex backLeftLdPID =      new MotorPID_Flex(IO.motorBackLeft, "Drive");
+    public static MotorPID_Flex motorFrontRightPID = new MotorPID_Flex(IO.motorFrontRight, "Drive");
+    public static MotorPID_Flex motorBackRightPID =  new MotorPID_Flex(IO.motorBackRight, "Drive");
 
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -350,7 +352,7 @@ public class Drive {
      * @param brake true = brake, false = coast
      */
     public static void drvBrake(boolean brake){
-        for(CANSparkMax mtr : IO.driveMotors) {
+        for(CANSparkFlex mtr : IO.driveMotors) {
             mtr.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
         }
     }
@@ -452,10 +454,10 @@ public class Drive {
         }
     
         
-        frontLeftLdPID.updateSetpoint(inputs[0] * maxRPM);
-        motorFrontRightPID.updateSetpoint(inputs[1] * maxRPM);
-        backLeftLdPID.updateSetpoint(inputs[2] * maxRPM);
-        motorBackRightPID.updateSetpoint(inputs[3] * maxRPM);
+        frontLeftLdPID.setSetpoint(inputs[0] * maxRPM);
+        motorFrontRightPID.setSetpoint(inputs[1] * maxRPM);
+        backLeftLdPID.setSetpoint(inputs[2] * maxRPM);
+        motorBackRightPID.setSetpoint(inputs[3] * maxRPM);
         
         //Check if updates were made in SDB
         frontLeftLdPID.update();

@@ -17,10 +17,10 @@ import frc.io.hdw_io.IO;
 public class CoorSys {
     // Hardware
     private NavX navX;
-    private Encoder_Neo frontLeft;
-    private Encoder_Neo backLeft;
-    private Encoder_Neo frontRight;
-    private Encoder_Neo backRight;
+    private Encoder_Flex frontLeft;
+    private Encoder_Flex backLeft;
+    private Encoder_Flex frontRight;
+    private Encoder_Flex backRight;
 
     // Creating kinematics object using the wheel locations.
     private MecanumDriveKinematics kinematics;
@@ -53,8 +53,8 @@ public class CoorSys {
 
     // public Consumer<MecanumDriveWheelSpeeds> outputWheelSpeeds = a -> wheelSpeeds = a;
     
-    public CoorSys(NavX hdg, MecanumDriveKinematics _kinematics, Encoder_Neo _frontLeft, Encoder_Neo _backLeft,
-            Encoder_Neo _frontRight, Encoder_Neo _backRight) {
+    public CoorSys(NavX hdg, MecanumDriveKinematics _kinematics, Encoder_Flex _frontLeft, Encoder_Flex _backLeft,
+            Encoder_Flex _frontRight, Encoder_Flex _backRight) {
         navX = hdg;
         kinematics = _kinematics;
         frontLeft = _frontLeft;

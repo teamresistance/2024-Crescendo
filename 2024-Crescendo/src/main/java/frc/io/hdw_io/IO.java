@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -17,7 +18,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.util.*;
 import frc.io.joysticks.JS_IO;
@@ -47,21 +47,17 @@ public class IO {
 
     // Drive Motors
     //There is only 4 motors controlling wheels this year, not 2 per
-    public static CANSparkMax motorFrontLeft  = new CANSparkMax(11, MotorType.kBrushless);
-    public static CANSparkMax motorBackLeft   = new CANSparkMax(12, MotorType.kBrushless);    
-    public static CANSparkMax motorFrontRight = new CANSparkMax(13, MotorType.kBrushless) ;
-    public static CANSparkMax motorBackRight  = new CANSparkMax(14, MotorType.kBrushless);
-    /**
-     * Array that contains all the drive motors for certain logic
-     */
-    public static CANSparkMax[] driveMotors = new CANSparkMax[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
+    public static CANSparkFlex motorFrontLeft  = new CANSparkFlex(11, MotorType.kBrushless);
+    public static CANSparkFlex motorBackLeft   = new CANSparkFlex(12, MotorType.kBrushless);    
+    public static CANSparkFlex motorFrontRight = new CANSparkFlex(13, MotorType.kBrushless) ;
+    public static CANSparkFlex motorBackRight  = new CANSparkFlex(14, MotorType.kBrushless);
+    /** Array that contains all the drive motors for certain logic */
+    public static CANSparkFlex[] driveMotors = new CANSparkFlex[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
     public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
 
     //Temp allocation to stop Drive.java from breaking, get rid of this later
     // public static MecanumDriveKinematics kinematics = null;
-
-    //*** LEAVE THIS ALONE FOR RIGHT NOW, WE MAY NEED IT THIS YEAR ***
 
     // Ticks Per Foot??
     public static double tpfAll = 4346.0;       //12.7;?? //37 rot for 10' = 3.7'/rot * 1024 ticks = 3789.
@@ -70,10 +66,10 @@ public class IO {
     public static double frontRightTPF = tpfAll;// 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double backRightTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     // Encoders
-    public static Encoder_Neo frontLeftEnc = new Encoder_Neo(motorFrontLeft, frontLeftTPF);
-    public static Encoder_Neo backLeftEnc = new Encoder_Neo(motorBackLeft, backLeftTPF);
-    public static Encoder_Neo frontRightEnc = new Encoder_Neo(motorFrontRight, frontRightTPF);
-    public static Encoder_Neo backRightEnc = new Encoder_Neo(motorBackRight, backRightTPF);
+    public static Encoder_Flex frontLeftEnc = new Encoder_Flex(motorFrontLeft, frontLeftTPF);
+    public static Encoder_Flex backLeftEnc =  new Encoder_Flex(motorBackLeft, backLeftTPF);
+    public static Encoder_Flex frontRightEnc =new Encoder_Flex(motorFrontRight, frontRightTPF);
+    public static Encoder_Flex backRightEnc = new Encoder_Flex(motorBackRight, backRightTPF);
     public static boolean resetEnc = false; 
 
     // Kinematics for Drive Train.
@@ -135,7 +131,7 @@ public class IO {
     public static void motorsInit() {
         // -------- Configure Lead drive motors ---------
         //Drive
-        for(CANSparkMax motor : driveMotors){
+        for(CANSparkFlex motor : driveMotors){
             motor.restoreFactoryDefaults();
             motor.setIdleMode(IdleMode.kCoast);
             // motor.clearFaults();
@@ -175,7 +171,6 @@ public class IO {
     private static double mecDistX = 0.0;
     private static double mecDistY = 0.0;
 
-	public static MotorPID_NEO MotorPID_NEO;
     /**
      * Calc distance on a Mecanum drive for single direction movement.
      * X = sideways movement.  Right positive.  Y = fwd movement.  Positive fwd.

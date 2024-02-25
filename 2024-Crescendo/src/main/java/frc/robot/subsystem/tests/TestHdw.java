@@ -8,6 +8,7 @@
  */
 package frc.robot.subsystem.tests;
 
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.DigitalInput;
+import frc.io.hdw_io.util.Encoder_Flex;
 import frc.io.hdw_io.util.NavX;
 
 public class TestHdw {
@@ -37,16 +39,16 @@ public class TestHdw {
 
     // Drive Motors
     //There is only 4 motors controlling wheels this year, not 2 per
-    private static CANSparkMax motorFrontLeft = IO.motorFrontLeft;
-    private static CANSparkMax motorBackLeft   = IO.motorBackLeft;    
-    private static CANSparkMax motorFrontRight = IO.motorFrontRight ;
-    private static CANSparkMax motorBackRight  = IO.motorBackRight;
+    private static CANSparkFlex motorFrontLeft = IO.motorFrontLeft;
+    private static CANSparkFlex motorBackLeft   = IO.motorBackLeft;    
+    private static CANSparkFlex motorFrontRight = IO.motorFrontRight ;
+    private static CANSparkFlex motorBackRight  = IO.motorBackRight;
     
     // Encoders
-     static Encoder_Neo frontLeftEnc = IO.frontLeftEnc;
-     static Encoder_Neo backLeftEnc =  IO.backLeftEnc;
-     static Encoder_Neo frontRightEnc =IO.frontRightEnc;
-     static Encoder_Neo backRightEnc = IO.backRightEnc;
+     static Encoder_Flex frontLeftEnc = IO.frontLeftEnc;
+     static Encoder_Flex backLeftEnc =  IO.backLeftEnc;
+     static Encoder_Flex frontRightEnc =IO.frontRightEnc;
+     static Encoder_Flex backRightEnc = IO.backRightEnc;
 
     //Snorfler
     private static CANSparkMax snorfMtr = IO.snorfMtr;
@@ -56,6 +58,7 @@ public class TestHdw {
     private static CANSparkMax shooterMtrA = IO.shooterMtrA;
     private static CANSparkMax shooterMtrB = IO.shooterMtrB;
     private static Solenoid shooterArmUpSV = IO.shooterArmUpSV;
+    private static Solenoid shooterPitchLoSV = IO.shooterPitchLoSV;
 
     //Shooter Encoders
     // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  = 1777.91 ticks/ft
@@ -63,8 +66,10 @@ public class TestHdw {
     private static Encoder_Neo shtrMtrBEnc;
 
     //Climber
-    private static Solenoid climberExtSV = IO.climberExt1SV;
-
+    private static Solenoid climberVertSV = IO.climberVertSV;
+    private static Solenoid climberExt1SV = IO.climberExt1SV;
+    private static Solenoid climberRet1SV = IO.climberRet1SV;
+    private static Solenoid climberRet2SV = IO.climberRet2SV;
 
     // joystick buttons:
     //none at this time
@@ -83,6 +88,7 @@ public class TestHdw {
     private static boolean shtrArmUp = false;
     private static boolean shtrPitchLo = false;
     //Climber
+    private static boolean climberVert = false;
     private static boolean climberUp = false;
 
     public static void init(){
@@ -115,7 +121,12 @@ public class TestHdw {
         shooterMtrB.set(shtrMtrB_Spd);
         shooterArmUpSV.set(shtrArmUp);
         //Climber
-        climberExtSV.set(climberUp);
+        climberVertSV.set(climberVert);
+        if(climberVertSV.get()){
+            climberExt1SV.set(climberUp);
+            climberRet1SV.set(climberUp);
+            climberRet2SV.set(climberUp);
+        }
     }
 
     private static void sdbInit(){
@@ -133,6 +144,7 @@ public class TestHdw {
         SmartDashboard.putBoolean("TestHdw/Shtr/Pitch Low", false);
         //Climber
         SmartDashboard.getBoolean("TestHdw/Climber/Extend Up", false);
+        SmartDashboard.getBoolean("TestHdw/Climber/Raise Vertical", false);
     }
 
     private static void sdbUpdate(){
@@ -162,8 +174,15 @@ public class TestHdw {
         SmartDashboard.putNumber("TestHdw/Shtr/Out/Mtr B Enc", shtrMtrBEnc.getSpeed());
         shtrArmUp = SmartDashboard.getBoolean("TestHdw/Shtr/Arm Up", shtrArmUp);
         shtrPitchLo = SmartDashboard.getBoolean("TestHdw/Shtr/Pitch Low", shtrPitchLo);
+        SmartDashboard.putBoolean("TestHdw/Shtr/Arm Up SV", shooterArmUpSV.get());
+        SmartDashboard.putBoolean("TestHdw/Shtr/Pitch Lo SV", shooterPitchLoSV.get());
         //Climber
+        climberVert = SmartDashboard.getBoolean("TestHdw/Climber/Raise Vertical", climberVert);
+        SmartDashboard.putBoolean("TestHdw/Climber/Raise Vertical", climberVertSV.get());
         climberUp = SmartDashboard.getBoolean("TestHdw/Climber/Extend Up", climberUp);
+        SmartDashboard.putBoolean("TestHdw/Climber/Extend 1 SV", climberExt1SV.get());
+        SmartDashboard.putBoolean("TestHdw/Climber/Retract 1 SV", climberRet1SV.get());
+        SmartDashboard.putBoolean("TestHdw/Climber/Retract 2 SV", climberRet2SV.get());
     }
 
     /**
@@ -183,7 +202,7 @@ public class TestHdw {
         snorfMtr.restoreFactoryDefaults();
         snorfMtr.setIdleMode(IdleMode.kCoast);
         snorfMtr.clearFaults();
-        snorfMtr.setInverted(true);
+        snorfMtr.setInverted(false);
     }
 
     /**
@@ -194,7 +213,7 @@ public class TestHdw {
         shooterMtrA.restoreFactoryDefaults();
         shooterMtrA.setIdleMode(IdleMode.kCoast);
         shooterMtrA.clearFaults();
-        shooterMtrA.setInverted(true);
+        shooterMtrA.setInverted(false);
     }
 
     /**
@@ -205,8 +224,6 @@ public class TestHdw {
         shooterMtrB.restoreFactoryDefaults();
         shooterMtrB.setIdleMode(IdleMode.kCoast);
         shooterMtrB.clearFaults();
-        shooterMtrB.setInverted(true);
-        // shooterMtrLg.follow(shooterMtrLd);
+        shooterMtrB.setInverted(false);
     }
-
 }
