@@ -40,9 +40,10 @@ public class Snorfler {
     // variables:
     private static int state; // Snorfler state machine. 0=Off by pct, 1=On by velocity, RPM
     public static boolean snorflerEnable = false;  // Snorfler Enable
-    private static double fwdMtrSpd = 0.85;      // Snorfling speed
-    private static double rejMtrSpd = 0.7;    // Reject Snorfling speed
-    private static double loadMtrSpd = 0.75;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double fwdMtrPct = 0.85;      // Snorfling speed
+    private static double rejMtrPct = 0.7;    // Reject Snorfling speed
+    private static double loadMtrPct = 0.75;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double unloadMtrTm = 0.3;    //Seconds Snorfler runs to unload note from Shooter
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
@@ -63,7 +64,7 @@ public class Snorfler {
         public final int NUM(){ return NUM; }
         public final String DESC(){ return DESC; }
     }
-    public static SnorfRq snorfFwdRq = SnorfRq.kOff;
+    public static SnorfRq snorfRequest = SnorfRq.kOff;
 
     /** has Game Piece is controlled by a Sensor and  delay on timer. */
     public static boolean hasGP_FB;
@@ -79,7 +80,7 @@ public class Snorfler {
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
         snorflerEnable = false; // Start disabled
-        snorfFwdRq = SnorfRq.kOff;
+        snorfRequest = SnorfRq.kOff;
     }
 
     /**
@@ -97,8 +98,8 @@ public class Snorfler {
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
 
-        if(snorfFwdRq == SnorfRq.kForward && state < 20) state = 20;
-        if(snorfFwdRq == SnorfRq.kReverse && state < 30) state = 30;
+        if(snorfRequest == SnorfRq.kForward && state < 20) state = 20;
+        if(snorfRequest == SnorfRq.kReverse && state < 30) state = 30;
 
         hasGP_FB = hasGPOffDly.get(snorfhasGP.get());   //Used in state 1
 
@@ -123,30 +124,29 @@ public class Snorfler {
                 if(snorflerEnable) {state++;}
                 break;
             case 1: // Snorfler enabled, retriving note, Spdfwd
-                cmdUpdate(fwdMtrSpd);
-                // if((hasGP_FB || !snorflerEnable) && stateTmr.hasExpired(0.0, state)) {
+                cmdUpdate(fwdMtrPct);
                 if((hasGP_FB || !snorflerEnable)) {
                     snorflerEnable = false;
                     state++;
                 }
                 break;
-            case 2: // Snorfler enabled, retriving note, Spdfwd
-                cmdUpdate(-rejMtrSpd);
+            case 2: // Snorfler momentum still carries note too far.  Back up a little
+                cmdUpdate(-rejMtrPct);
                 if(stateTmr.hasExpired(0.1, state)) state = 0;
                 break;
             case 10: // Snorfler Reject
-                cmdUpdate(-rejMtrSpd);
+                cmdUpdate(-rejMtrPct);
                 break;
             case 20: // Shooter request to Snorfler to load for amplifier
-                cmdUpdate(loadMtrSpd);
-                snorfFwdRq = SnorfRq.kOff;
+                cmdUpdate(loadMtrPct);
+                snorfRequest = SnorfRq.kOff;
                 if(stateTmr.hasExpired(0.5, state)) state=0;
                 break;
 
             case 30: // Shooter request to Snorfler to unload
-                cmdUpdate(-rejMtrSpd);
-                snorfFwdRq = SnorfRq.kOff;
-                if(stateTmr.hasExpired(0.75, state)) state = 0;
+                cmdUpdate(-loadMtrPct);
+                snorfRequest = SnorfRq.kOff;
+                if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
 
             default: // all off
@@ -178,22 +178,26 @@ public class Snorfler {
     /**Initialize sdb */
     public static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        SmartDashboard.putNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
-        SmartDashboard.putNumber("Snorf/Rej Motor Spd", rejMtrSpd);
+        SmartDashboard.putNumber("Snorf/Fwd Motor Spd", fwdMtrPct);
+        SmartDashboard.putNumber("Snorf/Rej Motor Spd", rejMtrPct);
+        SmartDashboard.putNumber("Snorf/Load Shtr Motor Spd", loadMtrPct);
+        SmartDashboard.putNumber("Snorf/Unload Shtr Time", unloadMtrTm);
     }
 
     /**Update the Smartdashboard. */
     public static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
-        fwdMtrSpd = SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrSpd);
-        rejMtrSpd = SmartDashboard.getNumber("Snorf/Rej Motor Spd", rejMtrSpd);
+        fwdMtrPct = SmartDashboard.getNumber("Snorf/Fwd Motor Spd", fwdMtrPct);
+        rejMtrPct = SmartDashboard.getNumber("Snorf/Rej Motor Spd", rejMtrPct);
+        loadMtrPct = SmartDashboard.getNumber("Snorf/Load Shtr Motor Spd", loadMtrPct);
+        unloadMtrTm = SmartDashboard.getNumber("Snorf/Unload Shtr Time", unloadMtrTm);
 
         SmartDashboard.putNumber("Snorf/state", state);
         SmartDashboard.putNumber("Snorf/Mtr Cmd", snorflerMtr.get());
         SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
         SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
         SmartDashboard.putBoolean("Snorf/Has GP", hasGP_FB);
-        SmartDashboard.putString("Snorf/FwdRq", snorfFwdRq.DESC());   
+        SmartDashboard.putString("Snorf/FwdRq", snorfRequest.DESC());   
     }
 
     // ----------------- Snorfler statuses and misc.-----------------

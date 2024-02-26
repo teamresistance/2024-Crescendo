@@ -54,7 +54,7 @@ public class IO {
     /** Array that contains all the drive motors for certain logic */
     public static CANSparkFlex[] driveMotors = new CANSparkFlex[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
 
-    public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
+    // public static MecanumDrive drvMec = new MecanumDrive(motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight);
 
     //Temp allocation to stop Drive.java from breaking, get rid of this later
     // public static MecanumDriveKinematics kinematics = null;
@@ -94,7 +94,7 @@ public class IO {
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 15);
     public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 14);    //This or
-    public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
+    // public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
 
     public static Solenoid climberVertSV = new Solenoid(modID, modType, 13);  //Raise tovertical
     /* Climber (2) actuators. To save air volumn, only 1 is used to raise, extend, the hook 

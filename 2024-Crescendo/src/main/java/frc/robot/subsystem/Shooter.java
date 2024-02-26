@@ -78,10 +78,15 @@ public class Shooter {
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
-    private static double shtrsFPS_Lo = 25.0;   //For Amp load and unload
+    private static double shtrAmpLd_FPS = 25.0;   //For Amp load and unload
+    private static double shtrAmpLd_Tm = 0.10;   //For Amp load and unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
-    private static OnOffDly armUpDnTmr = new OnOffDly(500, 500);    // Wait to signal up or down
+    private static double shtrTest_FPS = 55.0;   //For Amp load and unload
+    private static double shtrTest_BDiff = 1.0;   //For Amp load and unload
+    private static boolean shtrTestPitchLow = false;
+
+    private static OnOffDly armUpDnTmr = new OnOffDly(1000, 1000);    // Wait to signal up or down
     private static boolean armUpFB = false;                         // arm on/off delayed status
 
     /**
@@ -180,7 +185,7 @@ public class Shooter {
                 break;
             case 4: // Request snorfler to feed Note,
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-                Snorfler.snorfFwdRq = SnorfRq.kForward; // Trigger once. Self cancels after 200 mS
+                Snorfler.snorfRequest = SnorfRq.kForward; // Trigger once. Self cancels after 200 mS
                 autoShoot = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
             case 5: // Wait for shot then go to turn off
@@ -189,16 +194,16 @@ public class Shooter {
                 break;
             //----------- Shoot for Amp --------------
             case 10: // Get shooters up to low speed for Amp preload
-                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
-                if (stateTmr.hasExpired(0.06, state)) state++;
+                cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
+                if (stateTmr.hasExpired(0.02, state)) state++;
                 break;
             case 11: // Request snorfler to feed Note, go to next state (no break)
-                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
-                Snorfler.snorfFwdRq = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
+                cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
+                Snorfler.snorfRequest = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
                 state++;
             case 12: // Wait to take Note
-                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false);
-                if (stateTmr.hasExpired(0.1, state)) state++;
+                cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
+                if (stateTmr.hasExpired(shtrAmpLd_Tm, state)) state++;
                 break;
             case 13: // wait to raise Arm on 2nd btn press or auto
                 cmdUpdate(0.0, 0.0, false, false);
@@ -224,11 +229,11 @@ public class Shooter {
                 if (!armUpFB) state++;   //wait for arm to lower FB
                 break;
             case 21: // unload from amp shot, request snorfler to unload
-                cmdUpdate(-shtrsFPS_Lo, -shtrsFPS_Lo, false, false);
-                Snorfler.snorfFwdRq = SnorfRq.kReverse;   // Trigger once, Self cancels after 330 mS
+                cmdUpdate(-shtrAmpLd_FPS, -shtrAmpLd_FPS, false, false);
+                Snorfler.snorfRequest = SnorfRq.kReverse;   // Trigger once, Self cancels after 330 mS
                 state++;
             case 22: // unload from amp shot, request snorfler to unload
-                cmdUpdate(shtrsFPS_Lo, shtrsFPS_Lo, false, false );
+                cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
                 if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
                 break;
             case 30: // Climbing.  Arm MUST be down
@@ -280,7 +285,11 @@ public class Shooter {
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
         SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
-        SmartDashboard.putNumber("Shooter/FPS Lo", shtrsFPS_Lo);
+        SmartDashboard.putNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
+        SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
+        SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
+        SmartDashboard.putNumber("Shooter/Test B Diff", shtrTest_BDiff);
+        SmartDashboard.putBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
@@ -288,7 +297,11 @@ public class Shooter {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
         distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);
-        shtrsFPS_Lo = SmartDashboard.getNumber("Shooter/FPS Lo", shtrsFPS_Lo);
+        shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
+        shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
+        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
+        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test B Diff", shtrTest_BDiff);
+        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -301,23 +314,27 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
         SmartDashboard.putNumber("Shooter/Dist/Motor A FPS SP", shtrAFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor B FPS SP", shtrBFPS_SP);
-        SmartDashboard.putNumber("Shooter/Dist/Motor A FPS FB", shtrAEncoder.getSpeed());
-        SmartDashboard.putNumber("Shooter/Dist/Motor B FPS FB", shtrBEncoder.getSpeed());
-        SmartDashboard.putNumber("Shooter/Dist/Motor A RPM FB", shtrAEncoder.getFPS());
-        SmartDashboard.putNumber("Shooter/Dist/Motor B RPM FB", shtrBEncoder.getFPS());
+        SmartDashboard.putNumber("Shooter/Dist/Motor A RPM FB", shtrAEncoder.getSpeed());
+        SmartDashboard.putNumber("Shooter/Dist/Motor B RPM FB", shtrBEncoder.getSpeed());
+        SmartDashboard.putNumber("Shooter/Dist/Motor A FPS FB", shtrAEncoder.getFPS());
+        SmartDashboard.putNumber("Shooter/Dist/Motor B FPS FB", shtrBEncoder.getFPS());
     }
 
     // ----------------- Shooter statuses and misc.----------------
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
-        if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
-        if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
-        if(shotIsFar){
-            shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
-        }else{
-            shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
-        }
-        shtrBFPS_SP = 0.8 * shtrAFPS_SP;
+        // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
+        // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+        // if(shotIsFar){
+        //     shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+        // }else{
+        //     shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+        // }
+        // shtrBFPS_SP = 0.8 * shtrAFPS_SP;
+
+        shotIsFar = shtrTestPitchLow;
+        shtrAFPS_SP = shtrTest_FPS;
+        shtrBFPS_SP = shtrTest_FPS * shtrTest_BDiff;
     }
 
     /**
