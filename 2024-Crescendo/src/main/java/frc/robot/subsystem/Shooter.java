@@ -9,6 +9,7 @@
 
 package frc.robot.subsystem;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -100,10 +101,10 @@ public class Shooter {
     public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
 
     /**
-     * Initialize Shooter stuff. Called from auto/telopInit (maybe robotInit(?)) in
-     * Robot.java
+     * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
      */
     public static void init() {
+        hdwInit();
         // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
         shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
         shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
@@ -119,7 +120,7 @@ public class Shooter {
         cmdUpdate(0.0, 0.0, false, false);  // Make sure all is off
         state = 0;              // Start at state 0
         clearOnPresses();       //Clear all button onpress signals
-        autoShoot = RQShooter.kNoReq;    //No request from autonoomous
+        autoShoot = RQShooter.kNoReq;    //No request from autonomous
         sdbInit();
     }
 
@@ -321,6 +322,22 @@ public class Shooter {
     }
 
     // ----------------- Shooter statuses and misc.----------------
+    /** Initialize any hardware */
+    private static void hdwInit(){
+        shtrMtrA.restoreFactoryDefaults();
+        shtrMtrA.setIdleMode(IdleMode.kCoast);
+        shtrMtrA.clearFaults();
+        shtrMtrA.setInverted(true);
+
+        shtrMtrB.restoreFactoryDefaults();
+        shtrMtrB.setIdleMode(IdleMode.kCoast);
+        shtrMtrB.clearFaults();
+        shtrMtrB.setInverted(true);
+    }
+
+    /** Calculate shtrAFPS_SP, shtrBFPS_SP and whether shooter pitch is low or high.
+     * by interpolating between points in a feet v. FPS in 2 array, clsDistToFPS[][]
+     * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
         // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
@@ -332,6 +349,7 @@ public class Shooter {
         // }
         // shtrBFPS_SP = 0.8 * shtrAFPS_SP;
 
+        //Temporary testpoints.
         shotIsFar = shtrTestPitchLow;
         shtrAFPS_SP = shtrTest_FPS;
         shtrBFPS_SP = shtrTest_FPS * shtrTest_BDiff;

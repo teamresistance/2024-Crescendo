@@ -137,22 +137,9 @@ public class IO {
             // motor.clearFaults();
         }
 
-        //Snorfler
-            snorfMtr.restoreFactoryDefaults();
-            snorfMtr.setIdleMode(IdleMode.kCoast);
-            snorfMtr.clearFaults();
-            snorfMtr.setInverted(false);
-        //Shooter
-            shooterMtrA.restoreFactoryDefaults();
-            shooterMtrA.setIdleMode(IdleMode.kCoast);
-            shooterMtrA.clearFaults();
-            shooterMtrA.setInverted(true);
-            shooterMtrB.restoreFactoryDefaults();
-            shooterMtrB.setIdleMode(IdleMode.kCoast);
-            shooterMtrB.clearFaults();
-            shooterMtrB.setInverted(true);
+        //Snorfler moved to Snorfler hdwInit()
 
-            shooterMtrB.follow(shooterMtrA);
+        //Shooter moved to Shooter hdwInit()
 
     }
 

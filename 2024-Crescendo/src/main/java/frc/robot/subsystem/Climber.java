@@ -48,6 +48,9 @@ public class Climber {
     private static boolean climberUp_FB = false;    // time delayed feedback for if the hooks are up or dn
     private static boolean climberVert_FB = false;  // time delayed feedback for if the arm has been cmd vert.
 
+    /**
+     * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
+     */
     public static void init() {
         climberEna = false;
         cmdUpdate(false, false);    // Climber is retracted, down
@@ -59,7 +62,7 @@ public class Climber {
     }
 
     /**
-     * Update Climber Called from teleopPeriodic in robot.java.
+     * Update Climber Called from auto/teleopPeriodic in robot.java.
      * <p>
      * Determine any state that needs to interupt the present state, usually by way
      * of a JS button but can be caused by other events.

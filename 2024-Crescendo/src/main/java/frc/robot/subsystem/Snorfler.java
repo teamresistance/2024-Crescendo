@@ -20,6 +20,7 @@ import frc.util.Timer;
 import frc.util.timers.OffDly;
 import frc.util.timers.OnDly;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 
 /**
@@ -71,20 +72,21 @@ public class Snorfler {
     private static OffDly hasGPOffDly = new OffDly(1.0); //Delay off feedback of hdw snorfHasGP
 
     /**
-     * Initialize Snorfler stuff. Called from telopInit (maybe robotInit(?)) in
-     * Robot.java
+     * Initialize Snorfler stuff. Called from auton/telopInit, maybe robotInit(?) in Robot.java
      */
     public static void init() {
-        clearOnPresses();
-        sdbInit();
+        hdwInit();
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
         snorflerEnable = false; // Start disabled
         snorfRequest = SnorfRq.kOff;
+
+        clearOnPresses();
+        sdbInit();
     }
 
     /**
-     * Update Snorfler. Called from teleopPeriodic in robot.java.
+     * Update Snorfler. Called from auto/teleopPeriodic in robot.java.
      * <p>
      * Determine any state that needs to interupt the present state, usually by way
      * of a JS button but can be caused by other events.
@@ -201,6 +203,15 @@ public class Snorfler {
     }
 
     // ----------------- Snorfler statuses and misc.-----------------
+    /** Initialize any hardware */
+    private static void hdwInit(){
+        snorflerMtr.restoreFactoryDefaults();
+        snorflerMtr.setIdleMode(IdleMode.kCoast);
+        snorflerMtr.clearFaults();
+        snorflerMtr.setInverted(false);
+    }
+
+
     /**
      * A onPress is held by the hardware until read.  If pressed before needed
      * code executes immediately.  Clear the onPress until expected onPress.
