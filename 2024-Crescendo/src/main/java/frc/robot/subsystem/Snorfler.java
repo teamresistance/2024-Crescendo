@@ -16,6 +16,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
+import frc.robot.subsystem.Shooter.RQShooter;
 import frc.util.Timer;
 import frc.util.timers.OffDly;
 import frc.util.timers.OnDly;
@@ -125,16 +126,22 @@ public class Snorfler {
                 stateTmr.clearTimer();
                 if(snorflerEnable) {state++;}
                 break;
-            case 1: // Snorfler enabled, retriving note, Spdfwd
+            case 1: // Snorfler enabled, check if Shooter arm is in place and lock.
+                cmdUpdate(0.0);
+                Shooter.autoShoot = RQShooter.kSnorfLock;
+                if(!Shooter.isArmUp()) state++;
+                break;
+            case 2: // Snorfler enabled, retriving note, Spdfwd
                 cmdUpdate(fwdMtrPct);
                 if((hasGP_FB || !snorflerEnable)) {
                     snorflerEnable = false;
                     state++;
                 }
                 break;
-            case 2: // Snorfler momentum still carries note too far.  Back up a little
+            case 3: // Snorfler momentum still carries note too far.  Back up a little
                 cmdUpdate(-rejMtrPct);
                 if(stateTmr.hasExpired(0.1, state)) state = 0;
+                Shooter.autoShoot = RQShooter.kNoReq;
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);

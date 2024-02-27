@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         Tests.chsrUpdate();
         JS_IO.update();
+        IO.update();
     }
 
     /** This function is called once when autonomous is enabled. */

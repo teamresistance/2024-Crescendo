@@ -13,6 +13,7 @@ package frc.robot.subsystem;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
+import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.robot.subsystem.Shooter.RQShooter;
@@ -36,6 +37,7 @@ public class Climber {
     private static Solenoid climberRet1SV = IO.climberRet1SV;   // hi pressure to retract hooks
     private static Solenoid climberRet2SV = IO.climberRet2SV;   // hi pressure to retract hooks
     private static Solenoid climberVertSV = IO.climberVertSV;   // trip to raise arm to vertical
+    private static DigitalInput climberIsVert = IO.climberIsVertSw;   //Switch FB when vertical
 
     // joystick buttons:
     private static Button btnClimberEna = JS_IO.btnClimberEna;  // toggle hooks up & down
@@ -46,7 +48,7 @@ public class Climber {
     private static Timer stateTmr = new Timer(0.05);                // State Timer
     private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber status
     private static boolean climberUp_FB = false;    // time delayed feedback for if the hooks are up or dn
-    private static boolean climberVert_FB = false;  // time delayed feedback for if the arm has been cmd vert.
+    private static boolean climberVert_FB = false;  // feedback for if the arm has been cmd vert.
 
     /**
      * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
@@ -74,7 +76,7 @@ public class Climber {
         }
 
         climberUp_FB = climberUpTmr.get(climberExt1SV.get());    // Update up feedback
-        if(climberVertSV.get()) climberVert_FB = true;          // Once vertical MUST remain vertical.
+        if(climberVertSV.get() || climberIsVert.get()) climberVert_FB = true; // Once vertical MUST remain vertical.
 
         smUpdate();
         sdbUpdate();
@@ -98,7 +100,7 @@ public class Climber {
             case 1: // Check shooter arm is down and lock down
                 cmdUpdate(false, false);
                 Shooter.autoShoot = RQShooter.kClimbLock;
-                if(!Shooter.armIsUp()) state++;
+                if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Raise Climber to vertical and wait
                 cmdUpdate(false, true);
@@ -157,13 +159,15 @@ public class Climber {
         SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
+        SmartDashboard.putBoolean("Climber/Is Vert Sw", climberIsVert.get());
         SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
+        SmartDashboard.putBoolean("Climber/Is Vert FB", climberVert_FB);
     }
 
     // ----------------- Shooter statuses and misc.-----------------
 
     /** @return true if the climber has been command to raise vertical */
-    public static boolean climberIsVert(){ return climberVert_FB; }
+    public static boolean isClimberVert(){ return climberVert_FB; }
 
     /** @return true if the climber has been command to raise vertical */
     public static boolean climberIsUp(){ return climberUp_FB; }

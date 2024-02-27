@@ -87,21 +87,23 @@ public class IO {
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
-    public static DigitalInput snorHasGP = new DigitalInput(1, true);
+    public static DigitalInput snorHasGP = new DigitalInput(0, true);
 
     //Shooter
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 15);
+    public static DigitalInput shooterArmIsUpSw = new DigitalInput(1, false);    //Door switch Arm is Up
     public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 14);    //This or
     // public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
 
     public static Solenoid climberVertSV = new Solenoid(modID, modType, 13);  //Raise tovertical
     /* Climber (2) actuators. To save air volumn, only 1 is used to raise, extend, the hook 
      * but 2 to lower, retract, the hook with the weight of the robot also. */
-    public static Solenoid climberExt1SV = new Solenoid(modID, modType, 12);  //Raise hooks 1 only
-    public static Solenoid climberRet1SV = new Solenoid(modID, modType, 11);  //Lower hooks 1
-    public static Solenoid climberRet2SV = new Solenoid(modID, modType, 10);  //Lower hooks 2
+    public static Solenoid climberExt1SV = new Solenoid(modID, modType, 12);    //Raise hooks 1 only
+    public static Solenoid climberRet1SV = new Solenoid(modID, modType, 11);    //Lower hooks 1
+    public static Solenoid climberRet2SV = new Solenoid(modID, modType, 10);    //Lower hooks 2
+    public static DigitalInput climberIsVertSw = new DigitalInput(2, false);     //Door switch climber is vertical
 
     /**
      * Initialize any hardware
@@ -117,12 +119,13 @@ public class IO {
     /**Update items not handled elsewhere */
     public static void update() {
         compressorRelay.set(pch.isEnabled() ? Value.kForward : Value.kOff);
-        if(JS_IO.btnGyroReset.onButtonPressed()) navX.reset();
 
         //Resets navX, angle offset, coorXY & offsets to zero.  
         //Also set scaled driving for climbing
-           
+        if(JS_IO.btnGyroReset.onButtonPressed()) navX.reset();
         // coorXY.update();
+        sdbUpdate();
+        // sdbUpdPDH(); //Enable when troubleshooting power
     }
 
     /**
@@ -173,8 +176,18 @@ public class IO {
     public static double getmecDistX(){ return mecDistX; }
     /**Get the fwd movement on a mec Drive.  Fwd is positive. */
     public static double getmecDistY(){ return mecDistY; }
+    
+    
+    private static void sdbUpdate(){
+        SmartDashboard.putNumber("Cmpr/Pressure", pch.getPressure());
+        SmartDashboard.putBoolean("Cmpr/Is Enabled", pch.isEnabled());
+        SmartDashboard.putString("Cmpr/Relay cmd", compressorRelay.get().getPrettyValue());
+    }
 
-    /**Place all PDH channels on sdb and display amps for checkout. */
+
+
+
+    /**Place all PDH channels on sdb and display amps for checkout. Called from update() */
     public static void sdbUpdPDH() {
         SmartDashboard.putNumber("PDH/0 - VRM", pdh.getCurrent(0));
         SmartDashboard.putNumber("PDH/1 - PCH", pdh.getCurrent(1));

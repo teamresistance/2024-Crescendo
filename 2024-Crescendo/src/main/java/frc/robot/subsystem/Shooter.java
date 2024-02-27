@@ -14,11 +14,13 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
+import frc.io.hdw_io.util.DigitalInput;
 import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.robot.subsystem.Snorfler.SnorfRq;
+import frc.robot.subsystem.tests.Tests.KTests;
 import frc.util.PropMath;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
@@ -58,6 +60,7 @@ public class Shooter {
     private static Encoder_Neo shtrBEncoder;
     private static Solenoid shtrArmUp = IO.shooterArmUpSV;
     private static Solenoid shtrPitchLo = IO.shooterPitchLoSV;
+    private static DigitalInput shtrArmIsUpSw = IO.shooterArmIsUpSw;
 
     // joystick buttons:
     private static Button btnSpkrShot = JS_IO.btnSpkrShot;  //Begin speaker shot, mtrs up to speed
@@ -88,7 +91,7 @@ public class Shooter {
     private static boolean shtrTestPitchLow = false;
 
     private static OnOffDly armUpDnTmr = new OnOffDly(1000, 1000);    // Wait to signal up or down
-    private static boolean armUpFB = false;                         // arm on/off delayed status
+    private static boolean armUp_FB = false;                         // arm on/off delayed status
 
     /**
      * Constants to call Shooter to take shot control.
@@ -96,8 +99,22 @@ public class Shooter {
      * <p> kSpkrShot - Start Shooter speaker shot   Call only once.
      * <p> kAmpShot - Start Amp shot.  Probably not used.  Call only once.
      * <p> kClimbLock - Arm lockout from climber.  Both CANNOT be up.
+     * <p> kSnorfLock - Arm lockout from Snorfler.  Must be down to recieve note
      */
-    public enum RQShooter {kNoReq, kSpkrShot, kAmpShot, kClimbLock};
+    public enum RQShooter {
+        kNoReq(0, "No request"),
+        kSpkrShot(1, "Speaker Shot"),
+        kAmpShot(2, "Amp Shot"),
+        kClimbLock(3, "Climber Lock"),
+        kSnorfLock(4, "Snorfle Lock");
+
+        private final int num;
+        private final String desc;
+        RQShooter(int num, String desc){
+            this.num = num;
+            this.desc = desc;
+        }
+    };
     public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
 
     /**
@@ -133,7 +150,7 @@ public class Shooter {
     public static void update() {
         //Add code here to start state machine or override the sm sequence
         if(btnUnload.onButtonPressed()) state = 20;
-        if(autoShoot == RQShooter.kClimbLock) state = 30;
+        if(autoShoot == RQShooter.kClimbLock || autoShoot == RQShooter.kSnorfLock) state = 30;
 
         /*
          * All other buttons are handled in smUpdate
@@ -158,7 +175,7 @@ public class Shooter {
      * <p>state 1-5 - shoot for speaker
      * <p>state10-16 - shoot for amp
      * <p>state 20 22 - unload from Amp
-     * <p>state 40 - arm up lock up by climber
+     * <p>state 30 - arm up lock up by climber or snorfler
      */
     private static void smUpdate() { // State Machine Update
 
@@ -182,7 +199,7 @@ public class Shooter {
                 break;
             case 3: // Confirm if arm dn
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-                if (!armUpFB) state++;
+                if (!armUp_FB) state++;
                 break;
             case 4: // Request snorfler to feed Note,
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -218,7 +235,7 @@ public class Shooter {
             case 15: // check for arm raised
                 cmdUpdate(0.0, 0.0, false, true);
                 autoShoot = RQShooter.kNoReq;    // cancel auto shoot
-                if (armUpFB) state++;           //SHOOT!
+                if (armUp_FB) state++;           //SHOOT!
                 break;  
             case 16: // shoot and all off
                 cmdUpdate(fpsMax, fpsMax, false, true);
@@ -227,7 +244,7 @@ public class Shooter {
             //----------- Unload from aborted Amp shot ---------------
             case 20: // Check Arm is down
                 cmdUpdate(0.0, 0.0, false, false);
-                if (!armUpFB) state++;   //wait for arm to lower FB
+                if (!armUp_FB) state++;   //wait for arm to lower FB
                 break;
             case 21: // unload from amp shot, request snorfler to unload
                 cmdUpdate(-shtrAmpLd_FPS, -shtrAmpLd_FPS, false, false);
@@ -237,7 +254,7 @@ public class Shooter {
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
                 if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
                 break;
-            case 30: // Climbing.  Arm MUST be down
+            case 30: // Climbing.  Arm MUST be down OR Snorfling
                 cmdUpdate(0.0, 0.0, false, false );
                 break;
             default: // all off
@@ -278,7 +295,7 @@ public class Shooter {
 
         shtrPitchLo.set(pitchLoCmd);
         //Safety, if climber is not down then DO NOT raise arm
-        shtrArmUp.set(Climber.climberIsVert() ? false : armUpCmd);
+        shtrArmUp.set(Climber.isClimberVert() ? false : armUpCmd);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
@@ -306,10 +323,11 @@ public class Shooter {
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
+        SmartDashboard.putString("Shooter/autoRequire", autoShoot.desc);
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
-        SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUpFB);
-        SmartDashboard.putBoolean("Shooter/Clmbr Is Vert", Climber.climberIsVert());
-        SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
+        SmartDashboard.putBoolean("Shooter/Arm Up Switch", shtrArmIsUpSw.get());
+        SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUp_FB);
+        SmartDashboard.putBoolean("Shooter/Is Climber Vert", Climber.isClimberVert());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
 
         SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
@@ -360,11 +378,11 @@ public class Shooter {
      * <p>When Arm is commanded off FB shows false after a time delay.
      */
     private static void armStatUpdate(){
-        armUpFB = armUpDnTmr.get(shtrArmUp.get());
+        armUp_FB = armUpDnTmr.get(shtrArmUp.get()) || shtrArmIsUpSw.get();
     }
 
     /** @return true if the shooter arm is up for the Amp else false.  */
-    public static boolean armIsUp(){ return armUpFB; }
+    public static boolean isArmUp(){ return armUp_FB; }
 
     /**
      * A onPress is held by the hardware until read.  If pressed before needed
