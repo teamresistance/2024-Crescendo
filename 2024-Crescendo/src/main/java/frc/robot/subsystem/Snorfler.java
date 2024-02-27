@@ -125,7 +125,7 @@ public class Snorfler {
                 break;
             case 1: // Snorfler enabled, check if Shooter arm is in place and lock.
                 cmdUpdate(0.0);
-                Shooter.autoShoot = RQShooter.kSnorfLock;
+                Shooter.shtrRequest = RQShooter.kSnorfLock;
                 if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Snorfler enabled, retriving note, Spdfwd
@@ -138,7 +138,7 @@ public class Snorfler {
             case 3: // Snorfler momentum still carries note too far.  Back up a little
                 cmdUpdate(-rejMtrPct);
                 if(stateTmr.hasExpired(0.1, state)) state = 0;
-                Shooter.autoShoot = RQShooter.kNoReq;
+                Shooter.shtrRequest = RQShooter.kNoReq;
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);

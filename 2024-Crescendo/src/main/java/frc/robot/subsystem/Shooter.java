@@ -115,7 +115,7 @@ public class Shooter {
             this.desc = desc;
         }
     };
-    public static RQShooter autoShoot;  //Shooter remote control request.  Drv_Auto.
+    public static RQShooter shtrRequest;  //Shooter remote request.  Snorfler, Climber & Drv_Auto
 
     /**
      * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
@@ -132,7 +132,7 @@ public class Shooter {
         cmdUpdate(0.0, 0.0, false, false);  // Make sure all is off
         state = 0;              // Start at state 0
         clearOnPresses();       //Clear all button onpress signals
-        autoShoot = RQShooter.kNoReq;    //No request from autonomous
+        shtrRequest = RQShooter.kNoReq;    //No request from autonomous
         sdbInit();
     }
 
@@ -145,7 +145,7 @@ public class Shooter {
     public static void update() {
         //Add code here to start state machine or override the sm sequence
         if(btnUnload.onButtonPressed()) state = 20;
-        if(autoShoot == RQShooter.kClimbLock || autoShoot == RQShooter.kSnorfLock) state = 30;
+        if(shtrRequest == RQShooter.kClimbLock || shtrRequest == RQShooter.kSnorfLock) state = 30;
 
         /*
          * All other buttons are handled in smUpdate
@@ -180,7 +180,7 @@ public class Shooter {
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
                 if(btnSpkrShot.onButtonPressed()) state = 1;    // 1st press, Speaker shot
                 if(btnAmpShot.onButtonPressed()) state = 10;    // 1st press, Amp shot
-                if(autoShoot != RQShooter.kNoReq) state = autoShoot == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
+                if(shtrRequest != RQShooter.kNoReq) state = shtrRequest == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
                 break;
             //---------- Shoot at Speaker  ---------------
             case 1: // Get shooters up to speed for Speaker shot
@@ -190,7 +190,7 @@ public class Shooter {
             case 2: // Wait for shot or cancel
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if(btnSpkrShot.onButtonPressed()) state = 0;    //2nd Press, Cancel Speaker shot
-                if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //Goto shot
+                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //Goto shot
                 break;
             case 3: // Confirm if arm dn
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -199,7 +199,7 @@ public class Shooter {
             case 4: // Request snorfler to feed Note,
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
-                autoShoot = RQShooter.kNoReq;           // cancel auto shoot if active
+                shtrRequest = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
             case 5: // Wait for shot then go to turn off
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -220,16 +220,16 @@ public class Shooter {
                 break;
             case 13: // wait to raise Arm on 2nd btn press or auto
                 cmdUpdate(0.0, 0.0, false, false);
-                if(btnAmpShot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //2nd press raise arm
+                if(btnAmpShot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //2nd press raise arm
                 break;
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
                 cmdUpdate(0.0, 0.0, false, true);
                 if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
-                if(btnShoot.onButtonPressed() || autoShoot != RQShooter.kNoReq) state++; //SHOOT!
+                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
                 cmdUpdate(0.0, 0.0, false, true);
-                autoShoot = RQShooter.kNoReq;    // cancel auto shoot
+                shtrRequest = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUp_FB) state++;           //SHOOT!
                 break;  
             case 16: // shoot and all off
@@ -249,8 +249,9 @@ public class Shooter {
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
                 if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
                 break;
-            case 30: // Climbing.  Arm MUST be down OR Snorfling
+            case 30: // Snorfling or Climbing.  Arm MUST be down. But cancelled by Snorfler.
                 cmdUpdate(0.0, 0.0, false, false );
+                if(shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state = 0;
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, false, false);
@@ -318,7 +319,7 @@ public class Shooter {
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
-        SmartDashboard.putString("Shooter/autoRequire", autoShoot.desc);
+        SmartDashboard.putString("Shooter/autoRequire", shtrRequest.desc);
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
         SmartDashboard.putBoolean("Shooter/Arm Up Switch", shtrArmIsUpSw.get());
         SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUp_FB);

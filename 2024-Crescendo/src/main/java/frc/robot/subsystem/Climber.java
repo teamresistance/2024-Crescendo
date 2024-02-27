@@ -99,7 +99,7 @@ public class Climber {
                 break;
             case 1: // Check shooter arm is down and lock down
                 cmdUpdate(false, false);
-                Shooter.autoShoot = RQShooter.kClimbLock;
+                Shooter.shtrRequest = RQShooter.kClimbLock;
                 if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Raise Climber to vertical and wait
