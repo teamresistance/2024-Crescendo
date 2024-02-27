@@ -19,7 +19,7 @@ import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 // import frc.robot.subsystem.Climber.Climber_FB;
 import frc.robot.subsystem.Drive.Drive;
-import frc.robot.subsystem.Snorfler.SnorfRq;
+import frc.robot.subsystem.Snorfler.RQSnorf;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
 import frc.io.hdw_io.util.MotorPID_NEO;

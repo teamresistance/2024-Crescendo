@@ -19,7 +19,7 @@ import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
-import frc.robot.subsystem.Snorfler.SnorfRq;
+import frc.robot.subsystem.Snorfler.RQSnorf;
 import frc.robot.subsystem.tests.Tests.KTests;
 import frc.util.PropMath;
 import frc.util.Timer;
@@ -102,11 +102,11 @@ public class Shooter {
      * <p> kSnorfLock - Arm lockout from Snorfler.  Must be down to recieve note
      */
     public enum RQShooter {
-        kNoReq(0, "No request"),
-        kSpkrShot(1, "Speaker Shot"),
-        kAmpShot(2, "Amp Shot"),
-        kClimbLock(3, "Climber Lock"),
-        kSnorfLock(4, "Snorfle Lock");
+        kNoReq(0, "No request"),        //No request from other subsystems
+        kSpkrShot(1, "Speaker Shot"),   //Speaker shot request from auto
+        kAmpShot(2, "Amp Shot"),        //Amp shot request from auto
+        kClimbLock(3, "Climber Lock"),  //Lock Arm down by Climber
+        kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
 
         private final int num;
         private final String desc;
@@ -122,12 +122,7 @@ public class Shooter {
      */
     public static void init() {
         hdwInit();
-        // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
-        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
-        shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
-        shtrMtrBPid = new MotorPID_NEO(shtrMtrB, "Shooter", shtrPIDParms);
-        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1777.41);
-        shtrBEncoder = new Encoder_Neo(shtrMtrB, 1777.41);
+        
         clsDistToFPS = new double[][] {{4.8, 6.0, 7.0},{fpsMax, 48.0, 42.0}};  //Segmented Line close
         farDistToFPS = new double[][] {{6.0, 7.0, 8.0},{fpsMax, 48.0, 42.0}};  //Segmented Line far
 
@@ -203,7 +198,7 @@ public class Shooter {
                 break;
             case 4: // Request snorfler to feed Note,
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-                Snorfler.snorfRequest = SnorfRq.kForward; // Trigger once. Self cancels after 200 mS
+                Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
                 autoShoot = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
             case 5: // Wait for shot then go to turn off
@@ -217,7 +212,7 @@ public class Shooter {
                 break;
             case 11: // Request snorfler to feed Note, go to next state (no break)
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
-                Snorfler.snorfRequest = SnorfRq.kForward;   // Trigger once. Self cancels after 200 mS
+                Snorfler.snorfRequest = RQSnorf.kForward;   // Trigger once. Self cancels after 200 mS
                 state++;
             case 12: // Wait to take Note
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
@@ -248,7 +243,7 @@ public class Shooter {
                 break;
             case 21: // unload from amp shot, request snorfler to unload
                 cmdUpdate(-shtrAmpLd_FPS, -shtrAmpLd_FPS, false, false);
-                Snorfler.snorfRequest = SnorfRq.kReverse;   // Trigger once, Self cancels after 330 mS
+                Snorfler.snorfRequest = RQSnorf.kReverse;   // Trigger once, Self cancels after 330 mS
                 state++;
             case 22: // unload from amp shot, request snorfler to unload
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
@@ -351,6 +346,13 @@ public class Shooter {
         shtrMtrB.setIdleMode(IdleMode.kCoast);
         shtrMtrB.clearFaults();
         shtrMtrB.setInverted(true);
+
+        // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
+        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
+        shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
+        shtrMtrBPid = new MotorPID_NEO(shtrMtrB, "Shooter", shtrPIDParms);
+        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1777.41);
+        shtrBEncoder = new Encoder_Neo(shtrMtrB, 1777.41);
     }
 
     /** Calculate shtrAFPS_SP, shtrBFPS_SP and whether shooter pitch is low or high.

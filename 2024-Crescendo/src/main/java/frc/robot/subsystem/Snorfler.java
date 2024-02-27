@@ -19,7 +19,6 @@ import frc.io.joysticks.util.Button;
 import frc.robot.subsystem.Shooter.RQShooter;
 import frc.util.Timer;
 import frc.util.timers.OffDly;
-import frc.util.timers.OnDly;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
@@ -52,21 +51,19 @@ public class Snorfler {
     
 
     //yesNO LONGER public static Boolean snorfFwdRq = null;   Using enum which is more self-explanatory
-    public static enum SnorfRq{ 
-        kOff(0,"Not Required"),     //No other subsystem requesting operation
+    public static enum RQSnorf{ 
+        kOff(0,"No Request"),       //No other subsystem requesting operation
         kForward(1,"Forward"),      //Shooter request to load for speaker or amp
         kReverse(2,"Reverse");      //Shooter request to unload
         
         private final int NUM;
         private final String DESC;
-        private SnorfRq(int num, String desc) {
+        private RQSnorf(int num, String desc) {
             this.NUM = num;
             this.DESC = desc;
         }
-        public final int NUM(){ return NUM; }
-        public final String DESC(){ return DESC; }
     }
-    public static SnorfRq snorfRequest = SnorfRq.kOff;
+    public static RQSnorf snorfRequest = RQSnorf.kOff;
 
     /** has Game Piece is controlled by a Sensor and  delay on timer. */
     public static boolean hasGP_FB;
@@ -80,7 +77,7 @@ public class Snorfler {
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
         snorflerEnable = false; // Start disabled
-        snorfRequest = SnorfRq.kOff;
+        snorfRequest = RQSnorf.kOff;
 
         clearOnPresses();
         sdbInit();
@@ -101,8 +98,8 @@ public class Snorfler {
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
 
-        if(snorfRequest == SnorfRq.kForward && state < 20) state = 20;
-        if(snorfRequest == SnorfRq.kReverse && state < 30) state = 30;
+        if(snorfRequest == RQSnorf.kForward && state < 20) state = 20;
+        if(snorfRequest == RQSnorf.kReverse && state < 30) state = 30;
 
         hasGP_FB = hasGPOffDly.get(snorfhasGP.get());   //Used in state 1
 
@@ -148,13 +145,13 @@ public class Snorfler {
                 break;
             case 20: // Shooter request to Snorfler to load for amplifier
                 cmdUpdate(loadMtrPct);
-                snorfRequest = SnorfRq.kOff;
+                snorfRequest = RQSnorf.kOff;
                 if(stateTmr.hasExpired(0.5, state)) state=0;
                 break;
 
             case 30: // Shooter request to Snorfler to unload
                 cmdUpdate(-loadMtrPct);
-                snorfRequest = SnorfRq.kOff;
+                snorfRequest = RQSnorf.kOff;
                 if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
 
@@ -206,7 +203,7 @@ public class Snorfler {
         SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
         SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
         SmartDashboard.putBoolean("Snorf/Has GP", hasGP_FB);
-        SmartDashboard.putString("Snorf/FwdRq", snorfRequest.DESC());   
+        SmartDashboard.putString("Snorf/FwdRq", snorfRequest.DESC);   
     }
 
     // ----------------- Snorfler statuses and misc.-----------------
