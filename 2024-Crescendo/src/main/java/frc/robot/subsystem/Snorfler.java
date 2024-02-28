@@ -52,9 +52,10 @@ public class Snorfler {
 
     //yesNO LONGER public static Boolean snorfFwdRq = null;   Using enum which is more self-explanatory
     public static enum RQSnorf{ 
-        kOff(0,"No Request"),       //No other subsystem requesting operation
-        kForward(1,"Forward"),      //Shooter request to load for speaker or amp
-        kReverse(2,"Reverse");      //Shooter request to unload
+        kNoReq(0,"No Request"),     //No other subsystem requesting operation
+        kAutoSnorf(1,"Snorfle"),    //Autonomous requesting snorfling
+        kForward(2,"Forward"),      //Shooter request to load for speaker or amp
+        kReverse(3,"Reverse");      //Shooter request to unload
         
         private final int NUM;
         private final String DESC;
@@ -63,7 +64,7 @@ public class Snorfler {
             this.DESC = desc;
         }
     }
-    public static RQSnorf snorfRequest = RQSnorf.kOff;
+    public static RQSnorf snorfRequest = RQSnorf.kNoReq;
 
     /** has Game Piece is controlled by a Sensor and  delay on timer. */
     public static boolean hasGP_FB;
@@ -77,7 +78,7 @@ public class Snorfler {
         cmdUpdate(0.0);     // Motor off
         state = 0;          // Start at state 0
         snorflerEnable = false; // Start disabled
-        snorfRequest = RQSnorf.kOff;
+        snorfRequest = RQSnorf.kNoReq;
 
         clearOnPresses();
         sdbInit();
@@ -98,8 +99,8 @@ public class Snorfler {
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
 
-        if(snorfRequest == RQSnorf.kForward && state < 20) state = 20;
-        if(snorfRequest == RQSnorf.kReverse && state < 30) state = 30;
+        if(snorfRequest == RQSnorf.kForward && state < 30) state = 30;
+        if(snorfRequest == RQSnorf.kReverse && state < 40) state = 40;
 
         hasGP_FB = hasGPOffDly.get(snorfhasGP.get());   //Used in state 1
 
@@ -109,11 +110,12 @@ public class Snorfler {
 
     /**
      * State Machine Update
-     * <p> 0 - disabled - Motor off
-     * <p> 1 - enabled, snorfling
-     * <p> 10 -  Reject, reverse snorfler
-     * <p> 20 - 21 - Shooter request to load Note
-     * <p> 30 - 31 - Shooter request to unload Note
+     * <p>  0 - disabled - Motor off
+     * <p>  1 - 3 - enabled, snorfling
+     * <p> 10 - Reject, reverse snorfler
+     * <p> 20 - 23 - enabled, snorfling
+     * <p> 30 - 31 - Shooter request to load Note
+     * <p> 40 - 41 - Shooter request to unload Note
      */
     private static void smUpdate() { // State Machine Update
 
@@ -122,6 +124,7 @@ public class Snorfler {
                 cmdUpdate(0.0);
                 stateTmr.clearTimer();
                 if(snorflerEnable) {state++;}
+                if(snorfRequest == RQSnorf.kAutoSnorf) state = 20;
                 break;
             case 1: // Snorfler enabled, check if Shooter arm is in place and lock.
                 cmdUpdate(0.0);
@@ -138,20 +141,42 @@ public class Snorfler {
             case 3: // Snorfler momentum still carries note too far.  Back up a little
                 cmdUpdate(-rejMtrPct);
                 if(stateTmr.hasExpired(0.1, state)) state = 0;
-                Shooter.shtrRequest = RQShooter.kNoReq;
+                Shooter.shtrRequest = RQShooter.kNoReq;  //Cancel kSnorfLock
                 break;
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);
                 break;
-            case 20: // Shooter request to Snorfler to load for amplifier
+            case 20: // Auto, Everything is off
+                cmdUpdate(0.0);
+                stateTmr.clearTimer();
+                // if(snorflerEnable) {state++;}
+                // break;
+            case 21: // Snorfler enabled, check if Shooter arm is in place and lock.
+                cmdUpdate(0.0);
+                Shooter.shtrRequest = RQShooter.kSnorfLock;
+                if(!Shooter.isArmUp()) state++;
+                break;
+            case 22: // Snorfler enabled, retriving note, Spdfwd
+                cmdUpdate(fwdMtrPct);
+                if(hasGP_FB || snorfRequest != RQSnorf.kAutoSnorf) {
+                    snorfRequest = RQSnorf.kNoReq;
+                    state++;
+                }
+                break;
+            case 23: // Snorfler momentum still carries note too far.  Back up a little
+                cmdUpdate(-rejMtrPct);
+                if(stateTmr.hasExpired(0.1, state)) state = 0;
+                Shooter.shtrRequest = RQShooter.kNoReq; //Cancel kSnorfLock
+                break;
+            case 30: // Shooter request to Snorfler to load for amplifier
                 cmdUpdate(loadMtrPct);
-                snorfRequest = RQSnorf.kOff;
-                if(stateTmr.hasExpired(0.5, state)) state=0;
+                snorfRequest = RQSnorf.kNoReq;
+                if(stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
 
-            case 30: // Shooter request to Snorfler to unload
+            case 40: // Shooter request to Snorfler to unload
                 cmdUpdate(-loadMtrPct);
-                snorfRequest = RQSnorf.kOff;
+                snorfRequest = RQSnorf.kNoReq;
                 if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
 
