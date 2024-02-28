@@ -37,7 +37,7 @@ public class Climber {
     private static Solenoid climberRet1SV = IO.climberRet1SV;   // hi pressure to retract hooks
     private static Solenoid climberRet2SV = IO.climberRet2SV;   // hi pressure to retract hooks
     private static Solenoid climberVertSV = IO.climberVertSV;   // trip to raise arm to vertical
-    private static DigitalInput climberIsVert = IO.climberIsVertSw;   //Switch FB when vertical
+    private static DigitalInput climberIsHorzSw = IO.climberIsHorzSw;   //Switch FB true when horizonal
 
     // joystick buttons:
     private static Button btnClimberEna = JS_IO.btnClimberEna;  // toggle hooks up & down
@@ -46,7 +46,7 @@ public class Climber {
     private static int state;                   // state machine value
     private static boolean climberEna = false;  // Boolean to determine whether the climber is activated  or not
     private static Timer stateTmr = new Timer(0.05);                // State Timer
-    private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber status
+    // private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber status
     private static boolean climberUp_FB = false;    // time delayed feedback for if the hooks are up or dn
     private static boolean climberVert_FB = false;  // feedback for if the arm has been cmd vert.
 
@@ -75,8 +75,10 @@ public class Climber {
             climberEna = !climberEna;
         }
 
-        climberUp_FB = climberUpTmr.get(climberExt1SV.get());    // Update up feedback
-        if(climberVertSV.get() || climberIsVert.get()) climberVert_FB = true; // Once vertical MUST remain vertical.
+        // climberUp_FB = climberUpTmr.get(climberExt1SV.get());    // Update up feedback
+        if(climberVertSV.get() || !climberIsHorzSw.get()) climberVert_FB = true; // Once vertical MUST remain vertical.
+
+        if(climberVert_FB) Shooter.shtrRequest = RQShooter.kClimbLock;
 
         smUpdate();
         sdbUpdate();
@@ -159,7 +161,7 @@ public class Climber {
         SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
-        SmartDashboard.putBoolean("Climber/Is Vert Sw", climberIsVert.get());
+        SmartDashboard.putBoolean("Climber/Is Vert Sw", climberIsHorzSw.get());
         SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
         SmartDashboard.putBoolean("Climber/Is Vert FB", climberVert_FB);
     }

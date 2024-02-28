@@ -58,9 +58,9 @@ public class Shooter {
     private static MotorPID_NEO shtrMtrBPid;
     private static Encoder_Neo shtrAEncoder;    // Feedback in RPM
     private static Encoder_Neo shtrBEncoder;
-    private static Solenoid shtrArmUp = IO.shooterArmUpSV;
+    private static Solenoid shtrArmUpSV = IO.shooterArmUpSV;
     private static Solenoid shtrPitchLo = IO.shooterPitchLoSV;
-    private static DigitalInput shtrArmIsUpSw = IO.shooterArmIsUpSw;
+    private static DigitalInput shtrArmIsDnSw = IO.shooterArmDnSw;
 
     // joystick buttons:
     private static Button btnSpkrShot = JS_IO.btnSpkrShot;  //Begin speaker shot, mtrs up to speed
@@ -86,6 +86,7 @@ public class Shooter {
     private static double shtrAmpLd_Tm = 0.10;   //For Amp load and unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
+    private static boolean shtrTestActive = false;
     private static double shtrTest_FPS = 55.0;   //For Amp load and unload
     private static double shtrTest_BDiff = 1.0;   //For Amp load and unload
     private static boolean shtrTestPitchLow = false;
@@ -291,37 +292,41 @@ public class Shooter {
 
         shtrPitchLo.set(pitchLoCmd);
         //Safety, if climber is not down then DO NOT raise arm
-        shtrArmUp.set(Climber.isClimberVert() ? false : armUpCmd);
+        shtrArmUpSV.set(Climber.isClimberVert() ? false : armUpCmd);
     }
 
     /*-------------------------  SDB Stuff --------------------------------------
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
+        SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);     //Temp, set in vision
         SmartDashboard.putNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
-        SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
-        SmartDashboard.putNumber("Shooter/Test B Diff", shtrTest_BDiff);
-        SmartDashboard.putBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
+
+        SmartDashboard.putBoolean("Shooter/Test/Active", shtrTestActive);
+        SmartDashboard.putNumber("Shooter/Test/FPS", shtrTest_FPS);
+        SmartDashboard.putNumber("Shooter/Test/B Diff", shtrTest_BDiff);
+        SmartDashboard.putBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
-        distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);
+        distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);   //Temp, set in vision
         shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
-        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
-        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test B Diff", shtrTest_BDiff);
-        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
+
+        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test/Active", shtrTestActive);
+        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test/FPS", shtrTest_FPS);
+        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test/B Diff", shtrTest_BDiff);
+        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
         SmartDashboard.putString("Shooter/autoRequire", shtrRequest.desc);
-        SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUp.get());
-        SmartDashboard.putBoolean("Shooter/Arm Up Switch", shtrArmIsUpSw.get());
+        SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUpSV.get());
+        SmartDashboard.putBoolean("Shooter/Arm Up Switch", shtrArmIsDnSw.get());
         SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUp_FB);
         SmartDashboard.putBoolean("Shooter/Is Climber Vert", Climber.isClimberVert());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
@@ -361,27 +366,29 @@ public class Shooter {
      * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
-        // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
-        // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
-        // if(shotIsFar){
-        //     shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
-        // }else{
-        //     shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
-        // }
-        // shtrBFPS_SP = 0.8 * shtrAFPS_SP;
-
-        //Temporary testpoints.
-        shotIsFar = shtrTestPitchLow;
-        shtrAFPS_SP = shtrTest_FPS;
-        shtrBFPS_SP = shtrTest_FPS * shtrTest_BDiff;
+        if(shtrTestActive){
+            if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
+            if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+            if(shotIsFar){
+                shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+            }else{
+                shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+            }
+            shtrBFPS_SP = 0.8 * shtrAFPS_SP;
+        }else{
+            //Temporary testpoints.
+            shotIsFar = shtrTestPitchLow;
+            shtrAFPS_SP = shtrTest_FPS;
+            shtrBFPS_SP = shtrTest_FPS * shtrTest_BDiff;
+        }
     }
 
     /**
-     * When Arm is commanded up FB shows true after a time delay.
-     * <p>When Arm is commanded off FB shows false after a time delay.
+     * When Arm SV is commanded up or the proof switch shaows that the Arm is not down
+     * then show true.
      */
     private static void armStatUpdate(){
-        armUp_FB = armUpDnTmr.get(shtrArmUp.get()) || shtrArmIsUpSw.get();
+        armUp_FB = shtrArmUpSV.get() || !shtrArmIsDnSw.get();
     }
 
     /** @return true if the shooter arm is up for the Amp else false.  */
