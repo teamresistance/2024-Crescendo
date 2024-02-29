@@ -143,8 +143,8 @@ public class TestHdw {
         SmartDashboard.putBoolean("TestHdw/Shtr/Arm Up", false);
         SmartDashboard.putBoolean("TestHdw/Shtr/Pitch Low", false);
         //Climber
-        SmartDashboard.getBoolean("TestHdw/Climber/Extend Up", false);
-        SmartDashboard.getBoolean("TestHdw/Climber/Raise Vertical", false);
+        SmartDashboard.putBoolean("TestHdw/Climber/Extend Up", false);
+        SmartDashboard.putBoolean("TestHdw/Climber/Raise Vertical", false);
     }
 
     private static void sdbUpdate(){
