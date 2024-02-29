@@ -93,7 +93,7 @@ public class IO {
     public static CANSparkMax shooterMtrA = new CANSparkMax(41, MotorType.kBrushless);
     public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
     public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 15);
-    public static DigitalInput shooterArmDnSw = new DigitalInput(1, false);    //Door switch Arm is Up
+    public static DigitalInput shooterArmDnSw = new DigitalInput(1, true);    //Door switch Arm is Up
     public static Solenoid shooterPitchLoSV = new Solenoid(modID, modType, 14);    //This or
     // public static CANSparkMax shtrPitchMtr = new CANSparkMax(43, MotorType.kBrushless); //this
 
@@ -103,7 +103,7 @@ public class IO {
     public static Solenoid climberExt1SV = new Solenoid(modID, modType, 12);    //Raise hooks 1 only
     public static Solenoid climberRet1SV = new Solenoid(modID, modType, 11);    //Lower hooks 1
     public static Solenoid climberRet2SV = new Solenoid(modID, modType, 10);    //Lower hooks 2
-    public static DigitalInput climberIsHorzSw = new DigitalInput(2, false);     //Door switch climber is vertical
+    public static DigitalInput climberIsHorzSw = new DigitalInput(2, true);     //Door switch climber is vertical
 
     /**
      * Initialize any hardware
@@ -139,6 +139,10 @@ public class IO {
             motor.setIdleMode(IdleMode.kCoast);
             // motor.clearFaults();
         }
+        motorFrontLeft.setInverted(false);
+        motorBackLeft.setInverted(false);
+        motorFrontRight.setInverted(true);
+        motorBackRight.setInverted(true);
 
         //Snorfler moved to Snorfler hdwInit()
 
