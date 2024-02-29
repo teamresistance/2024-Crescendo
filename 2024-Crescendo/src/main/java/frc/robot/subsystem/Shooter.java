@@ -20,7 +20,6 @@ import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
 import frc.robot.subsystem.Snorfler.RQSnorf;
-import frc.robot.subsystem.tests.Tests.KTests;
 import frc.util.PropMath;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
@@ -83,7 +82,7 @@ public class Shooter {
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
     private static double shtrAmpLd_FPS = 25.0;   //For Amp load and unload
-    private static double shtrAmpLd_Tm = 0.10;   //For Amp load and unload
+    private static double shtrAmpLd_Tm = 0.12;   //For Amp load and unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
     private static boolean shtrTestActive = false;
@@ -91,7 +90,6 @@ public class Shooter {
     private static double shtrTest_BDiff = 1.0;   //For Amp load and unload
     private static boolean shtrTestPitchLow = false;
 
-    private static OnOffDly armUpDnTmr = new OnOffDly(1000, 1000);    // Wait to signal up or down
     private static boolean armUp_FB = false;                         // arm on/off delayed status
 
     /**
@@ -106,8 +104,8 @@ public class Shooter {
         kNoReq(0, "No request"),        //No request from other subsystems
         kSpkrShot(1, "Speaker Shot"),   //Speaker shot request from auto
         kAmpShot(2, "Amp Shot"),        //Amp shot request from auto
-        kClimbLock(3, "Climber Lock"),  //Lock Arm down by Climber
-        kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
+        kClimbLock(3, "Climber Lock");  //Lock Arm down by Climber
+        // kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
 
         private final int num;
         private final String desc;
@@ -146,7 +144,7 @@ public class Shooter {
     public static void update() {
         //Add code here to start state machine or override the sm sequence
         if(btnUnload.onButtonPressed()) state = 20;
-        if(shtrRequest == RQShooter.kClimbLock || shtrRequest == RQShooter.kSnorfLock) state = 30;
+        if(shtrRequest == RQShooter.kClimbLock) state = 30;
 
         /*
          * All other buttons are handled in smUpdate
@@ -201,6 +199,7 @@ public class Shooter {
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
                 shtrRequest = RQShooter.kNoReq;           // cancel auto shoot if active
+                Snorfler.resetHasGP();
                 state++;
             case 5: // Wait for shot then go to turn off
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -232,6 +231,7 @@ public class Shooter {
                 cmdUpdate(0.0, 0.0, false, true);
                 shtrRequest = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUp_FB) state++;           //SHOOT!
+                Snorfler.resetHasGP();
                 break;  
             case 16: // shoot and all off
                 cmdUpdate(fpsMax, fpsMax, false, true);
@@ -250,7 +250,7 @@ public class Shooter {
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
                 if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
                 break;
-            case 30: // Snorfling or Climbing.  Arm MUST be down. But cancelled by Snorfler.
+            case 30: // Climbing.  Arm MUST be down.
                 cmdUpdate(0.0, 0.0, false, false );
                 if(shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state = 0;
                 break;
@@ -326,8 +326,8 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter/state", state);
         SmartDashboard.putString("Shooter/autoRequire", shtrRequest.desc);
         SmartDashboard.putBoolean("Shooter/Arm Up Cmd", shtrArmUpSV.get());
-        SmartDashboard.putBoolean("Shooter/Arm Up Switch", shtrArmIsDnSw.get());
-        SmartDashboard.putBoolean("Shooter/Arm FB Dly", armUp_FB);
+        SmartDashboard.putBoolean("Shooter/Arm Dn Switch", shtrArmIsDnSw.get());
+        SmartDashboard.putBoolean("Shooter/Arm Up FB Dly", armUp_FB);
         SmartDashboard.putBoolean("Shooter/Is Climber Vert", Climber.isClimberVert());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
 
@@ -366,7 +366,7 @@ public class Shooter {
      * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
-        if(shtrTestActive){
+        if(!shtrTestActive){
             if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
             if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
             if(shotIsFar){
