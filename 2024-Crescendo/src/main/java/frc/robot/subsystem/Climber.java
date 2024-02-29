@@ -161,7 +161,7 @@ public class Climber {
         SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
         SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
-        SmartDashboard.putBoolean("Climber/Is Vert Sw", climberIsHorzSw.get());
+        SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
         SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
         SmartDashboard.putBoolean("Climber/Is Vert FB", climberVert_FB);
     }
