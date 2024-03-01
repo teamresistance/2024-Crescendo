@@ -141,7 +141,7 @@ public class Snorfler {
                     snorflerEnable = false;
                     state++;
                 }
-                break;
+                else {break;} 
             case 3: // Snorfler momentum still carries note too far. Wait to settle then
                 cmdUpdate(0.0);
                 if(stateTmr.hasExpired(1.0, state)) state++;
