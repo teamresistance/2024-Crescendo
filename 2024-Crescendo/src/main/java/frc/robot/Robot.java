@@ -39,6 +39,7 @@ public class Robot extends TimedRobot {
         Tests.chsrInit();
         JS_IO.init();
         IO.init();
+        Drive.init();
     }
 
     /**
@@ -79,17 +80,18 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         // IO.navX.reset();
         // Drive.init();
-        // Drv_Teleop.init();
+        Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();
         Climber.init();
+
     }
 
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        // Drive.update();
-        // Drv_Teleop.update();
+        Drive.update();
+        Drv_Teleop.update();
         Snorfler.update();
         Shooter.update();
         Climber.update();
