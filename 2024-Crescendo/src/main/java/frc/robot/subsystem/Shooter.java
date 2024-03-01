@@ -81,7 +81,7 @@ public class Shooter {
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
-    private static double shtrAmpLd_FPS = 25.0;   //For Amp load and unload
+    private static double shtrAmpLd_FPS = 22.0;   //For Amp load and unload
     private static double shtrAmpLd_Tm = 0.12;   //For Amp load and unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
@@ -145,6 +145,12 @@ public class Shooter {
         //Add code here to start state machine or override the sm sequence
         if(btnUnload.onButtonPressed()) state = 20;
         if(shtrRequest == RQShooter.kClimbLock) state = 30;
+        // If snorfling need to rotate top motor slowly to get note to roll into shooter
+        if(Snorfler.getState() == 2){
+            state = 40;
+        }else{
+            if(state == 40) state = 0;
+        }
 
         /*
          * All other buttons are handled in smUpdate
@@ -169,7 +175,8 @@ public class Shooter {
      * <p>state 1-5 - shoot for speaker
      * <p>state10-16 - shoot for amp
      * <p>state 20 22 - unload from Amp
-     * <p>state 30 - arm up lock up by climber or snorfler
+     * <p>state 30 - arm up lock up by climber
+     * <p>state 40 - snorfling rotate top motor slowly
      */
     private static void smUpdate() { // State Machine Update
 
@@ -199,11 +206,13 @@ public class Shooter {
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
                 shtrRequest = RQShooter.kNoReq;           // cancel auto shoot if active
-                Snorfler.resetHasGP();
                 state++;
             case 5: // Wait for shot then go to turn off
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                if (stateTmr.hasExpired(0.5, state)){
+                    Snorfler.resetHasGP();
+                    state = 0;
+                }
                 break;
             //----------- Shoot for Amp --------------
             case 10: // Get shooters up to low speed for Amp preload
@@ -231,11 +240,13 @@ public class Shooter {
                 cmdUpdate(0.0, 0.0, false, true);
                 shtrRequest = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUp_FB) state++;           //SHOOT!
-                Snorfler.resetHasGP();
                 break;  
             case 16: // shoot and all off
                 cmdUpdate(fpsMax, fpsMax, false, true);
-                if (stateTmr.hasExpired(0.5, state)) state = 0;
+                if (stateTmr.hasExpired(0.5, state)){
+                    Snorfler.resetHasGP();
+                    state = 0;
+                }
                 break;
             //----------- Unload from aborted Amp shot ---------------
             case 20: // Check Arm is down
@@ -250,9 +261,14 @@ public class Shooter {
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
                 if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
                 break;
+            //------------- Climbing Arm MUST be down -----------------
             case 30: // Climbing.  Arm MUST be down.
                 cmdUpdate(0.0, 0.0, false, false );
                 if(shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state = 0;
+                break;
+            //----------- snorfling need to rotate top motor slowly ----------
+            case 40: // Snorfling in state 2.  Run top motor slowly forward
+                cmdUpdate(2.5, 0.0, false, false );
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, false, false);
@@ -274,7 +290,7 @@ public class Shooter {
     private static void cmdUpdate(double mtrAFPS, double mtrBFPS, boolean pitchLoCmd, boolean armUpCmd) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
-        if(Math.abs(mtrAFPS) > 3.0){
+        if(Math.abs(mtrAFPS) > 1.0){
                 shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrAPid.setSetpoint(0.0);
@@ -282,7 +298,7 @@ public class Shooter {
         }
         shtrMtrAPid.update();   //Update the PID reference
 
-        if(Math.abs(mtrBFPS) > 3.0){
+        if(Math.abs(mtrBFPS) > 1.0){
                 shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrBPid.setSetpoint(0.0);

@@ -70,7 +70,6 @@ public class Snorfler {
 
     /** has Game Piece is controlled by a Sensor and  delay on timer. */
     public static boolean hasGP_FB;
-    private static OffDly hasGPOffDly = new OffDly(1.0); //Delay off feedback of hdw snorfHasGP
 
     /**
      * Initialize Snorfler stuff. Called from auton/telopInit, maybe robotInit(?) in Robot.java
@@ -99,6 +98,8 @@ public class Snorfler {
             snorflerEnable = !snorflerEnable;       // Handled in state 0
         }
         if(hasGP_FB) snorflerEnable = false;   //Already holding note
+        
+        if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
 
         if(btnSnorfleReject.isDown()) state = 10;
         if(btnSnorfleReject.onButtonReleased()) state = 0;
@@ -129,48 +130,50 @@ public class Snorfler {
                 stateTmr.clearTimer();
                 if(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf) state++;
                 break;
+            // ------------- Snorfler a Note off the floor -------------
             case 1: // Snorfler enabled, check if Shooter arm is in place and lock.
                 cmdUpdate(0.0);
                 if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Snorfler enabled, retriving note, Spdfwd
-         
                 cmdUpdate(fwdMtrPct);
-                if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
-                if((hasGP_FB || !(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf))) {
+                if( hasGP_FB ) {
                     snorfRequest = RQSnorf.kNoReq;
                     snorflerEnable = false;
                     state++;
-                }
-                else {
+                }else {
+                    if(!(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf)){
+                        snorfRequest = RQSnorf.kNoReq;
+                        snorflerEnable = false;
+                        state = 0;
+                    }
                     break;
                 } 
-            case 3: // Snorfler momentum still carries note too far. Wait to settle then
+            case 3: // Keep going slowly until banner sensor can't see note
                 cmdUpdate(pullBackPct);
                 if(!snorfhasGP.get()) state++;
                 break;
-            case 4: // Snorfler momentum still carries note too far.  Back up a little
+            case 4: // Then back up a little slowly until it see it again
                 cmdUpdate(-pullBackPct);
                 if(snorfhasGP.get()) state = 0;
-                
                 break;
-       
-                
+            // ----------- Reject, run motor backward -----------------
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);
                 break;
+            // ----------- Pass note to Shooter ------------------
             case 20: // Shooter request to Snorfler to load for amplifier or shoot speaker
                 cmdUpdate(loadMtrPct);
                 snorfRequest = RQSnorf.kNoReq;
                 if(stateTmr.hasExpired(0.5, state)) state = 0;
                 break;
-
+            // ------ Unload Note from Shooter to Snorfler, abort Amp shot ---------
             case 30: // Shooter request to Snorfler to unload
                 cmdUpdate(-loadMtrPct);
                 snorfRequest = RQSnorf.kNoReq;
                 if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
-
+            // ----------- Bad call ------------
             default: // all off
                 cmdUpdate(0.0);
                 System.out.println("Bad Snorfle State: " + state);

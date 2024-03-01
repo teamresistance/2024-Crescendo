@@ -75,7 +75,7 @@ public class Drv_Teleop extends Drive {
         setHdgHold(null);
         drvBrake(true);
 
-        state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
+        state = 2; // Start at state 0, 0=robotOriented, 2=fieldOriented
     }
 
     /**

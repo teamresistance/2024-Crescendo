@@ -45,10 +45,11 @@ public class OffDly{
         return statOffDly;
     }
 
-    public boolean get(){ return statOffDly; }
+    public boolean get(){ return currentMSec < delayOffTmr; }
 
     public void setTm(long offDly){
         this.delayOffTm = offDly > 0 ? offDly : 100;
         currentMSec = System.currentTimeMillis();
-    }    
+    }
+
 }
