@@ -45,7 +45,7 @@ public class Snorfler {
     private static double rejMtrPct = 0.25;    // Reject Snorfling speed
     private static double loadMtrPct = 0.75;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double unloadMtrTm = 0.3;    //Seconds Snorfler runs to unload note from Shooter
-    private static double pullBackPct = 0.25;   //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double pullBackPct = 0.1;   //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double pullbackTm = 0.2;    //Seconds Snorfler runs rev to pull back note
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
@@ -134,6 +134,7 @@ public class Snorfler {
                 if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Snorfler enabled, retriving note, Spdfwd
+         
                 cmdUpdate(fwdMtrPct);
                 if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
                 if((hasGP_FB || !(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf))) {
@@ -141,15 +142,20 @@ public class Snorfler {
                     snorflerEnable = false;
                     state++;
                 }
-                else {break;} 
+                else {
+                    break;
+                } 
             case 3: // Snorfler momentum still carries note too far. Wait to settle then
-                cmdUpdate(0.0);
-                if(stateTmr.hasExpired(1.0, state)) state++;
+                cmdUpdate(pullBackPct);
+                if(!snorfhasGP.get()) state++;
                 break;
             case 4: // Snorfler momentum still carries note too far.  Back up a little
                 cmdUpdate(-pullBackPct);
-                if(stateTmr.hasExpired(pullbackTm, state) || snorfhasGP.get()) state = 0;
+                if(snorfhasGP.get()) state = 0;
+                
                 break;
+       
+                
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);
                 break;
