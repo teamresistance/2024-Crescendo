@@ -35,7 +35,7 @@ public class Snorfler {
     private static DigitalInput snorfhasGP = IO.snorHasGP;    //Banner s nsorgame piece ui place
 
     // joystick buttons:
-    private static Button btnSnorflerEnable = JS_IO.btnSnorflerEnable;
+    private static Button btnSnorflerEnable = JS_IO.btnSnorflerEnaTgl;
     private static Button btnSnorfleReject = JS_IO.btnSnorfleReject;
     
     // variables:

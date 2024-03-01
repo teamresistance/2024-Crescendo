@@ -29,24 +29,6 @@ import edu.wpi.first.wpilibj.PS4Controller;
 public class JS_IO {
     private static int jsConfig;
     private static String prvJSAssign;
-
-    // Declare all possible Joysticks
-    public static Joystick leftJoystick = new Joystick(0);  // Left JS
-    public static Joystick rightJoystick = new Joystick(1); // Right JS
-    public static Joystick coJoystick = new Joystick(2);    // Co-Dvr JS
-    public static Joystick gamePad = new Joystick(3);       // Normal mode only (not Dual Trigger mode)
-    public static Joystick neoPad = new Joystick(4);        // Nintendo pamepad
-    public static Joystick Ps4Ctrl = new Joystick(5);
-    // Drive
-    public static Axis axLeftY = new Axis();        // Left JS Y - Added for testing in Drive3
-    public static Axis axLeftX = new Axis();        // Left JS X
-    public static Axis axRightY = new Axis();       // Right JS Y
-    public static Axis axRightX = new Axis();       // Right JS X
-    public static Axis axCoDrvY = new Axis();       // Co Drvr JS Y
-    public static Axis axCoDrvX = new Axis();       // Co Drvr JS X
-
-    public static Button btnGyroReset = new Button();       //L 6
-
     //Joystick Check Booleans
     private static boolean leftstickExists = false;
     private static boolean rightstickExists = false;
@@ -54,34 +36,44 @@ public class JS_IO {
     private static boolean gamePadExists = false;
     private static boolean neopadExists = false;
 
-    //Kewl 2024 stuff
-    public static Button autoBtn = new Button();
-    public static Button auto1Btn = new Button();
-    public static Button headingHoldBtn = new Button();
-    // public static Button resetGyroBtn = new Button();
-    public static Button lookAtNote = new Button();
+    // Declare all possible Joysticks
+    public static Joystick leftJoystick = new Joystick(0);  // Left JS
+    public static Joystick rightJoystick = new Joystick(1); // Right JS
+    public static Joystick coJoystick = new Joystick(2);    // Co-Dvr JS
+    public static Joystick gamePad = new Joystick(3);       // Normal mode only (not Dual Trigger mode)
+    public static Joystick neoPad = new Joystick(4);        // Nintendo pamepad
+    public static Joystick ps4Ctrl = new Joystick(5);       // PS4 gamepad
 
-    //Climber
-    public static Button btnClimberEna = new Button();
+    // Drive
+    public static Axis axLeftY = new Axis();        // Drive fwd/bkwd
+    public static Axis axLeftX = new Axis();        // Drive left/right
+    public static Axis axRightY = new Axis();       // Drive rotation
+    public static Axis axRightX = new Axis();       // not used
+    public static Axis axCoDrvY = new Axis();       // not used
+    public static Axis axCoDrvX = new Axis();       // not used
+
+    //2024 stuff
+    public static Button autoBtn = new Button();        // auto testing??
+    public static Button auto1Btn = new Button();       // auto testing 2??
+    public static Button headingHoldBtn = new Button(); // Robot hold heading
+    public static Button lookAtNote = new Button();     // Search for Note
+    public static Button btnGyroReset = new Button();   // Reset gyro to 0 heading
+
+    //Snorfler
+    public static Button btnSnorflerEnaTgl = new Button();  // Toggle Snorfling
+    public static Button btnSnorfleReject = new Button();   // Reverse Snorfler motor
 
     //Shooter
-    public static Button btnSpkrShot = new Button();
-    public static Button btnAmpShot = new Button();
-    public static Button btnShoot = new Button();
-    public static Button btnUnload = new Button();
+    public static Button btnSpkrShot = new Button();    // Prep for Speaker shot, motors to speed
+    public static Button btnAmpShot = new Button();     // Prep for Amp shot, Note to shooter
+    public static Button btnShoot = new Button();       // Shoot Note, Amp or Speaker
+    public static Button btnUnload = new Button();      // Unload Note back to Snorfler, Abort Amp Shot
     
-    // and Amp and Reject↑↑↑↑
-    
-    //Snorfler
-    public static Button btnSnorflerEnable = new Button();
-    public static Button btnSnorfleReject = new Button();
-    //Snorfler Booleans!!
-    public static Boolean snorflerEnable = false;
-    public static boolean snorfFwdRq = false;    
+    //Climber
+    public static Button btnClimberEna = new Button();  // Climber to Vertical & raise hooks
 
     //Hold angle to look at speaker
-    public static Button lookAtSpeaker = new Button();
-
+    public static Button lookAtSpeaker = new Button();  // Align shooter to Speaker
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -173,17 +165,17 @@ public class JS_IO {
         btnGyroReset.setButton(leftJoystick, 10);
         lookAtSpeaker.setButton(leftJoystick, 1);
 
-        btnSnorflerEnable.setButton(coJoystick, 3);
+        btnSnorflerEnaTgl.setButton(coJoystick, 3);
         btnSnorfleReject.setButton(coJoystick, 4);
 
         //Shooter / Arm buttons
-        btnSpkrShot.setButton(coJoystick, 5);   // A - Activates necessary subsystems to prepare to shoot to Speaker
-        btnAmpShot.setButton(coJoystick, 6);    // B - Activates necessary subsystems to prepare to unload into Amp
-        btnShoot.setButton(coJoystick, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
-        btnUnload.setButton(coJoystick, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+        btnSpkrShot.setButton(coJoystick, 5);   // Prep to shoot to Speaker
+        btnAmpShot.setButton(coJoystick, 6);    // Prep to unload into Amp
+        btnShoot.setButton(coJoystick, 1);      // Shoots game piece into Speaker or Amp
+        btnUnload.setButton(coJoystick, 2);     // Unloads back to Snorfler, Abort Amp shot
 
         //Climber Buttons
-        btnClimberEna.setButton(coJoystick, 11); // X - Toggles climber, what else did you expect, blud?
+        btnClimberEna.setButton(coJoystick, 11); // climber to vertical, toggle hooks up/dn
 
     }
 
@@ -192,7 +184,7 @@ public class JS_IO {
         System.out.println("JS assigned to GP");
 
         // All stick axisesssss
-        axLeftX.setAxis(gamePad, 0);       //Added to test drive3
+        axLeftX.setAxis(gamePad, 0);
         axLeftY.setAxis(gamePad, 1);
         axRightX.setAxis(gamePad, 4);
         axRightY.setAxis(gamePad, 5);
@@ -204,7 +196,7 @@ public class JS_IO {
         //btnGyroReset.setButton(gamePad, 4);
 
         //Snofler
-        btnSnorflerEnable.setButton(gamePad, 2);// Y - Enables the Snorfler 
+        btnSnorflerEnaTgl.setButton(gamePad, 2);// Y - Enables the Snorfler 
         btnSnorfleReject.setButton(gamePad, 1); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
 
         //Shooter / Arm buttons
@@ -225,25 +217,25 @@ public class JS_IO {
     // ----------- Nintendo gamepad -------------
     private static void a_NP() {
         //Snorfler
-        btnSnorflerEnable.setButton(neoPad, 3);
-        btnSnorfleReject.setButton(neoPad, 2);
+        btnSnorflerEnaTgl.setButton(neoPad, 3);     // B
+        btnSnorfleReject.setButton(neoPad, 2);      // A
 
         //Shooter
-        btnSpkrShot.setButton(neoPad, 5);
-        btnAmpShot.setButton(neoPad, 6);
-        btnShoot.setButton(neoPad, 1);
-        btnUnload.setButton(neoPad, 4);
+        btnSpkrShot.setButton(neoPad, 5);           // RB
+        btnAmpShot.setButton(neoPad, 6);            // LB
+        btnShoot.setButton(neoPad, 1);              // X
+        btnUnload.setButton(neoPad, 4);             // Y
         
 
         //Climber
-        btnClimberEna.setButton(neoPad, 10);
+        btnClimberEna.setButton(neoPad, 10);        // Start
     }
 
     private static void Ps4() {
-        axLeftX.setAxis(Ps4Ctrl, 0);       //Added to test drive3
-        axLeftY.setAxis(Ps4Ctrl, 1);
-        axRightX.setAxis(Ps4Ctrl, 4);
-        axRightY.setAxis(Ps4Ctrl, 5);
+        axLeftX.setAxis(ps4Ctrl, 0);
+        axLeftY.setAxis(ps4Ctrl, 1);
+        axRightX.setAxis(ps4Ctrl, 4);
+        axRightY.setAxis(ps4Ctrl, 5);
 
         //Drive buttons
         //autoBtn.setButton(Ps4Ctrl, 1);
@@ -252,18 +244,17 @@ public class JS_IO {
         //btnGyroReset.setButton(Ps4Ctrl, 4);
 
         //Snofler
-        btnSnorflerEnable.setButton(Ps4Ctrl, 6);// Y - Enables the Snorfler 
-        btnSnorfleReject.setButton(Ps4Ctrl, 5); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+        btnSnorflerEnaTgl.setButton(ps4Ctrl, 6);// Enables the Snorfler 
+        btnSnorfleReject.setButton(ps4Ctrl, 5); // Rejects game piece from Snorfler
 
         //Shooter / Arm buttons
-        btnSpkrShot.setButton(Ps4Ctrl, 4);   // A - Activates necessary subsystems to prepare to shoot to Speaker
-        btnAmpShot.setButton(Ps4Ctrl, 3);    // B - Activates necessary subsystems to prepare to unload into Amp
-        btnShoot.setButton(Ps4Ctrl, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
-        btnUnload.setButton(Ps4Ctrl, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+        btnSpkrShot.setButton(ps4Ctrl, 4);   // Prepare to shoot to Speaker
+        btnAmpShot.setButton(ps4Ctrl, 3);    // Prepare to unload into Amp
+        btnShoot.setButton(ps4Ctrl, 1);      // Shoots game piece into Speaker
+        btnUnload.setButton(ps4Ctrl, 2);     // Unloads game piece back to Snorfler, Abort Amp Shot
 
         //Climber Buttons
-        btnClimberEna.setButton(Ps4Ctrl, 7); // X - Toggles climber, what else did you expect, blud?
-
+        btnClimberEna.setButton(ps4Ctrl, 7);    // Climber Vertical, Toggle hooks up/dn
     }
 
     // ----------- Case Default -----------------
@@ -284,7 +275,7 @@ public class JS_IO {
         btnGyroReset.setButton();
 
         //Snofler
-        btnSnorflerEnable.setButton();
+        btnSnorflerEnaTgl.setButton();
         btnSnorfleReject.setButton();
 
         //Shooter / Arm buttons
@@ -295,8 +286,18 @@ public class JS_IO {
 
         //Climber Buttons
         btnClimberEna.setButton();
+    
+        //Hold angle to look at speaker
         lookAtSpeaker.setButton();
 
+    }
 
+    private static void checkJSValid(){
+        leftJoystick.isConnected();
+        rightJoystick.isConnected();
+        coJoystick.isConnected();
+        gamePad.isConnected();
+        neoPad.isConnected();
+        ps4Ctrl.isConnected();
     }
 }
