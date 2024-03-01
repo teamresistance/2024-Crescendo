@@ -131,7 +131,7 @@ public class Drv_Teleop extends Drive {
           rotSpd = pidHdg.calculateX(Drive.navX.getNormalizedTo180(), 0.0);
         }
 
-        sdbUpdate();
+        // sdbUpdate();
     }
 
     /**

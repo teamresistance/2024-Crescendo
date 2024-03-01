@@ -173,6 +173,18 @@ public class JS_IO {
         btnGyroReset.setButton(leftJoystick, 10);
         lookAtSpeaker.setButton(leftJoystick, 1);
 
+        btnSnorflerEnable.setButton(coJoystick, 3);
+        btnSnorfleReject.setButton(coJoystick, 4);
+
+        //Shooter / Arm buttons
+        btnSpkrShot.setButton(coJoystick, 5);   // A - Activates necessary subsystems to prepare to shoot to Speaker
+        btnAmpShot.setButton(coJoystick, 6);    // B - Activates necessary subsystems to prepare to unload into Amp
+        btnShoot.setButton(coJoystick, 1);      // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        btnUnload.setButton(coJoystick, 2);     // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+
+        //Climber Buttons
+        btnClimberEna.setButton(coJoystick, 11); // X - Toggles climber, what else did you expect, blud?
+
     }
 
     // ----- gamePad only --------
