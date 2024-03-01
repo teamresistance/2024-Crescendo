@@ -22,6 +22,7 @@ import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
 import frc.io.joysticks.util.Pov;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.GenericHID.HIDType;
 
 //TODO: ASSIGN BUTTON PORTS FOR EACH BUTTON INITIALIZED !!!
 
@@ -116,6 +117,8 @@ public class JS_IO {
             System.out.println("JS Chsn: " + chsr.getSelected());
             configJS();         //then assign new jsConfig
         }
+
+        // checkJSValid(); //Testing JS's
     }
 
     /**Configure a new JS assignment */
@@ -293,11 +296,25 @@ public class JS_IO {
     }
 
     private static void checkJSValid(){
-        leftJoystick.isConnected();
-        rightJoystick.isConnected();
-        coJoystick.isConnected();
-        gamePad.isConnected();
-        neoPad.isConnected();
-        ps4Ctrl.isConnected();
+        HIDType testHID_LJS = leftJoystick.getType();
+        String testName_LJS = leftJoystick.getName();
+        boolean testConnected_LJS = leftJoystick.isConnected();
+        HIDType testHID_RJS = rightJoystick.getType();
+        String testName_RJS = rightJoystick.getName();
+        boolean testConnected_RJS = rightJoystick.isConnected();
+        HIDType testHID_CJS = coJoystick.getType();
+        String testName_CJS = coJoystick.getName();
+        boolean testConnected_CJS = coJoystick.isConnected();
+        HIDType testHID_GPD = gamePad.getType();
+        String testName_GPD = gamePad.getName();
+        boolean testConnected_GPD = gamePad.isConnected();
+        //NEO returns type = kHIDGamepad, name = "usb gamepad     ", isConnected = true
+        HIDType testHID_NEO = neoPad.getType();
+        String testName_NEO = neoPad.getName();
+        boolean testConnected_NEO = neoPad.isConnected();
+        HIDType testHID_PS4 = ps4Ctrl.getType();
+        String testName_PS4 = ps4Ctrl.getName();
+        boolean testConnected_PS4 = ps4Ctrl.isConnected();
+        int a = 0;
     }
 }
