@@ -116,6 +116,7 @@ public class Drive {
     private static AprilTagFieldLayout aprilTagFieldLayout;
 
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
+    private static PhotonCamera cam2 = new PhotonCamera("Arducam_OV2311_USB_Camera (1) (2)");
 
     private static Transform3d robotToCam = new Transform3d(new Translation3d(-0.5, 0.3, 0.5), new Rotation3d(-15.0,15.0,10.0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
 
@@ -328,7 +329,7 @@ public class Drive {
         System.out.println(poseEstimator.getEstimatedPosition());
 
         smUpdate();
-        sdbUpdate();
+        // sdbUpdate();
     }
 
     /**If wkgScale is greater then 0.0, limit mecDrv max output else 1.0. */

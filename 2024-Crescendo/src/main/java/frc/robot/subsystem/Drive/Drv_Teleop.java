@@ -1,8 +1,16 @@
 package frc.robot.subsystem.Drive;
 
+import static frc.robot.subsystem.Drive.Drive.navX;
+import static frc.robot.subsystem.Drive.Drive.reset;
+import static frc.robot.subsystem.Drive.Drive.setPoint1X;
+import static frc.robot.subsystem.Drive.Drive.setPoint1Y;
+import static frc.robot.subsystem.Drive.Drive.setPoint2X;
+import static frc.robot.subsystem.Drive.Drive.setPoint2Y;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.joysticks.JS_IO;
+import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
 import frc.io.joysticks.util.Pov;
 import frc.robot.subsystem.Snorfler;
@@ -12,6 +20,23 @@ import frc.util.PropMath;
  * Extends the Drive class to manually control the robot in teleop mode.
  */
 public class Drv_Teleop extends Drive {
+    
+    // joystick:
+    private static Axis jsX = JS_IO.axLeftX;
+    private static Axis jsY = JS_IO.axLeftY;
+    private static Axis jsRot = JS_IO.axRightX;
+
+    private static double fwdSpd;
+    private static double rlSpd;
+    private static double rotSpd;
+
+    private static Button btnGyroReset = JS_IO.btnGyroReset;
+    // public static Button autoBtn = new Button();
+    public static Button headingHoldBtn = JS_IO.headingHoldBtn;
+    public static Button lookAtNote = JS_IO.lookAtNote;
+    public static Button btnAuto = JS_IO.autoBtn;
+    public static Button btnAuto1 = JS_IO.auto1Btn;
+
     private static double jsFwd() {return JS_IO.axLeftY.get();}        //Arcade Rotation
     private static double jsRL() {return JS_IO.axLeftX.get();}       //Curvature move, pwr applied
     private static double jsRot() {return JS_IO.axRightX.get();}       //Curvature direction, left.right
@@ -50,7 +75,7 @@ public class Drv_Teleop extends Drive {
         setHdgHold(null);
         drvBrake(true);
 
-        state = 0; // Start at state 0, 0=robotOriented, 2=fieldOriented
+        state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
     }
 
     /**
@@ -65,9 +90,48 @@ public class Drv_Teleop extends Drive {
                 teleDrvChoice = state;
             }
         }
-
+        
+        if (!auto){
+            if(Math.abs(jsX.getRaw()) > 0.1){
+                rlSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else rlSpd = 0.0;
+            if(Math.abs(jsY.getRaw()) > 0.1){
+                fwdSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else fwdSpd = 0.0;
+            if(Math.abs(jsRot.getRaw()) > 0.05){
+                rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            }
+            else rotSpd = 0.0;
+        }
         smUpdate();
-        sdbUpdate();
+
+        //Autoalign stuff
+        if (btnAuto.isDown()){
+            //Calculate based on where setpoint is
+            // stuff is reversed cus confusing
+            goTo(setPoint1X, setPoint1Y, 180.0, 1.0, 1.0);
+        }
+        if (btnAuto1.isDown()){
+            //Calculate based on where setpoint is
+            // stuff is reversed cus confusing
+            goTo(setPoint2X, setPoint2Y, -90.0, 1.0, 1.0);
+        }
+        
+        if (btnGyroReset.isDown()) {
+            reset();
+        }
+                
+        if (lookAtNote.isDown()){
+            goToNote(1.0);
+        }
+
+        if (headingHoldBtn.isDown()){
+          rotSpd = pidHdg.calculateX(Drive.navX.getNormalizedTo180(), 0.0);
+        }
+
+        // sdbUpdate();
     }
 
     /**
@@ -77,17 +141,17 @@ public class Drv_Teleop extends Drive {
         // Drive.update();
         switch (state) {
             case 0: // Stop Moving
-            // cmdUpdate(); // Stop moving
             setDriveCmds(0.0, 0.0, 0.0, false);
             break;
             case 1: // robot mode.
-            setDriveCmds(jsFwd() *  teleopScale/100.0, jsRL() * teleopScale/100.0, jsRot() * 0.65, false);
+            setDriveCmds(fwdSpd *  teleopScale/100.0, rlSpd * teleopScale/100.0, rotSpd * 1.00, false);
             break;
             case 2: // Field relative mode.
-            setDriveCmds(JS_IO.axLeftY.getRaw(), JS_IO.axLeftX.getRaw(), JS_IO.axRightX.getRaw() * 0.65, true);
+            setDriveCmds(fwdSpd *  teleopScale/100.0, rlSpd * teleopScale/100.0, rotSpd * 1.00, true);
             break;
             default:
             // cmdUpdate();
+            setDriveCmds(0.0, 0.0, 0.0, false);
             System.out.println("Invaid Drive Teleop State - " + state);
             break;
         }
@@ -108,6 +172,10 @@ public class Drv_Teleop extends Drive {
 
         SmartDashboard.putBoolean("Drv/Tele/wkg scaled", isScaled());
         SmartDashboard.putNumber("Drv/Tele/wkg scale", getWkgScale());
+
+        SmartDashboard.putNumber("Drv/jsy", jsY.get());
+        SmartDashboard.putNumber("Drv/jsx", jsX.get());
+        SmartDashboard.putNumber("Drv/jsrot", jsRot.get());
     }
 
     /**
