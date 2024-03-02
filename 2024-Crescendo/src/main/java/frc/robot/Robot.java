@@ -78,12 +78,12 @@ public class Robot extends TimedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        Climber.init();
         IO.navX.reset();
         Drive.init();
         Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();
-        Climber.init();
     }
 
     /** This function is called periodically during operator control. */

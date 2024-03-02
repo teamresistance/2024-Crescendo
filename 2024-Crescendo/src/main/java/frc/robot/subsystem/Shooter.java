@@ -81,8 +81,10 @@ public class Shooter {
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
-    private static double shtrAmpLd_FPS = 22.0;   //For Amp load and unload
-    private static double shtrAmpLd_Tm = 0.12;   //For Amp load and unload
+    private static double shtrAmpLd_FPS = 26.0;     //FPS for Amp load
+    private static double shtrAmpLd_Tm = 0.14;      //Sec for Amp load
+    private static double shtrAmpUnld_FPS = 22.0;   //FPS for Amp unload
+    private static double shtrAmpUnld_Tm = 0.12;    //Sec for Amp unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
     private static boolean shtrTestActive = false;
@@ -146,7 +148,7 @@ public class Shooter {
         if(btnUnload.onButtonPressed()) state = 20;
         if(shtrRequest == RQShooter.kClimbLock) state = 30;
         // If snorfling need to rotate top motor slowly to get note to roll into shooter
-        if(Snorfler.getState() == 2){
+        if(Snorfler.getState() == 2 || Snorfler.getState() == 3){
             state = 40;
         }else{
             if(state == 40) state = 0;
@@ -243,7 +245,7 @@ public class Shooter {
                 break;  
             case 16: // shoot and all off and signal no GP
                 cmdUpdate(fpsMax, fpsMax, false, true);
-                if (stateTmr.hasExpired(0.5, state)){
+                if (stateTmr.hasExpired(0.25, state)){
                     Snorfler.resetHasGP();              //dom't have GP anymore
                     state = 0;
                 }
@@ -254,12 +256,12 @@ public class Shooter {
                 if (!armUp_FB) state++;   //wait for arm to lower FB
                 break;
             case 21: // unload from amp shot, request snorfler to unload
-                cmdUpdate(-shtrAmpLd_FPS, -shtrAmpLd_FPS, false, false);
+                cmdUpdate(-shtrAmpUnld_FPS, -shtrAmpUnld_FPS, false, false);
                 Snorfler.snorfRequest = RQSnorf.kReverse;   // Trigger once, Self cancels after 330 mS
                 state++;
             case 22: // unload from amp shot, request snorfler to unload
-                cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false );
-                if (stateTmr.hasExpired(0.5, state)) state = 0;   //wait for release, Stop
+                cmdUpdate(-shtrAmpUnld_FPS, -shtrAmpUnld_FPS, false, false );
+                if (stateTmr.hasExpired(shtrAmpUnld_Tm, state)) state = 0;   //wait for release, Stop
                 break;
             //------------- Climbing Arm MUST be down -----------------
             case 30: // Climbing.  Arm MUST be down.

@@ -169,10 +169,10 @@ public class JS_IO {
         lookAtSpeaker.setButton(leftJoystick, 1);
 
         btnSnorflerEnaTgl.setButton(coJoystick, 3);
-        btnSnorfleReject.setButton(coJoystick, 4);
+        btnSnorfleReject.setButton(coJoystick, 5);
 
         //Shooter / Arm buttons
-        btnSpkrShot.setButton(coJoystick, 5);   // Prep to shoot to Speaker
+        btnSpkrShot.setButton(coJoystick, 4);   // Prep to shoot to Speaker
         btnAmpShot.setButton(coJoystick, 6);    // Prep to unload into Amp
         btnShoot.setButton(coJoystick, 1);      // Shoots game piece into Speaker or Amp
         btnUnload.setButton(coJoystick, 2);     // Unloads back to Snorfler, Abort Amp shot

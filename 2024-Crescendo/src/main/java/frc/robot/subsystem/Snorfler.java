@@ -41,6 +41,7 @@ public class Snorfler {
     public static boolean snorflerEnable = false;  // Snorfler Enable
     private static double fwdMtrPct = 0.85;     // Snorfling speed
     private static double rejMtrPct = 0.25;     // Reject Snorfling speed
+    private static double rejMtrMnTm = 0.04;    //Min Time to run to ensure note is passed sensor
     private static double loadMtrPct = 0.50;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double loadMtrTm = 0.6;      //Seconds Snorfler runs to load note to Shooter
     private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
@@ -101,7 +102,6 @@ public class Snorfler {
         if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
 
         if(btnSnorfleReject.isDown()) state = 10;
-        if(btnSnorfleReject.onButtonReleased()) state = 0;
 
         if(snorfRequest == RQSnorf.kForward && state < 20) state = 20;
         if(snorfRequest == RQSnorf.kReverse && state < 30) state = 30;
@@ -159,6 +159,14 @@ public class Snorfler {
             // ----------- Reject, run motor backward -----------------
             case 10: // Snorfler Reject
                 cmdUpdate(-rejMtrPct);
+                if(btnSnorfleReject.onButtonReleased()) state++;
+                break;
+            case 11: // Snorfler Reject
+                cmdUpdate(-rejMtrPct);
+                if(stateTmr.hasExpired(rejMtrMnTm, state)){
+                    state = 0;
+                    hasGP_FB = false;
+                }
                 break;
             // ----------- Pass note to Shooter ------------------
             case 20: // Shooter request to Snorfler to load for amplifier or shoot speaker

@@ -109,11 +109,11 @@ public class Climber {
                 if(stateTmr.hasExpired(0.5, state)) state++;
                 break;
             case 3: // Extends the dual solenoids vertically
-                cmdUpdate(true, true);
+                cmdUpdate(true, false);
                 if(!climberEna) state++;
                 break;
             case 4: // Retract the dual solenoids vertically
-                cmdUpdate(false, true);
+                cmdUpdate(false, false);
                 if(climberEna) state = 3;
                 break;
             default: // all off
