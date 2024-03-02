@@ -184,8 +184,8 @@ public class Shooter {
             case 0: // Everything is off
                 cmdUpdate(0.0, 0.0, false, false);
                 stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
-                if(btnSpkrShot.onButtonPressed()) state = 1;    // 1st press, Speaker shot
-                if(btnAmpShot.onButtonPressed()) state = 10;    // 1st press, Amp shot
+                if(btnSpkrShot.onButtonPressed()) state = 1;    // 1st press, Speaker prep
+                if(btnAmpShot.onButtonPressed()) state = 10;    // 1st press, Amp prep
                 if(shtrRequest != RQShooter.kNoReq) state = shtrRequest == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
                 break;
             //---------- Shoot at Speaker  ---------------
@@ -207,10 +207,10 @@ public class Shooter {
                 Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
                 shtrRequest = RQShooter.kNoReq;           // cancel auto shoot if active
                 state++;
-            case 5: // Wait for shot then go to turn off
+            case 5: // Wait for shot then go to turn off and signal no GP
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if (stateTmr.hasExpired(0.5, state)){
-                    Snorfler.resetHasGP();
+                    Snorfler.resetHasGP();              //dom't have GP anymore
                     state = 0;
                 }
                 break;
@@ -241,10 +241,10 @@ public class Shooter {
                 shtrRequest = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUp_FB) state++;           //SHOOT!
                 break;  
-            case 16: // shoot and all off
+            case 16: // shoot and all off and signal no GP
                 cmdUpdate(fpsMax, fpsMax, false, true);
                 if (stateTmr.hasExpired(0.5, state)){
-                    Snorfler.resetHasGP();
+                    Snorfler.resetHasGP();              //dom't have GP anymore
                     state = 0;
                 }
                 break;

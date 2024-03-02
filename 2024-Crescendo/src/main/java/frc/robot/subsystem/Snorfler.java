@@ -16,9 +16,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
-import frc.robot.subsystem.Shooter.RQShooter;
 import frc.util.Timer;
-import frc.util.timers.OffDly;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
@@ -41,12 +39,13 @@ public class Snorfler {
     // variables:
     private static int state; // Snorfler state machine. 0=Off by pct, 1=On by velocity, RPM
     public static boolean snorflerEnable = false;  // Snorfler Enable
-    private static double fwdMtrPct = 0.85;      // Snorfling speed
-    private static double rejMtrPct = 0.25;    // Reject Snorfling speed
-    private static double loadMtrPct = 0.75;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
-    private static double unloadMtrTm = 0.3;    //Seconds Snorfler runs to unload note from Shooter
-    private static double pullBackPct = 0.1;   //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
-    private static double pullbackTm = 0.2;    //Seconds Snorfler runs rev to pull back note
+    private static double fwdMtrPct = 0.85;     // Snorfling speed
+    private static double rejMtrPct = 0.25;     // Reject Snorfling speed
+    private static double loadMtrPct = 0.50;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double loadMtrTm = 0.6;      //Seconds Snorfler runs to load note to Shooter
+    private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
+    private static double pullBackPct = 0.1;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double pullbackTm = 0.2;     //Seconds Snorfler runs rev to pull back note
     private static double prvSpd = 0.0;         // Used when reversing mtr direction while running
     private static Timer mtrTmr = new Timer(0.15);  // Timer to pause when reversing
     private static Timer stateTmr = new Timer(0.5); // Timer for state machine
@@ -165,10 +164,14 @@ public class Snorfler {
             case 20: // Shooter request to Snorfler to load for amplifier or shoot speaker
                 cmdUpdate(loadMtrPct);
                 snorfRequest = RQSnorf.kNoReq;
-                if(stateTmr.hasExpired(0.5, state)) state = 0;
+                if(stateTmr.hasExpired(loadMtrTm, state)) state = 0;
                 break;
             // ------ Unload Note from Shooter to Snorfler, abort Amp shot ---------
-            case 30: // Shooter request to Snorfler to unload
+            case 30: // Shooter request to Snorfler to unload.  Backup to center of note
+                cmdUpdate(-loadMtrPct);
+                if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
+                break;
+            case 31: // Keep backing up until it scenes the note again
                 cmdUpdate(-loadMtrPct);
                 snorfRequest = RQSnorf.kNoReq;
                 if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
