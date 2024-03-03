@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import java.time.LocalDateTime;
+
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -390,7 +392,7 @@ public class Drive {
             mtr.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
         }
     }
-    /**@param fldOrnt - true set fieldOriented, false robotOriented mode */
+    /**@param hh_SP - true set fieldOriented, false robotOriented mode */
     
     public static void setHdgHold(Double hh_SP){ hdgHold_SP = hh_SP;}
     
@@ -461,7 +463,7 @@ public class Drive {
      * @param _fwdSpd - Speed command to move robot forward.
      * @param _rlSpd  - Speed command to move robot right & left.
      * @param _rotSpd - Speed command to rotate robot.
-     * @param _isFieldRelative - use fieldOriented method else robotOriented
+     * @param _isFieldOriented - use fieldOriented method else robotOriented
      * 
      */
     private static void cmdUpdate(double _fwdSpd, double _rlSpd, double _rotSpd, boolean _isFieldOriented) {
