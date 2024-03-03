@@ -19,6 +19,7 @@ import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.MotorPID_NEO;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
+import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Snorfler.RQSnorf;
 import frc.util.PropMath;
 import frc.util.Timer;
@@ -293,7 +294,7 @@ public class Shooter {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         if(Math.abs(mtrAFPS) > 1.0){
-                shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrAPid.setSetpoint(mtrAFPS * 6000/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrAPid.setSetpoint(0.0);
             shtrMtrA.disable();
@@ -301,7 +302,7 @@ public class Shooter {
         shtrMtrAPid.update();   //Update the PID reference
 
         if(Math.abs(mtrBFPS) > 1.0){
-                shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrBPid.setSetpoint(mtrBFPS * 6000/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrBPid.setSetpoint(0.0);
             shtrMtrB.disable();
@@ -331,7 +332,6 @@ public class Shooter {
     private static void sdbUpdate() {
         //Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
-        distToTarget = SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);   //Temp, set in vision
         shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
 
@@ -350,6 +350,7 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
 
         SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
+        SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);   //Temp, set in vision
         SmartDashboard.putNumber("Shooter/Dist/Motor A FPS SP", shtrAFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor B FPS SP", shtrBFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor A RPM FB", shtrAEncoder.getSpeed());
@@ -384,6 +385,7 @@ public class Shooter {
      * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
+        // distToTarget = Drive.getDistanceFromSpeaker();
         if(!shtrTestActive){
             if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
             if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
@@ -392,7 +394,7 @@ public class Shooter {
             }else{
                 shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
             }
-            shtrBFPS_SP = 0.8 * shtrAFPS_SP;
+            shtrBFPS_SP = 1.0 * shtrAFPS_SP;
         }else{
             //Temporary testpoints.
             shotIsFar = shtrTestPitchLow;

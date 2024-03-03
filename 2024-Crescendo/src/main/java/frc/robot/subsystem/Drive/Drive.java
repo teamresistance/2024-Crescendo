@@ -39,6 +39,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.MotorPID;
@@ -81,7 +82,8 @@ public class Drive {
 
     private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0);
     private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01);
-    private static PIDController pidControllerZ = new PIDXController(0.008, 0.0, 0.0);
+    private static PIDController pidControllerZ = new PIDXController(0.004, 0.0, 0.0);
+    // private static PIDController pidControllerZ2 = new PIDXController(0.008, 0.0, 0.0);
     
     private static double dP;
     private static double dI;
@@ -116,15 +118,16 @@ public class Drive {
     private static AprilTagFieldLayout aprilTagFieldLayout;
 
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
-    private static PhotonCamera cam2 = new PhotonCamera("Arducam_OV2311_USB_Camera (1) (2)");
+    private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(-0.5, 0.3, 0.5), new Rotation3d(-15.0,15.0,10.0)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.3302, -0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,2.967)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.3302, 0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,3.31612));
 
     private static boolean followNote;
     private static boolean parkAtTarget;
     public static boolean auto;
 
-    public static double offSetX = 12.0;
+    public static double offSetX = 15.0;
     public static double offSetY = 5.0;
     public static double offSetRot = 180.0;
 
@@ -132,6 +135,8 @@ public class Drive {
 
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
+    private static PhotonPoseEstimator photonPoseEstimator2;
+    
     //Odometry
     // Creating my odometry object from the kinematics object and the initial wheel positions.
     // Here, our starting pose is 5 meters along the long end of the field and in the
@@ -147,6 +152,7 @@ public class Drive {
     // );
 
     private static final double tpf = 12.7; //ticks per foot
+    private static final Field2d m_field = new Field2d();
 
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
@@ -163,7 +169,7 @@ public class Drive {
     public static final double setPoint1X = 14.55;
     public static final double setPoint1Y = 5.25;
     public static final double setPoint2X = 14.35;
-    public static final double setPoint2Y = 6.5;
+    public static final double setPoint2Y = 8.0;
 
     //Speaker setpoint
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
@@ -226,12 +232,14 @@ public class Drive {
             //Do nothing bc this is dumb
         }
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam, robotToCam);
+        photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam2, robotToCam2);
         
         
         // Create a vector with 3 elements, all initialized to zero
         var visionMeasurementStdDevs = VecBuilder.fill(0.0, 0.0, 0.0);
         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
+        photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
     }
 
     // public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -300,18 +308,37 @@ public class Drive {
 
                 // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-                // System.out.println("Estimated pose: " + estimatedPose);
+                System.out.println("Estimated pose: " + estimatedPose);
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
 
-        
-        robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+        // var res2 = cam2.getLatestResult();
+        // if (res2.hasTargets() && photonPoseEstimator2.getReferencePose() != null){
+        //     // Store camera estimated pose, and calculated it based on current drivetrain position
+        //     var update = photonPoseEstimator2.update();
+        //     if (!update.isEmpty()){
+
+        //         var imageCaptureTime = res2.getTimestampSeconds();
+                
+        //         Pose3d estimatedPose3d = update.get().estimatedPose;
+        //         Pose2d estimatedPose = estimatedPose3d.toPose2d();
+
+        //         // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
+                
+        //         // System.out.println("Estimated pose: " + estimatedPose);
+        //         poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+        //     }
+        // }
+
+        robotToSpeaker = poseEstimator.getEstimatedPosition().getTranslation().minus(speakerPos);
+
+        // robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
         //TODO: use this angle and do stuff.
-        System.out.println(angleFromSpeaker);
+        // System.out.println(angleFromSpeaker);
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
             // Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
@@ -326,10 +353,10 @@ public class Drive {
         }
 
         
-        System.out.println(poseEstimator.getEstimatedPosition());
+        // System.out.println(poseEstimator.getEstimatedPosition());
 
         smUpdate();
-        // sdbUpdate();
+        sdbUpdate();
     }
 
     /**If wkgScale is greater then 0.0, limit mecDrv max output else 1.0. */
@@ -345,7 +372,13 @@ public class Drive {
     public static boolean isScaled() {return wkgScale > 0.0;}
 
     public static double getDistanceFromSpeaker() {
-        return Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2));
+        double feetAway = Units.metersToFeet(speakerPos.getDistance(poseEstimator.getEstimatedPosition().getTranslation())*2.89196);//
+        System.out.println(feetAway);
+        // System.out.println(poseEstimator.getEstimatedPosition());
+        return feetAway;
+        // double feetAway = Units.metersToFeet(Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2)));
+        // System.out.println(feetAway);
+        // return feetAway;
     }
 
     /**
@@ -406,13 +439,13 @@ public class Drive {
         double x = tx.getDouble(0.0);
         if (x != 0.0){
             double pidOutputZ = -pidControllerZ.calculate(0.0, x);
-            rotSpd = -pidOutputZ * _spd;
+            rotSpd = pidOutputZ * _spd;
         }
     }
 
     public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
-        double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        double pidOutputX = -pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
+        double pidOutputY = -pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         // double pidOutputZ = -pidControllerZ.calculate(navX.getYaw(), hdg);
 
         // rotSpd = -pidOutputZ * rotSpd;
@@ -579,6 +612,7 @@ public class Drive {
     /**Initialize sdb */
     private static void sdbInit() {
         //Vars for testing & tuning from sdb
+        SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumber("Drv/Test/tstDVar1", 3.0);   //tstDVar1);
         SmartDashboard.putNumber("Drv/Test/tstDVar2", 0.18);  //tstDVar2);
         SmartDashboard.putNumber("Drv/Test/tstDVar3", 2.00);  //tstDVar3);
@@ -597,6 +631,7 @@ public class Drive {
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
+        m_field.setRobotPose(poseEstimator.getEstimatedPosition());
         dP = SmartDashboard.getNumber("Drv/Test/dP", 0.2);
         dI = SmartDashboard.getNumber("Drv/Test/dI", 0.000);
         dD = SmartDashboard.getNumber("Drv/Test/dD", 0.06);

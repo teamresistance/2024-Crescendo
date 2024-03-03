@@ -92,16 +92,16 @@ public class Drv_Teleop extends Drive {
         }
         
         if (!auto){
-            if(Math.abs(jsX.getRaw()) > 0.1){
-                rlSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            if(Math.abs(jsX.getRaw()) > 0.07){
+                rlSpd = PropMath.span2(jsX.getRaw(), 0.07, 1.0, 0.0, 1.0, true, 0);
             }
             else rlSpd = 0.0;
-            if(Math.abs(jsY.getRaw()) > 0.1){
-                fwdSpd = PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+            if(Math.abs(jsY.getRaw()) > 0.07){
+                fwdSpd = PropMath.span2(jsY.getRaw(), 0.07, 1.0, 0.0, 1.0, true, 0);
             }
             else fwdSpd = 0.0;
             if(Math.abs(jsRot.getRaw()) > 0.05){
-                rotSpd = PropMath.span2(jsRot.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
+                rotSpd = PropMath.span2(jsRot.getRaw(), 0.05, 1.0, 0.0, 1.0, true, 0);
             }
             else rotSpd = 0.0;
         }
@@ -111,7 +111,7 @@ public class Drv_Teleop extends Drive {
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            goTo(setPoint1X, setPoint1Y, 180.0, 1.0, 1.0);
+            goTo(setPoint1X, setPoint1Y, 0.0, 1.0, 1.0);
         }
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is

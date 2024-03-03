@@ -98,8 +98,6 @@ public class Snorfler {
             snorflerEnable = !snorflerEnable;       // Handled in state 0
         }
         if(hasGP_FB) snorflerEnable = false;   //Already holding note
-        
-        if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
 
         if(btnSnorfleReject.isDown()) state = 10;
 
@@ -135,6 +133,7 @@ public class Snorfler {
                 if(!Shooter.isArmUp()) state++;
                 break;
             case 2: // Snorfler enabled, retriving note, Spdfwd
+                if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
                 cmdUpdate(fwdMtrPct);
                 if( hasGP_FB ) {
                     snorfRequest = RQSnorf.kNoReq;
