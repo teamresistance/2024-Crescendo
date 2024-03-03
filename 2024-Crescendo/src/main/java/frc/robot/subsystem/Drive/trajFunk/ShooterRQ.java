@@ -1,10 +1,9 @@
 package frc.robot.subsystem.Drive.trajFunk;
 
 import frc.robot.subsystem.Shooter;
-import frc.robot.subsystem.Snorfler;
 
 /**
- * This ATrajFunction controls the Snorfler.
+ * This ATrajFunction controls the Shooter.
  */
 public class ShooterRQ extends ATrajFunction {
 
@@ -13,7 +12,7 @@ public class ShooterRQ extends ATrajFunction {
 
     /**
      * Constructor
-     * @param RQShootera - request to snorf
+     * @param RQShootera - request to Shoot
      */
     public ShooterRQ(Shooter.RQShooter RQShootera) {
         rqShooter = RQShootera;
@@ -21,7 +20,7 @@ public class ShooterRQ extends ATrajFunction {
 
     public void execute() {
         switch (state) {
-        case 0: // Init Trajectory for Snorfler
+        case 0: // Init Trajectory for SHooter
             Shooter.shtrRequest = rqShooter;
             state++;
             System.out.println("Shooter - 0:");
