@@ -13,7 +13,7 @@ public class ShooterRQ extends ATrajFunction {
 
     /**
      * Constructor
-     * @param RQShooter - request to snorf
+     * @param RQShootera - request to snorf
      */
     public ShooterRQ(Shooter.RQShooter RQShootera) {
         rqShooter = RQShootera;
