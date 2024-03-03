@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import java.time.LocalDateTime;
+
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -164,6 +166,8 @@ public class Drive {
     public static final double setPoint1Y = 5.25;
     public static final double setPoint2X = 14.35;
     public static final double setPoint2Y = 6.5;
+    
+    private static Field2d m_field = new Field2d();
 
     //Speaker setpoint
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
@@ -357,7 +361,7 @@ public class Drive {
             mtr.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
         }
     }
-    /**@param fldOrnt - true set fieldOriented, false robotOriented mode */
+    /**@param hh_SP - true set fieldOriented, false robotOriented mode */
     
     public static void setHdgHold(Double hh_SP){ hdgHold_SP = hh_SP;}
     
@@ -428,7 +432,7 @@ public class Drive {
      * @param _fwdSpd - Speed command to move robot forward.
      * @param _rlSpd  - Speed command to move robot right & left.
      * @param _rotSpd - Speed command to rotate robot.
-     * @param _isFieldRelative - use fieldOriented method else robotOriented
+     * @param _isFieldOriented - use fieldOriented method else robotOriented
      * 
      */
     private static void cmdUpdate(double _fwdSpd, double _rlSpd, double _rotSpd, boolean _isFieldOriented) {
@@ -579,6 +583,7 @@ public class Drive {
     /**Initialize sdb */
     private static void sdbInit() {
         //Vars for testing & tuning from sdb
+        SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumber("Drv/Test/tstDVar1", 3.0);   //tstDVar1);
         SmartDashboard.putNumber("Drv/Test/tstDVar2", 0.18);  //tstDVar2);
         SmartDashboard.putNumber("Drv/Test/tstDVar3", 2.00);  //tstDVar3);
@@ -597,6 +602,7 @@ public class Drive {
 
     /**Update the Smartdashboard. */
     private static void sdbUpdate() {
+        m_field.setRobotPose(poseEstimator.getEstimatedPosition());
         dP = SmartDashboard.getNumber("Drv/Test/dP", 0.2);
         dI = SmartDashboard.getNumber("Drv/Test/dI", 0.000);
         dD = SmartDashboard.getNumber("Drv/Test/dD", 0.06);
