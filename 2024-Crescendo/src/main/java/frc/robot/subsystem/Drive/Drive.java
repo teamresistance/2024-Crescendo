@@ -82,8 +82,8 @@ public class Drive {
     
     //PIDS
 
-    private static PIDXController pidControllerX = new PIDXController(0.3, 0.0, 0.0);
-    private static PIDXController pidControllerY = new PIDXController(0.3, 0.0, 0.01);
+    private static PIDXController pidControllerX = new PIDXController(0.05, 0.0, 0.0);
+    private static PIDXController pidControllerY = new PIDXController(0.05, 0.0, 0.0);
     private static PIDController pidControllerZ = new PIDXController(0.004, 0.0, 0.0);
     // private static PIDController pidControllerZ2 = new PIDXController(0.008, 0.0, 0.0);
     
@@ -96,7 +96,7 @@ public class Drive {
     private static double rD;
 
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
-    public static PIDXController pidHdg = new PIDXController(1.0/80, 0.0, 0.0);     //adj rotSpd for heading
+    public static PIDXController pidHdg = new PIDXController(1.0/60, 0.0, 0.0);     //adj rotSpd for heading
 
 
     private static double[] inputs;
@@ -122,8 +122,8 @@ public class Drive {
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.3302, -0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,2.967)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.3302, 0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,3.31612));
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.3302,-0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,2.967)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(-0.3302,-0.2604,  0.3937), new Rotation3d(0.0 ,0.43633,-3.067));
 
     private static boolean followNote;
     private static boolean parkAtTarget;
@@ -168,8 +168,8 @@ public class Drive {
     );
 
     //Setpoints for alignement
-    public static final double setPoint1X = 14.55;
-    public static final double setPoint1Y = 5.25;
+    public static final double setPoint1X = 14.4;
+    public static final double setPoint1Y = 4.58;
     public static final double setPoint2X = 14.35;
     public static final double setPoint2Y = 8.0;
 
@@ -238,7 +238,7 @@ public class Drive {
         
         
         // Create a vector with 3 elements, all initialized to zero
-        var visionMeasurementStdDevs = VecBuilder.fill(0.0, 0.0, 0.0);
+        var visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
@@ -290,6 +290,8 @@ public class Drive {
 
         // // Update the drivetrain pose
 
+        poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker(), 0.1 * getDistanceFromSpeaker()));
+
         poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
@@ -315,23 +317,23 @@ public class Drive {
             }
         }
 
-        // var res2 = cam2.getLatestResult();
-        // if (res2.hasTargets() && photonPoseEstimator2.getReferencePose() != null){
-        //     // Store camera estimated pose, and calculated it based on current drivetrain position
-        //     var update = photonPoseEstimator2.update();
-        //     if (!update.isEmpty()){
+        var res2 = cam2.getLatestResult();
+        if (res2.hasTargets() && photonPoseEstimator2.getReferencePose() != null){
+            // Store camera estimated pose, and calculated it based on current drivetrain position
+            var update = photonPoseEstimator2.update();
+            if (!update.isEmpty()){
 
-        //         var imageCaptureTime = res2.getTimestampSeconds();
+                var imageCaptureTime = res2.getTimestampSeconds();
                 
-        //         Pose3d estimatedPose3d = update.get().estimatedPose;
-        //         Pose2d estimatedPose = estimatedPose3d.toPose2d();
+                Pose3d estimatedPose3d = update.get().estimatedPose;
+                Pose2d estimatedPose = estimatedPose3d.toPose2d();
 
-        //         // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
+                // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-        //         // System.out.println("Estimated pose: " + estimatedPose);
-        //         poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
-        //     }
-        // }
+                // System.out.println("Estimated pose: " + estimatedPose);
+                poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+            }
+        }
 
         robotToSpeaker = poseEstimator.getEstimatedPosition().getTranslation().minus(speakerPos);
 
@@ -374,8 +376,8 @@ public class Drive {
     public static boolean isScaled() {return wkgScale > 0.0;}
 
     public static double getDistanceFromSpeaker() {
-        double feetAway = Units.metersToFeet(speakerPos.getDistance(poseEstimator.getEstimatedPosition().getTranslation())*2.89196);//
-        System.out.println(feetAway);
+        double feetAway = Units.metersToFeet(speakerPos.getDistance(poseEstimator.getEstimatedPosition().getTranslation()));//
+        // System.out.println(feetAway);
         // System.out.println(poseEstimator.getEstimatedPosition());
         return feetAway;
         // double feetAway = Units.metersToFeet(Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2)));
@@ -446,11 +448,9 @@ public class Drive {
     }
 
     public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
-        double pidOutputX = -pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        double pidOutputY = -pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
-        // double pidOutputZ = -pidControllerZ.calculate(navX.getYaw(), hdg);
-
-        // rotSpd = -pidOutputZ * rotSpd;
+        double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
+        double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        
 
         rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
         rlSpd = pidOutputX * spd;

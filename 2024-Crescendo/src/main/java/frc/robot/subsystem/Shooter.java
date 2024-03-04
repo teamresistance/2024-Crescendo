@@ -125,8 +125,8 @@ public class Shooter {
     public static void init() {
         hdwInit();
         
-        clsDistToFPS = new double[][] {{4.8, 6.0, 7.0},{fpsMax, 48.0, 42.0}};  //Segmented Line close
-        farDistToFPS = new double[][] {{6.0, 7.0, 8.0},{fpsMax, 48.0, 42.0}};  //Segmented Line far
+        clsDistToFPS = new double[][] {{3.25, 4.25, 4.9},{fpsMax, 55.0, 37.88}};  //Segmented Line close
+        farDistToFPS = new double[][] {{4.9, 5.5, 7.25},{fpsMax, 49.83, 43.19}};  //Segmented Line far
 
         shtrAFPS_SP = 0.0;
         shtrBFPS_SP = 0.0;
@@ -267,7 +267,7 @@ public class Shooter {
             //------------- Climbing Arm MUST be down -----------------
             case 30: // Climbing.  Arm MUST be down.
                 cmdUpdate(0.0, 0.0, false, false );
-                if(shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state = 0;
+                if(shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state++;
                 break;
             //----------- snorfling need to rotate top motor slowly ----------
             case 40: // Snorfling in state 2.  Run top motor slowly forward
@@ -322,10 +322,10 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
 
-        SmartDashboard.putBoolean("Shooter/Test/Active", shtrTestActive);
-        SmartDashboard.putNumber("Shooter/Test/FPS", shtrTest_FPS);
-        SmartDashboard.putNumber("Shooter/Test/B Diff", shtrTest_BDiff);
-        SmartDashboard.putBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
+        SmartDashboard.putBoolean("Shooter/G/Active", shtrTestActive);
+        SmartDashboard.putNumber("Shooter/G/FPS", shtrTest_FPS);
+        SmartDashboard.putNumber("Shooter/G/B Diff", shtrTest_BDiff);
+        SmartDashboard.putBoolean("Shooter/G/Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
@@ -335,10 +335,10 @@ public class Shooter {
         shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
 
-        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test/Active", shtrTestActive);
-        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test/FPS", shtrTest_FPS);
-        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test/B Diff", shtrTest_BDiff);
-        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
+        shtrTestActive = SmartDashboard.getBoolean("Shooter/G/Active", shtrTestActive);
+        shtrTest_FPS = SmartDashboard.getNumber("Shooter/G/FPS", shtrTest_FPS);
+        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/G/B Diff", shtrTest_BDiff);
+        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/G/Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -385,7 +385,7 @@ public class Shooter {
      * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
-        // distToTarget = Drive.getDistanceFromSpeaker();
+        distToTarget = Drive.getDistanceFromSpeaker();
         if(!shtrTestActive){
             if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
             if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;

@@ -42,7 +42,7 @@ public class Snorfler {
     private static double fwdMtrPct = 0.85;     // Snorfling speed
     private static double rejMtrPct = 0.25;     // Reject Snorfling speed
     private static double rejMtrMnTm = 0.04;    //Min Time to run to ensure note is passed sensor
-    private static double loadMtrPct = 0.50;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
+    private static double loadMtrPct = 0.80;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double loadMtrTm = 0.6;      //Seconds Snorfler runs to load note to Shooter
     private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
     private static double pullBackPct = 0.1;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
@@ -175,16 +175,16 @@ public class Snorfler {
                 break;
             // ------ Unload Note from Shooter to Snorfler, abort Amp shot ---------
             case 30: // Shooter request to Snorfler to unload.  Backup to center of note
-                cmdUpdate(-loadMtrPct);
-                if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
+                cmdUpdate(-pullBackPct);
+                if(stateTmr.hasExpired(unloadMtrTm, state)) state++;
                 break;
             case 31: // Keep backing up until it scenes the note again
-                cmdUpdate(-loadMtrPct);
+                cmdUpdate(-pullBackPct);
                 snorfRequest = RQSnorf.kNoReq;
-                if(stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
+                if(snorfhasGP.get() || stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
             // ----------- Bad call ------------
-            default: // all off
+            default: // all off%
                 cmdUpdate(0.0);
                 System.out.println("Bad Snorfle State: " + state);
                 break;
@@ -213,9 +213,9 @@ public class Snorfler {
     /**Initialize sdb */
     public static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        SmartDashboard.putNumber("Snorf/Fwd Motor Spd", fwdMtrPct);
-        SmartDashboard.putNumber("Snorf/Rej Motor Spd", rejMtrPct);
-        SmartDashboard.putNumber("Snorf/Load Shtr Motor Spd", loadMtrPct);
+        SmartDashboard.putNumber("Snorf/Fwd Motor Pct", fwdMtrPct);
+        SmartDashboard.putNumber("Snorf/Rej Motor Pct", rejMtrPct);
+        SmartDashboard.putNumber("Snorf/Load Shtr Motor Pct", loadMtrPct);
         SmartDashboard.putNumber("Snorf/Unload Shtr Time", unloadMtrTm);
         SmartDashboard.putNumber("Snorf/Pull back Pct", pullBackPct);
         SmartDashboard.putNumber("Snorf/Pull back Time", pullbackTm);

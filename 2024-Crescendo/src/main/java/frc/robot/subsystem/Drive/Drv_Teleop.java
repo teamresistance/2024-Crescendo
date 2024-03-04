@@ -111,7 +111,7 @@ public class Drv_Teleop extends Drive {
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            goTo(setPoint1X, setPoint1Y, 0.0, 1.0, 1.0);
+            goTo(setPoint1X, setPoint1Y, 10.0, 1.0, 1.0);
         }
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is
