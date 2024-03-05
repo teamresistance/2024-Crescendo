@@ -79,6 +79,7 @@ public class Shooter {
     private static double distToTarget = 4.8;   //Used to interpoltae FPS from arrays below
     private static double[][] clsDistToFPS;     //Array for Segmented Line close
     private static double[][] farDistToFPS;     //Array for Segmented Line far
+    private static double farDistDB;            //Deadband, dist > fardistDiff[0] far shot else close shot
     private static double fpsMax = 55.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
@@ -126,6 +127,8 @@ public class Shooter {
         
         clsDistToFPS = new double[][] {{3.25, 4.25, 4.9},{fpsMax, 55.0, 37.88}};  //Segmented Line close
         farDistToFPS = new double[][] {{4.9, 5.5, 7.25},{fpsMax, 49.83, 43.19}};  //Segmented Line far
+        farDistDB = 0.15;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
+        //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true
 
         shtrAFPS_SP = 0.0;
         shtrBFPS_SP = 0.0;
@@ -319,6 +322,7 @@ public class Shooter {
         //Put stuff here on the sdb to be retrieved from the sdb later
         SmartDashboard.putNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
+        SmartDashboard.putNumber("Shooter/Dist/Far DB ", farDistDB);
 
         SmartDashboard.putBoolean("Shooter/Test Active", shtrTestActive);
         SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
@@ -331,6 +335,7 @@ public class Shooter {
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
         shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
+        farDistDB = SmartDashboard.getNumber("Shooter/Dist/Far DB ", farDistDB);
 
         shtrTestActive = SmartDashboard.getBoolean("Shooter/Test Active", shtrTestActive);
         shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
@@ -383,14 +388,17 @@ public class Shooter {
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
         distToTarget = Drive.getDistanceFromSpeaker();
         if(!shtrTestActive){
-            if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
-            if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+            // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
+            // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+            if(distToTarget - farDistToFPS[0][0] > farDistDB) shotIsFar = false;
             if(shotIsFar){
                 shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+                if(farDistToFPS[0][0] - farDistDB < distToTarget) shotIsFar = false;
             }else{
                 shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+                if(farDistToFPS[0][0] + farDistDB > distToTarget) shotIsFar = true;
             }
-            shtrBFPS_SP = 1.0 * shtrAFPS_SP;
+            shtrBFPS_SP = shtrAFPS_SP;
         }else{
             //Temporary testpoints.
             shotIsFar = shtrTestPitchLow;
