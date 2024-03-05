@@ -163,7 +163,6 @@ public class Climber {
         SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
         SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
         SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
-        SmartDashboard.putBoolean("Climber/Is Vert FB", climberVert_FB);
     }
 
     // ----------------- Shooter statuses and misc.-----------------
