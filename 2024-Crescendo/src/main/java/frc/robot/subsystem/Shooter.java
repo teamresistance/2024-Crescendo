@@ -318,14 +318,13 @@ public class Shooter {
     /**Initialize sdb */
     private static void sdbInit() {
         //Put stuff here on the sdb to be retrieved from the sdb later
-        SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);     //Temp, set in vision
         SmartDashboard.putNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
 
-        SmartDashboard.putBoolean("Shooter/G/Active", shtrTestActive);
-        SmartDashboard.putNumber("Shooter/G/FPS", shtrTest_FPS);
-        SmartDashboard.putNumber("Shooter/G/B Diff", shtrTest_BDiff);
-        SmartDashboard.putBoolean("Shooter/G/Pitch Low", shtrTestPitchLow);
+        SmartDashboard.putBoolean("Shooter/Test Active", shtrTestActive);
+        SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
+        SmartDashboard.putNumber("Shooter/Test B Diff", shtrTest_BDiff);
+        SmartDashboard.putBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
@@ -335,10 +334,10 @@ public class Shooter {
         shtrAmpLd_FPS = SmartDashboard.getNumber("Shooter/Amp Load FPS", shtrAmpLd_FPS);
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
 
-        shtrTestActive = SmartDashboard.getBoolean("Shooter/G/Active", shtrTestActive);
-        shtrTest_FPS = SmartDashboard.getNumber("Shooter/G/FPS", shtrTest_FPS);
-        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/G/B Diff", shtrTest_BDiff);
-        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/G/Pitch Low", shtrTestPitchLow);
+        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test Active", shtrTestActive);
+        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
+        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test B Diff", shtrTest_BDiff);
+        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -350,7 +349,7 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
 
         SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
-        SmartDashboard.getNumber("Shooter/Dist/dist to target", distToTarget);   //Temp, set in vision
+        SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
         SmartDashboard.putNumber("Shooter/Dist/Motor A FPS SP", shtrAFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor B FPS SP", shtrBFPS_SP);
         SmartDashboard.putNumber("Shooter/Dist/Motor A RPM FB", shtrAEncoder.getSpeed());
