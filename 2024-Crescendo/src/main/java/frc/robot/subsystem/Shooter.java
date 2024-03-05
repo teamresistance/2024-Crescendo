@@ -88,10 +88,9 @@ public class Shooter {
     private static double shtrAmpUnld_Tm = 0.12;    //Sec for Amp unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
 
-    private static boolean shtrTestActive = false;
-    private static double shtrTest_FPS = 55.0;   //For Amp load and unload
-    private static double shtrTest_BDiff = 1.0;   //For Amp load and unload
-    private static boolean shtrTestPitchLow = false;
+    private static boolean shtrTestActive = false;  // Testing values when true
+    private static double shtrTest_FPS = 55.0;      // FPS setpoint when testing is active
+    private static boolean shtrTestPitchLow = false;// Shooter pitch whenactive
 
     private static boolean armUp_FB = false;                         // arm on/off delayed status
 
@@ -323,7 +322,6 @@ public class Shooter {
 
         SmartDashboard.putBoolean("Shooter/Test Active", shtrTestActive);
         SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
-        SmartDashboard.putNumber("Shooter/Test B Diff", shtrTest_BDiff);
         SmartDashboard.putBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
     }
 
@@ -336,7 +334,6 @@ public class Shooter {
 
         shtrTestActive = SmartDashboard.getBoolean("Shooter/Test Active", shtrTestActive);
         shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
-        shtrTest_BDiff = SmartDashboard.getNumber("Shooter/Test B Diff", shtrTest_BDiff);
         shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
@@ -398,7 +395,7 @@ public class Shooter {
             //Temporary testpoints.
             shotIsFar = shtrTestPitchLow;
             shtrAFPS_SP = shtrTest_FPS;
-            shtrBFPS_SP = shtrTest_FPS * shtrTest_BDiff;
+            shtrBFPS_SP = shtrTest_FPS;
         }
     }
 
