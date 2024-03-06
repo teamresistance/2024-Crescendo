@@ -176,7 +176,7 @@ public class JS_IO {
         btnAmpShot.setButton(coJoystick, 6);    // Prep to unload into Amp
         btnShoot.setButton(coJoystick, 1);      // Shoots game piece into Speaker or Amp
         btnUnload.setButton(coJoystick, 2);     // Unloads back to Snorfler, Abort Amp shot
-        btnShtrToss.setButton(coJoystick, 11);  // Note caught, toss it.
+        btnShtrToss.setButton(coJoystick, 12);  // Note caught, toss it.
 
         //Climber Buttons
         btnClimberEna.setButton(coJoystick, 11); // climber to vertical, toggle hooks up/dn

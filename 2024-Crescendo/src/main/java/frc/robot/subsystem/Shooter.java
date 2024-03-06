@@ -279,7 +279,7 @@ public class Shooter {
                 break;
             //----------- Note caught on shooter, toss it ----------
             case 50: // Raise arm and Run bottom motor slowly forward
-                cmdUpdate(0.0, 3.0, false, true );
+                cmdUpdate(0.0, -10.0, false, true );
                 if(stateTmr.hasExpired(1.5, state)) state = 0;
                 break;
             default: // all off
