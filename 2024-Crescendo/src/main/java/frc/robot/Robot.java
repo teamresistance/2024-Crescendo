@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Climber;
+import frc.robot.subsystem.Led;
 import frc.robot.subsystem.Shooter;
 import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
@@ -39,6 +40,7 @@ public class Robot extends TimedRobot {
         Tests.chsrInit();
         JS_IO.init();
         IO.init();
+        Led.init();
         // Drive.init();
     }
 
@@ -54,6 +56,7 @@ public class Robot extends TimedRobot {
         Tests.chsrUpdate();
         JS_IO.update();
         IO.update();
+        Led.update();
     }
 
     /** This function is called once when autonomous is enabled. */
