@@ -257,7 +257,7 @@ public class Drive {
         IO.motorBackRight.getEncoder().setPosition(0.0);
         var wheelPositions = new MecanumDriveWheelPositions(
             IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
-        IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
+            IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
 
         // Get the rotation of the robot from the gyro.
         // var gyroAngle = navX.getRotation2d();
@@ -267,8 +267,8 @@ public class Drive {
             IO.kinematics, 
             navX.getInvRotation2d(), 
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
+                Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+                Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
             ),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
@@ -375,6 +375,7 @@ public class Drive {
     /**@return true wkgScale is greater then 0.0, limit mecDrv max output. */
     public static boolean isScaled() {return wkgScale > 0.0;}
 
+    /** @return distance in feet to speaker based on present position. */
     public static double getDistanceFromSpeaker() {
         double feetAway = Units.metersToFeet(speakerPos.getDistance(poseEstimator.getEstimatedPosition().getTranslation()));//
         // System.out.println(feetAway);
@@ -438,6 +439,12 @@ public class Drive {
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
 
+    /**
+     * Calculate the JS signal to apply to rotation to keep the note in the 
+     * center of view.
+     * <p>Returned in rotSpd
+     * @param _spd - max rotational speed
+     */
     public static void goToNote(double _spd){
         //Limelight stuff
         double x = tx.getDouble(0.0);
@@ -447,11 +454,20 @@ public class Drive {
         }
     }
 
+    /**
+     * Calculate the JS signals to apply for target location form present location.
+     * <p>Stored in fwdSpd, rlSpd & rotSpd.
+     * @param x - SP for desired up field loc, + is up field from blue
+     * @param y - SP for desired left/right loc, - is right from blue
+     * @param hdg - SP for desired hdgHold(?), fieldOriented?, 0 degree is blue up field
+     * @param spd - max fwd or r/l JS signal to apply
+     * @param _rotSpd - max rotational signal to apply
+     */
     public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
         double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
         double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         
-
+        // set JS signals to apply
         rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
         rlSpd = pidOutputX * spd;
         fwdSpd = pidOutputY * spd;
@@ -480,22 +496,24 @@ public class Drive {
         // System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
         if (!fieldOriented)
         {
-            //Robot
+            //Robot - apply JS signals r/l, fwd & rot to Mecanum in robot oriented.
+            //Returns motor signal array for 4 motors -1.0 to 1.0 as an array
             inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-rlSpeed, -fwdSpeed, rotSpeed);
         }
         else
         {
-            //Field
+            //Field - apply JS signals r/l, fwd & rot to Mecanum in field oriented.
+            //Returns motor signal array for 4 motors -1.0 to 1.0 as an array
             inputs = MecanumDriveCalculator.calculateMecanumDrive(-rlSpeed, -fwdSpeed, rotSpeed, navX.getAngle());
         }
     
-        
+        //Set the RPM setpoint for the 4 motors.
         frontLeftLdPID.setSetpoint(inputs[0] * maxRPM);
         motorFrontRightPID.setSetpoint(inputs[1] * maxRPM);
         backLeftLdPID.setSetpoint(inputs[2] * maxRPM);
         motorBackRightPID.setSetpoint(inputs[3] * maxRPM);
         
-        //Check if updates were made in SDB
+        //Check if updates were made in SDB -NO! update() updates the reference in the SparkFlex.
         frontLeftLdPID.update();
         backLeftLdPID.update();
         motorFrontRightPID.update();
