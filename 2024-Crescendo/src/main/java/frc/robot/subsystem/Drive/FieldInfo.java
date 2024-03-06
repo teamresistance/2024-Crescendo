@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FieldInfo {
-    // Enum of tests added to chooser.
+    // Enum of field elements added to chooser.
     public enum FLoc {
         kNone(0.0, 0.0, "kNone", "No selection"),
         kBSpkr(0.0, 18.0, "kBSpkr", "Blue Speaker"),
@@ -35,6 +35,11 @@ public class FieldInfo {
             this.X = x;  this.Y = y;  this.tag = tag;  this.desc = desc;
         }
 
+        /**
+         * 
+         * @param tag string to search for
+         * @return associated FLoc tag enum item
+         */
         public static FLoc getFLoc(String tag){
             for(FLoc loc : FLoc.values()){
                 if( loc.desc.equals(tag)) return loc;
@@ -57,13 +62,107 @@ public class FieldInfo {
         locSel = dfltTest;
         SmartDashboard.putData("Test/Choice", locChsr);  //Put it on the dashboard
         chsrUpdate();
+
+        sdbInit();
     }
 
     public static void chsrUpdate(){
         SmartDashboard.putString("Test/Chosen", locChsr.getSelected().desc);   //Put selected on sdb
         SmartDashboard.putNumber("Location/X", locChsr.getSelected().X);
         SmartDashboard.putNumber("Location/Y", locChsr.getSelected().Y);
+
+        sdbUpdate();
     }
 
+    //------------------------ Testing ----------------------------
+    private static FLoc targetLoc = FLoc.kNone;
+    private static boolean isColorRed = false;
+    private static boolean gotoCancel = false;
 
+    private static boolean gotoSpkr = false;
+    private static boolean gotoAmp = false;
+    private static boolean gotoLdSt = false;
+    private static boolean gotoCN3 = false;
+
+    private static boolean prvGotoSpkr = false;
+    private static boolean prvGotoAmp = false;
+    private static boolean prvGotoLdSt = false;
+    private static boolean prvGotoCN3 = false;
+
+    private static double targetX = 0.0;
+    private static double targetY = 0.0;
+
+    private static void sdbInit(){
+        SmartDashboard.putBoolean("Location/Go To Speaker", gotoSpkr);
+        SmartDashboard.putBoolean("Location/Go To Amp", gotoAmp);
+        SmartDashboard.putBoolean("Location/Go To Load Stat", gotoLdSt);
+        SmartDashboard.putBoolean("Location/Go To Center Note 3", gotoCN3);
+        SmartDashboard.putBoolean("Location/Go To Cancel", gotoCancel);
+    }
+    private static void sdbUpdate(){
+        gotoSpkr = SmartDashboard.getBoolean("Location/Go To Speaker", gotoSpkr);
+        gotoAmp  = SmartDashboard.getBoolean("Location/Go To Amp", gotoAmp);
+        gotoLdSt = SmartDashboard.getBoolean("Location/Go To Load Stat", gotoLdSt);
+        gotoCN3  = SmartDashboard.getBoolean("Location/Go To Center Note 3", gotoCN3);
+        gotoCancel  = SmartDashboard.getBoolean("Location/Go To Cancel", gotoCancel);
+
+        SmartDashboard.putNumber("Location/Go To X", targetLoc.X);
+        SmartDashboard.putNumber("Location/Go To Y", targetLoc.Y);
+
+        chkLocButtons();
+    }
+
+    private static void chkLocButtons(){
+        if(gotoSpkr ^ prvGotoSpkr){
+            if(gotoSpkr){
+                targetLoc = isColorRed ? FLoc.kRSpkr : FLoc.kBSpkr;
+                prvGotoSpkr = gotoSpkr;
+                if(gotoAmp) SmartDashboard.putBoolean("Location/Go To Amp", false);
+                if(gotoLdSt) SmartDashboard.putBoolean("Location/Go To Load Stat", false);
+                if(gotoCN3) SmartDashboard.putBoolean("Location/Go To Center Note 3", false);
+            }else{
+                SmartDashboard.putBoolean("Location/Go To Speaker", false);
+            }
+        }
+        if(gotoAmp ^ prvGotoAmp){
+            if(gotoAmp){
+                targetLoc = isColorRed ? FLoc.kRAmp : FLoc.kBAmp;
+                prvGotoAmp = gotoAmp;
+                if(gotoSpkr) SmartDashboard.putBoolean("Location/Go To Speaker", false);
+                if(gotoLdSt) SmartDashboard.putBoolean("Location/Go To Load Stat", false);
+                if(gotoCN3)  SmartDashboard.putBoolean("Location/Go To Center Note 3", false);
+            }else{
+                if(gotoAmp)  SmartDashboard.putBoolean("Location/Go To Amp", false);
+            }
+        }
+        if(gotoLdSt && !prvGotoLdSt){
+            if(gotoLdSt){
+                targetLoc = isColorRed ? FLoc.kRLdSt : FLoc.kBLdSt;
+                prvGotoLdSt = gotoLdSt;
+                if(gotoSpkr) SmartDashboard.putBoolean("Location/Go To Speaker", false);
+                if(gotoAmp)  SmartDashboard.putBoolean("Location/Go To Amp", false);
+                if(gotoCN3)  SmartDashboard.putBoolean("Location/Go To Center Note 3", false);
+            }else{
+                if(gotoLdSt) SmartDashboard.putBoolean("Location/Go To Load Stat", false);
+            }
+        }
+        if(gotoCN3 && !prvGotoCN3){
+            if(gotoCN3){
+                targetLoc = FLoc.kCN3;
+                prvGotoCN3 = gotoCN3;
+                if(gotoSpkr) SmartDashboard.putBoolean("Location/Go To Speaker", false);
+                if(gotoAmp)  SmartDashboard.putBoolean("Location/Go To Amp", false);
+                if(gotoLdSt) SmartDashboard.putBoolean("Location/Go To Load Stat", false);
+            }else{
+                if(gotoCN3)  SmartDashboard.putBoolean("Location/Go To Center Note 3", false);
+            }
+        }
+        if(gotoCancel){
+            SmartDashboard.putBoolean("Location/Go To Speaker", false);
+            SmartDashboard.putBoolean("Location/Go To Amp", false);
+            SmartDashboard.putBoolean("Location/Go To Load Stat", false);
+            SmartDashboard.putBoolean("Location/Go To Center Note 3", false);
+            SmartDashboard.putBoolean("Location/Go To Cancel", false);
+        }
+    }
 }

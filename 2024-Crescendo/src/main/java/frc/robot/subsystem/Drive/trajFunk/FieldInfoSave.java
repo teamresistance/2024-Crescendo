@@ -3,7 +3,7 @@ package frc.robot.subsystem.Drive.trajFunk;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class FieldInfo {
+public class FieldInfoSave {
     public enum FLoc {
         kNone(0.0, 0.0, "NONE", "None Slected"),    //No loc selected
 
