@@ -68,6 +68,7 @@ public class Shooter {
     //                                                      //Also raises & lowers Arm
     private static Button btnShoot = JS_IO.btnShoot;        //Shoot Note to Spaeker or Amp
     private static Button btnUnload = JS_IO.btnUnload;      //Unload Shooter. Note to Snorfler
+    private static Button btnTossIt = JS_IO.btnShtrToss;    //Note caught on shooter, toss it
 
     // variables:
     private static int state; // state machine
@@ -192,6 +193,7 @@ public class Shooter {
                 if(btnSpkrShot.onButtonPressed()) state = 1;    // 1st press, Speaker prep
                 if(btnAmpShot.onButtonPressed()) state = 10;    // 1st press, Amp prep
                 if(shtrRequest != RQShooter.kNoReq) state = shtrRequest == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
+                if(btnTossIt.onButtonPressed()) state = 50;
                 break;
             //---------- Shoot at Speaker  ---------------
             case 1: // Get shooters up to speed for Speaker shot
@@ -274,6 +276,11 @@ public class Shooter {
             //----------- snorfling need to rotate top motor slowly ----------
             case 40: // Snorfling in state 2.  Run top motor slowly forward
                 cmdUpdate(2.5, 0.0, false, false );
+                break;
+            //----------- Note caught on shooter, toss it ----------
+            case 50: // Raise arm and Run bottom motor slowly forward
+                cmdUpdate(0.0, 3.0, false, true );
+                if(stateTmr.hasExpired(1.5, state)) state = 0;
                 break;
             default: // all off
                 cmdUpdate(0.0, 0.0, false, false);
