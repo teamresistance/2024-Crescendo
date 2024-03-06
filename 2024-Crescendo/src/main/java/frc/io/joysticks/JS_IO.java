@@ -69,7 +69,7 @@ public class JS_IO {
     public static Button btnAmpShot = new Button();     // Prep for Amp shot, Note to shooter
     public static Button btnShoot = new Button();       // Shoot Note, Amp or Speaker
     public static Button btnUnload = new Button();      // Unload Note back to Snorfler, Abort Amp Shot
-    
+    public static Button btnShtrToss = new Button();    // Note caught on Shooter, toss it.
     //Climber
     public static Button btnClimberEna = new Button();  // Climber to Vertical & raise hooks
 
@@ -176,6 +176,7 @@ public class JS_IO {
         btnAmpShot.setButton(coJoystick, 6);    // Prep to unload into Amp
         btnShoot.setButton(coJoystick, 1);      // Shoots game piece into Speaker or Amp
         btnUnload.setButton(coJoystick, 2);     // Unloads back to Snorfler, Abort Amp shot
+        btnShtrToss.setButton(coJoystick, 11);  // Note caught, toss it.
 
         //Climber Buttons
         btnClimberEna.setButton(coJoystick, 11); // climber to vertical, toggle hooks up/dn
@@ -286,6 +287,7 @@ public class JS_IO {
         btnAmpShot.setButton();
         btnShoot.setButton();
         btnUnload.setButton();
+        btnShtrToss.setButton();  // Note caught, toss it.
 
         //Climber Buttons
         btnClimberEna.setButton();

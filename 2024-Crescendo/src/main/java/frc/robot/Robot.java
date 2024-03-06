@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Climber;
-import frc.robot.subsystem.Led;
 import frc.robot.subsystem.Shooter;
 import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
+import frc.robot.subsystem.Drive.FieldInfo;
 import frc.robot.subsystem.tests.TestHdw;
 import frc.robot.subsystem.tests.TestMtrFPS;
 import frc.robot.subsystem.tests.TestMtrPct;
@@ -37,11 +37,11 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        FieldInfo.chsrInit();
         Tests.chsrInit();
         JS_IO.init();
         IO.init();
-        Led.init();
-        // Drive.init();
+        Drive.init();
     }
 
     /**
@@ -53,18 +53,17 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+        FieldInfo.chsrUpdate();
         Tests.chsrUpdate();
         JS_IO.update();
         IO.update();
-        Led.update();
+        Drive.update();
     }
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
         IO.navX.reset();
-        Drive.init();
-        Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();
     }
@@ -72,8 +71,6 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
-        Drive.update();
-        Drv_Teleop.update();
         Snorfler.update();
         Shooter.update();
     }
@@ -83,7 +80,6 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         Climber.init();
         IO.navX.reset();
-        Drive.init();
         Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();
@@ -92,7 +88,6 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        Drive.update();
         Drv_Teleop.update();
 
         Snorfler.update();
