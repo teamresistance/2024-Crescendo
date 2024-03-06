@@ -13,6 +13,7 @@ import frc.robot.subsystem.Shooter;
 import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Teleop;
+import frc.robot.subsystem.Drive.trajFunk.FieldInfo;
 import frc.robot.subsystem.tests.TestHdw;
 import frc.robot.subsystem.tests.TestMtrFPS;
 import frc.robot.subsystem.tests.TestMtrPct;
@@ -36,6 +37,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        FieldInfo.chsrInit();
         Tests.chsrInit();
         JS_IO.init();
         IO.init();
@@ -51,6 +53,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
+        FieldInfo.chsrUpdate();
         Tests.chsrUpdate();
         JS_IO.update();
         IO.update();
