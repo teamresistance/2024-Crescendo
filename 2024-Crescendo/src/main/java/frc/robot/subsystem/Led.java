@@ -40,6 +40,8 @@ public class Led {
     private static int snorfleStrobeCount;
     private static int shooterHue;
 
+    private static double fraction;
+
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
      * Robot.java
@@ -109,7 +111,8 @@ public class Led {
         // isn't confusion with other state based variables in this subsystem
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
-                cmdUpdate(COLOR_TRGREEN);
+                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LEDOFF, fraction));
+                fraction += 0.01;
                 break;
             case 1: //Snorfle looking for ring
                 snorfleStrobeCount = 0;
@@ -231,6 +234,23 @@ public class Led {
         }
 
         ledStrip.setData(ledBuffer);
+    }
+
+    // Interpolate between two RGB colors
+    public static Color interpolate(Color color1, Color color2, double fraction) {
+        double r1 = color1.red;
+        double g1 = color1.green;
+        double b1 = color1.blue;
+
+        double r2 = color2.red;
+        double g2 = color2.green;
+        double b2 = color2.blue;
+
+        double interpolatedRed = (double) ((r2 - r1) * fraction + r1);
+        double interpolatedGreen = (double) ((g2 - g1) * fraction + g1);
+        double interpolatedBlue = (double) ((b2 - b1) * fraction + b1);
+
+        return new Color(interpolatedRed, interpolatedGreen, interpolatedBlue);
     }
 
     private static int chasingLightsTracker = 0;
