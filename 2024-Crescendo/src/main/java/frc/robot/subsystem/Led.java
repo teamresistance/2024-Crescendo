@@ -171,7 +171,9 @@ public class Led {
         if(Shooter.getState() == 10) {
             normalState = 4; //Set to amp shot (red)
         }
-
+        if(Snorfler.getState() == 10 || Snorfler.getState() == 11) {
+            normalState = 5; //Set to snorfler reject
+        }
         if(Snorfler.getState() == 1 || Snorfler.getState() == 2) {
             normalState = 1; //Set to snorfler lights (solid orange)
             return;

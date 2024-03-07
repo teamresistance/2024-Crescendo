@@ -106,7 +106,7 @@ public class Climber {
                 break;
             case 2: // Raise Climber to vertical and wait
                 cmdUpdate(false, true);
-                if(stateTmr.hasExpired(0.5, state)) state++;
+                if(stateTmr.hasExpired(2.0, state)) state++;
                 break;
             case 3: // Extends the dual solenoids vertically
                 cmdUpdate(true, false);

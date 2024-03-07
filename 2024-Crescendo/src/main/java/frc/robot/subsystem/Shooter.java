@@ -85,7 +85,7 @@ public class Shooter {
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
     private static double shtrAmpLd_FPS = 26.0;     //FPS for Amp load
-    private static double shtrAmpLd_Tm = 0.14;      //Sec for Amp load
+    private static double shtrAmpLd_Tm = 0.12;      //Sec for Amp load
     private static double shtrAmpUnld_FPS = 22.0;   //FPS for Amp unload
     private static double shtrAmpUnld_Tm = 0.12;    //Sec for Amp unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()

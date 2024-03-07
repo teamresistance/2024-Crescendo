@@ -441,7 +441,7 @@ public class Drive {
         //Limelight stuff
         double x = tx.getDouble(0.0);
         if (x != 0.0){
-            double pidOutputZ = -pidControllerZ.calculate(0.0, x);
+            double pidOutputZ = pidControllerZ.calculate(0.0, x);
             rotSpd = pidOutputZ * _spd;
         }
     }
