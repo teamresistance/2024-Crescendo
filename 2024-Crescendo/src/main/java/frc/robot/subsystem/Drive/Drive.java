@@ -175,7 +175,7 @@ public class Drive {
 
     //Speaker setpoint
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
-
+    public static Rotation2d angleFromSpeaker;
 
     public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
     public static void hdgRst() { IO.navX.reset(); }
@@ -339,21 +339,13 @@ public class Drive {
 
         // robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
-        Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
+        angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
         //TODO: use this angle and do stuff.
         // System.out.println(angleFromSpeaker);
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
-            // Translation2d robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
-            // Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
-            // Rotation2d angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
-
-            //TODO: use this angle and do stuff.
-            // System.out.println(angleFromSpeaker);
-            
-            double pidOutputZ = pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
-            rotSpd = -pidOutputZ;
+            aimAtSpeaker();
         }
 
         
@@ -471,6 +463,11 @@ public class Drive {
         rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
         rlSpd = pidOutputX * spd;
         fwdSpd = pidOutputY * spd;
+    }
+
+    public static void aimAtSpeaker(){
+        double pidOutputZ = pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
+        rotSpd = -pidOutputZ;
     }
 
     /**
