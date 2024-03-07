@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
 import frc.io.joysticks.JS_IO;
 import frc.robot.subsystem.Climber;
+import frc.robot.subsystem.Led;
 import frc.robot.subsystem.Shooter;
 import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        Led.init();
         FieldInfo.chsrInit();
         Tests.chsrInit();
         JS_IO.init();
@@ -73,6 +75,7 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         Snorfler.update();
         Shooter.update();
+        Led.update();
     }
 
     /** This function is called once when teleop is enabled. */
@@ -93,6 +96,7 @@ public class Robot extends TimedRobot {
         Snorfler.update();
         Shooter.update();
         Climber.update();
+        Led.update();
     }
 
     /** This function is called once when the robot is disabled. */
@@ -103,11 +107,13 @@ public class Robot extends TimedRobot {
     /** This function is called periodically when disabled. */
     @Override
     public void disabledPeriodic() {
+        Led.rainbowUpdate();
     }
 
     /** This function is called once when test mode is enabled. */
     @Override
     public void testInit() {
+        // Led.setState(1);
         TestHdw.init();
         TestMtrPct.init();
         TestMtrFPS.init();
@@ -117,6 +123,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+        Led.update();
         Tests.update();
         // If test selected has changed, intialize all test, turn off everything.
         if(prvTest != Tests.getTestSelected()){
