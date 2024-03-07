@@ -34,7 +34,7 @@ public abstract class ATrajFunction {
     public static void resetDist() {IO.coorXY.reset();}
     public static void setHdgHold(Double hdg) {Drive.setHdgHold(hdg);}
 
-    public static double[] trajCmd = new double[2];
+    public static double[] trajCmd = new double[3];
     // public static boolean isFeildRel = false;
 
     public static Timer trajTmr = new Timer(0.1);

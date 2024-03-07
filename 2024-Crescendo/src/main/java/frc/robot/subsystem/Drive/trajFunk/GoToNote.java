@@ -1,7 +1,9 @@
 package frc.robot.subsystem.Drive.trajFunk;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
+import frc.robot.subsystem.Drive.Drive2;
 import frc.util.Timer;
 
 /**
@@ -35,22 +37,28 @@ public class GoToNote extends ATrajFunction {
         case 0: // Initialize
             delayTimer.clearTimer();
             state++;
-            // System.out.println("Delay - 0: ---------- Init -----------");
+            System.out.println("GotoNote - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            sendDriveCmds(0.0, -0.3, 0.0, false);
-            Drive.goToNote(spd);
-            if(delayTimer.hasExpired(timeDelay, true)) state++;
+            if(Drive2.goToNote(spd, trajCmd)) state++;
+            sendDriveCmds(0.0, -0.3, trajCmd[2], false);
+            // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            // System.out.println("Delay - 1: ---------- Waiting -----------");
+            // System.out.println("GotoNote - 1: ---------- Moving on note -----------");
             break;
-        case 2:
+        case 2: //Contine to move forward slowly for max time or until we have note.
+            sendDriveCmds(0.0, -0.3, 0.0, false);
+            if((delayTimer.hasExpired(timeDelay, true) || Snorfler.hasGP_FB)) state++;
             setDone();
-            System.out.println("Delay - 2: ---------- Done -----------");
+            System.out.println("GotoNote - 2: ---------- Get Note -----------");
+            break;
+        case 3:
+            setDone();
+            System.out.println("GotoNote - 3: ---------- Done -----------");
             break;
         default:
             setDone();
-            System.out.println("Time Delay - Dflt: ------  Bad state  ----");
+            System.out.println("GotoNote - Dflt: ------  Bad state  ----");
             break;
         }
     }

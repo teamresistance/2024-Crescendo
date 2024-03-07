@@ -2,6 +2,7 @@ package frc.robot.subsystem.Drive.trajFunk;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystem.Drive.Drive;
+import frc.robot.subsystem.Drive.Drive2;
 import frc.util.Timer;
 
 /**
@@ -35,21 +36,24 @@ public class GoToTarget extends ATrajFunction {
         case 0: // Initialize
             delayTimer.clearTimer();
             state++;
-            System.out.println("Target - 0: ---------- Init -----------");
+            System.out.println("Goto - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            Drive.goTo(x, y, hdg, spd, rotSpd);
-            if(delayTimer.hasExpired(timeDelay, true)) state++;
+            // Drive.goTo(x, y, hdg, spd, rotSpd);
+            // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            System.out.println("Target - 1: ---------- Waiting -----------");
+            if(Drive2.goTo(x, y, hdg, trajCmd)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            sendDriveCmds(trajCmd[0], trajCmd[1], trajCmd[2], false);  //fwdSpd, rlSpd & rotSpd set in goto()
+            
+            System.out.println("Goto - 1: ---------- Going to [" + x + ", " + y + "] -----------");
             break;
         case 2:
             setDone();
-            System.out.println("Target - 2: ---------- Done -----------");
+            System.out.println("Goto - 2: ---------- Done -----------");
             break;
         default:
             setDone();
-            System.out.println("Time Delay - Dflt: ------  Bad state  ----");
+            System.out.println("Goto - Dflt: ------  Bad state  ----");
             break;
         }
     }
