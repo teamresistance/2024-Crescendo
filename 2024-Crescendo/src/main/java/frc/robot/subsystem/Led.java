@@ -11,12 +11,16 @@ import frc.util.Timer;
 import java.awt.*;
 
 /**
- * Enter a description of this subsystem.
+ * Subsystem class that controls the LEDs on the back of the robot.
+ * Due to how this class is put together, changes to the case numbering in the state machines of
+ * other subsystems will be likely to break this one.
  */
 public class Led {
     // hdw defintions:
     private static AddressableLED ledStrip;
     private static AddressableLEDBuffer ledBuffer;
+
+    // Color definitions
     private static final Color COLOR_TRGREEN = new Color(0, 255, 0);
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
     private static final Color COLOR_LEDSOFF = new Color(0, 0, 0);
@@ -112,7 +116,7 @@ public class Led {
                     if(snorfleStrobeCount % 2 == 0) {
                         cmdUpdate(0, COLOR_LEDSOFF);
                     } else {
-                        cmdUpdate(0, COLOR_SNORFLE);
+                        cmdUpdate(0, COLOR_TRGREEN);
                     }
 
                     snorfleStrobeCount++;
