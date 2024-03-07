@@ -273,10 +273,10 @@ public class Led {
                 chasingLights(new Color(255, 0, 0), 0);
                 chasingLights(new Color(0, 0, 255), 3);
 
-                chasingLights(COLOR_LEDOFF, 1);
-                chasingLights(COLOR_LEDOFF, 2);
-                chasingLights(COLOR_LEDOFF, 4);
-                chasingLights(COLOR_LEDOFF, 5);
+                chasingLights(Color.kWhite, 1);
+                chasingLights(Color.kWhite, 2);
+                chasingLights(Color.kWhite, 4);
+                chasingLights(Color.kWhite, 5);
 
                 chasingLightsTracker++;
             }
