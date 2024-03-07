@@ -136,7 +136,7 @@ public class Led {
 
                 int[] rgbValues = hsvToRgb(new float[]{(float)shooterHue, 1.0f, 1.0f});
 
-                cmdUpdate(0, new Color(rgbValues[0], rgbValues[1], rgbValues[2]));\
+                cmdUpdate(0, new Color(rgbValues[0], rgbValues[1], rgbValues[2]));
                 break;
             case 4: //Amp Shoot
 
