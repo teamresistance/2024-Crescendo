@@ -254,6 +254,10 @@ public class Snorfler {
         hasGP_FB = false;
     }
 
+    public static boolean hasGP() {
+        return hasGP_FB;
+    }
+
     /**
      * A onPress is held by the hardware until read.  If pressed before needed
      * code executes immediately.  Clear the onPress until expected onPress.

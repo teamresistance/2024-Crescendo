@@ -23,6 +23,8 @@ public class Led {
     // Color definitions
     private static final Color COLOR_TRGREEN = new Color(0, 255, 0);
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
+    private static final Color COLOR_SNORFLEREJECT = new Color(0, 210, 255);
+    private static final Color COLOR_AMPSHOT = new Color(255, 0, 0);
     private static final Color COLOR_LEDSOFF = new Color(0, 0, 0);
 
     // variables:
@@ -126,6 +128,7 @@ public class Led {
             case 3: //Speaker Shoot (rainbow)
                 if(Shooter.getState() >= 5) {
                     normalState = 0; //Go back to` default
+                    break;
                 }
 
                 shooterHue += 6;
@@ -139,7 +142,22 @@ public class Led {
                 cmdUpdate(0, new Color(rgbValues[0], rgbValues[1], rgbValues[2]));
                 break;
             case 4: //Amp Shoot
-
+                if(Shooter.getState() == 16 || Shooter.getState() < 10) {
+                    normalState = 0;
+                    break;
+                }
+                cmdUpdate(0, COLOR_AMPSHOT);
+                break;
+            case 5: //Snorfler reject (it's case 5 because it was added after everything else ok)
+                if(Snorfler.hasGP()) {
+                    normalState = 0;
+                    break;
+                }
+                cmdUpdate(0, COLOR_SNORFLEREJECT);
+                break;
+            default:
+                cmdUpdate(0, COLOR_LEDSOFF);
+                System.out.println("Unexpected state in LED smUpdate()");
                 break;
         }
     }
@@ -149,6 +167,9 @@ public class Led {
         //It should prioritize that rather than anything else, right?
         if(Shooter.getState() == 1 || Shooter.getState() == 2) {
             normalState = 3; //Set to speaker shot lights (rainbow)
+        }
+        if(Shooter.getState() == 10) {
+            normalState = 4; //Set to amp shot (red)
         }
 
         if(Snorfler.getState() == 1 || Snorfler.getState() == 2) {
