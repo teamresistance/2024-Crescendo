@@ -37,10 +37,11 @@ public class Led {
 
     private static int normalState;
     private static Timer snorfleStrobeTimer = new Timer(0.05);
-    private static int snorfleStrobeCount;
+    private static int snorfleStrobeCounter;
+    private static boolean snorfleStrobeIncrease;
     private static int shooterHue;
 
-    private static double fraction;
+    private static double snorfleStrobeTracker;
 
     private static boolean disabledAnimationTracker = false;
     private static double disabledInterpolateTracker = 0;
@@ -65,8 +66,11 @@ public class Led {
         rainbowIncreaseState = true;
         prevRainbowIncreaseState = rainbowIncreaseState;
 
+        snorfleStrobeCounter = 0;
+        snorfleStrobeIncrease = true;
+
         normalState = 0;
-        snorfleStrobeCount = 0;
+        snorfleStrobeCounter = 0;
 
         ledStrip = new AddressableLED(9); // Replace 9 with your PWM port
         ledBuffer = new AddressableLEDBuffer(28); // Match your LED count
@@ -118,32 +122,55 @@ public class Led {
         // isn't confusion with other state based variables in this subsystem
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
-                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LEDOFF, fraction));
-                fraction += 0.01;
+                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LEDOFF, snorfleStrobeTracker));
+                snorfleStrobeTracker += 0.01;
                 break;
             case 1: //Snorfle looking for ring
-                snorfleStrobeCount = 0;
+                snorfleStrobeCounter = 0;
                 cmdUpdate(COLOR_SNORFLE);
-                if(Snorfler.getState() == 4) normalState++; //if ring is seen, go to state 2
+                if(Snorfler.getState() == 4) {
+                    normalState++; //if ring is seen, go to state 2
+                    snorfleStrobeTimer.startTimer(3.0);
+                    snorfleStrobeTracker = 0;
+                }
                 break;
             case 2: //Snorfle blink green total of 9 times on and off
                 // Note: If you're paying attention, if shooting is started before blinking is done
                 //       the state machine may suddenly switch cases, this is intended and preferred
                 //       behavior, and this is designed to handle it
-                if(snorfleStrobeCount >= 16) {
+
+                // if(snorfleStrobeCount >= 16) {
+                //     normalState = 0;
+                //     break;
+                // }
+                
+                // if(snorfleStrobeTimer.hasExpired(0.1, snorfleStrobeCount)) {
+                //     if(snorfleStrobeCount % 2 == 0) {
+                //         cmdUpdate(COLOR_LEDOFF);
+                //     } else {
+                //         cmdUpdate(COLOR_TRGREEN);
+                //     }
+
+                //     snorfleStrobeCount++;
+                // }
+
+                if(snorfleStrobeTimer.hasExpired()) {
                     normalState = 0;
                     break;
                 }
                 
-                if(snorfleStrobeTimer.hasExpired(0.1, snorfleStrobeCount)) {
-                    if(snorfleStrobeCount % 2 == 0) {
-                        cmdUpdate(COLOR_LEDOFF);
-                    } else {
-                        cmdUpdate(COLOR_TRGREEN);
-                    }
-
-                    snorfleStrobeCount++;
+                if(snorfleStrobeTracker > 1.0 || snorfleStrobeTracker < 0) {
+                    snorfleStrobeIncrease = !snorfleStrobeIncrease;
                 }
+
+                if(snorfleStrobeIncrease) {
+                    snorfleStrobeTracker += 0.12;
+                } else {
+                    snorfleStrobeTracker -= 0.12;
+                }
+
+                cmdUpdate(interpolate(COLOR_LEDOFF, COLOR_TRGREEN, snorfleStrobeTracker));
+                
 
                 break;
             case 3: //Speaker Shoot (rainbow)
@@ -218,18 +245,20 @@ public class Led {
         } else {
             if(disabledAnimationTracker) {
                 if(disabledInterpolateIncrease) {
-                    disabledInterpolateTracker += 0.02;
+                    disabledInterpolateTracker += 0.045;
                 } else {
-                    disabledInterpolateTracker -= 0.02;
+                    disabledInterpolateTracker -= 0.045;
                 }
 
                 if(disabledInterpolateTracker > 1.0 || disabledInterpolateTracker < 0.0) {
                     disabledInterpolateIncrease = !disabledInterpolateIncrease;
                 }
 
-                interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker);
+                cmdUpdate(interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker));
             } else {
-                chasingLights(COLOR_TRGREEN);
+                chasingLights(new Color(255, 0, 0), 0);
+                chasingLights(new Color(0, 0, 255), 3);
+
             }
         }
     }
@@ -283,34 +312,32 @@ public class Led {
 
     private static void chasingLights(Color c) {
         if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
-            if(chasingLightsTracker >= 4) {
+            if(chasingLightsTracker >= 6) {
                 chasingLightsTracker = 0;
             }
             for(int i = 0; i < ledBuffer.getLength(); i++) {
-                if((i + chasingLightsTracker) % 4 == 0) {
-                    ledBuffer.setLED(i, COLOR_TRGREEN);
+                if((i + chasingLightsTracker) % 6 == 0) {
+                    ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
                 } else {
-                    ledBuffer.setLED(i, COLOR_LEDOFF);
+                    ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
                 }
             }
 
             chasingLightsTracker++;
+
+            ledStrip.setData(ledBuffer);
         }
     }
 
     private static void chasingLights(Color c, int offset) {
-            if(chasingLightsTracker >= 4) {
+            if(chasingLightsTracker >= 6) {
                 chasingLightsTracker = 0;
             }
             for(int i = 0; i < ledBuffer.getLength(); i++) {
-                if((i + chasingLightsTracker + offset) % 4 == 0) {
-                    ledBuffer.setLED(i, COLOR_TRGREEN);
-                } else {
-                    ledBuffer.setLED(i, COLOR_LEDOFF);
+                if((i + chasingLightsTracker + offset) % 6 == 0) {
+                    ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
                 }
             }
-
-            chasingLightsTracker++;
     }
 
     
