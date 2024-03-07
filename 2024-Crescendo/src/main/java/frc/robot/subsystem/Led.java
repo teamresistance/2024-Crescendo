@@ -278,6 +278,7 @@ public class Led {
                 chasingLights(Color.kWhite, 4);
                 chasingLights(Color.kWhite, 5);
 
+                ledStrip.setData(ledBuffer);
                 chasingLightsTracker++;
             }
         }
@@ -358,8 +359,6 @@ public class Led {
                 ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
             }
         }
-
-        ledStrip.setData(ledBuffer);
     }
 
     
