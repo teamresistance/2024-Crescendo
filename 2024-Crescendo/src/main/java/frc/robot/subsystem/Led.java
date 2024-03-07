@@ -33,7 +33,7 @@ public class Led {
     private static int normalState;
     private static Timer snorfleStrobeTimer = new Timer(0.05);
     private static int snorfleStrobeCount;
-    
+    private static int shooterHue;
 
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
@@ -123,10 +123,22 @@ public class Led {
                 }
 
                 break;
-            case 3:
+            case 3: //Speaker Shoot (rainbow)
+                if(Shooter.getState() >= 5) {
+                    normalState = 0; //Go back to` default
+                }
 
+                shooterHue += 6;
+
+                if(shooterHue >= 360) {
+                    shooterHue = 0;
+                }
+
+                int[] rgbValues = hsvToRgb(new float[]{(float)shooterHue, 1.0f, 1.0f});
+
+                cmdUpdate(0, new Color(rgbValues[0], rgbValues[1], rgbValues[2]));\
                 break;
-            case 4:
+            case 4: //Amp Shoot
 
                 break;
         }
@@ -135,7 +147,9 @@ public class Led {
     private static void smStateSetter() {
         //Higher up in this list means higher priority light, if they try to shoot
         //It should prioritize that rather than anything else, right?
-
+        if(Shooter.getState() == 1 || Shooter.getState() == 2) {
+            normalState = 3; //Set to speaker shot lights (rainbow)
+        }
 
         if(Snorfler.getState() == 1 || Snorfler.getState() == 2) {
             normalState = 1; //Set to snorfler lights (solid orange)
