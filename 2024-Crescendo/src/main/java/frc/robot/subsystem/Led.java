@@ -42,6 +42,13 @@ public class Led {
 
     private static double fraction;
 
+    private static boolean disabledAnimationTracker = false;
+    private static double disabledInterpolateTracker = 0;
+    private static boolean disabledInterpolateIncrease = true;
+
+    private static int chasingLightsTracker = 0;
+    private static Timer chasingLightsTimer = new Timer(0.02);
+
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
      * Robot.java
@@ -199,12 +206,31 @@ public class Led {
         }
     }
 
+
+
     public static void disabledUpdate() {
         if(disabledUpdateTimer.hasExpired(10.0, prevRainbowIncreaseState)) {
             rainbowUpdate();
+            if(prevRainbowIncreaseState != rainbowIncreaseState) {
+                disabledAnimationTracker = !disabledAnimationTracker;
+            }
             prevRainbowIncreaseState = rainbowIncreaseState;
         } else {
-            chasingLights(COLOR_TRGREEN);
+            if(disabledAnimationTracker) {
+                if(disabledInterpolateIncrease) {
+                    disabledInterpolateTracker += 0.02;
+                } else {
+                    disabledInterpolateTracker -= 0.02;
+                }
+
+                if(disabledInterpolateTracker > 1.0 || disabledInterpolateTracker < 0.0) {
+                    disabledInterpolateIncrease = !disabledInterpolateIncrease;
+                }
+
+                interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker);
+            } else {
+                chasingLights(COLOR_TRGREEN);
+            }
         }
     }
 
@@ -253,8 +279,7 @@ public class Led {
         return new Color(interpolatedRed, interpolatedGreen, interpolatedBlue);
     }
 
-    private static int chasingLightsTracker = 0;
-    private static Timer chasingLightsTimer = new Timer(0.02);
+
 
     private static void chasingLights(Color c) {
         if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
