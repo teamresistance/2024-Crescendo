@@ -22,6 +22,7 @@ public class Led {
 
     // Color definitions
     private static final Color COLOR_TRGREEN = new Color(0, 255, 0);
+    private static final Color COLOR_LIGHTERGREEN = new Color(135, 255, 10);
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
     private static final Color COLOR_SNORFLEREJECT = new Color(255, 0, 0);
     private static final Color COLOR_AMPSHOT = new Color(0, 210, 255);
@@ -37,7 +38,7 @@ public class Led {
 
     private static int normalState;
     private static Timer snorfleStrobeTimer = new Timer(0.05);
-    private static int snorfleStrobeCounter;
+    // private static int snorfleStrobeCounter;
     private static boolean snorfleStrobeIncrease;
     private static int shooterHue;
 
@@ -47,8 +48,10 @@ public class Led {
     private static double disabledInterpolateTracker = 0;
     private static boolean disabledInterpolateIncrease = true;
 
-    private static int chasingLightsTracker = 0;
+    private static int chasingLightsTracker;
     private static Timer chasingLightsTimer = new Timer(0.02);
+
+    private static double defaultTracker;
 
     /**
      * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in
@@ -66,11 +69,10 @@ public class Led {
         rainbowIncreaseState = true;
         prevRainbowIncreaseState = rainbowIncreaseState;
 
-        snorfleStrobeCounter = 0;
+        // snorfleStrobeCounter = 0;
         snorfleStrobeIncrease = true;
 
         normalState = 0;
-        snorfleStrobeCounter = 0;
 
         ledStrip = new AddressableLED(9); // Replace 9 with your PWM port
         ledBuffer = new AddressableLEDBuffer(28); // Match your LED count
@@ -82,6 +84,10 @@ public class Led {
         ledStrip.start();
         
         rainbowState = 0;
+
+        chasingLightsTracker = 0;
+
+        defaultTracker = 0;
     }
 
     /**
@@ -122,16 +128,24 @@ public class Led {
         // isn't confusion with other state based variables in this subsystem
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
-                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LEDOFF, snorfleStrobeTracker));
-                snorfleStrobeTracker += 0.01;
+                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LIGHTERGREEN, defaultTracker));
+                defaultTracker += 0.02;
+                if(defaultTracker > 1.0) {
+                    defaultTracker = 0;
+                }
                 break;
             case 1: //Snorfle looking for ring
-                snorfleStrobeCounter = 0;
+                // snorfleStrobeCounter = 0;
+                if(Snorfler.getState() == 0) {
+                    normalState = 0;
+                    break;
+                }
                 cmdUpdate(COLOR_SNORFLE);
                 if(Snorfler.getState() == 4) {
                     normalState++; //if ring is seen, go to state 2
                     snorfleStrobeTimer.startTimer(3.0);
                     snorfleStrobeTracker = 0;
+                    snorfleStrobeIncrease = true;
                 }
                 break;
             case 2: //Snorfle blink green total of 9 times on and off
@@ -259,6 +273,12 @@ public class Led {
                 chasingLights(new Color(255, 0, 0), 0);
                 chasingLights(new Color(0, 0, 255), 3);
 
+                chasingLights(COLOR_LEDOFF, 1);
+                chasingLights(COLOR_LEDOFF, 2);
+                chasingLights(COLOR_LEDOFF, 4);
+                chasingLights(COLOR_LEDOFF, 5);
+
+                chasingLightsTracker++;
             }
         }
     }
@@ -330,14 +350,16 @@ public class Led {
     }
 
     private static void chasingLights(Color c, int offset) {
-            if(chasingLightsTracker >= 6) {
-                chasingLightsTracker = 0;
+        if(chasingLightsTracker >= 6) {
+            chasingLightsTracker = 0;
+        }
+        for(int i = 0; i < ledBuffer.getLength(); i++) {
+            if((i + chasingLightsTracker + offset) % 6 == 0) {
+                ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
             }
-            for(int i = 0; i < ledBuffer.getLength(); i++) {
-                if((i + chasingLightsTracker + offset) % 6 == 0) {
-                    ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
-                }
-            }
+        }
+
+        ledStrip.setData(ledBuffer);
     }
 
     
