@@ -242,7 +242,7 @@ public class Shooter {
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
                 cmdUpdate(0.0, 0.0, false, true);
                 if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
-                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kShoot) state++; //SHOOT!
+                if(btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
                 cmdUpdate(0.0, 0.0, false, true);
