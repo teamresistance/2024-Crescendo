@@ -126,7 +126,7 @@ public class Led {
 
                 break;
             case 3: //Speaker Shoot (rainbow)
-                if(Shooter.getState() >= 5) {
+                if(Shooter.getState() >= 5 || Shooter.getState() == 0) {
                     normalState = 0; //Go back to` default
                     break;
                 }
