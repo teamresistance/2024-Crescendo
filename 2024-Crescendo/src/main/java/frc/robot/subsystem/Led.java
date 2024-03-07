@@ -23,8 +23,8 @@ public class Led {
     // Color definitions
     private static final Color COLOR_TRGREEN = new Color(0, 255, 0);
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
-    private static final Color COLOR_SNORFLEREJECT = new Color(0, 210, 255);
-    private static final Color COLOR_AMPSHOT = new Color(255, 0, 0);
+    private static final Color COLOR_SNORFLEREJECT = new Color(255, 0, 0);
+    private static final Color COLOR_AMPSHOT = new Color(0, 210, 255);
     private static final Color COLOR_LEDOFF = new Color(0, 0, 0);
 
     // variables:
@@ -78,14 +78,18 @@ public class Led {
      * of a JS button but can be caused by other events.
      */
     public static void update() {
-        //Add code here to start state machine or override the sm sequence
-        
+        smStateSetter();
         smUpdate();
         sdbUpdate();
     }
 
-    public static void setState(int num) {
-        normalState = num;
+    /**
+     * A method for debug purposes almost exclusively, 
+     * allows you to set the state of the state machine from other classes
+     * @param state The state number to set the state machine to
+     */
+    public static void setState(int state) {
+        normalState = state;
     }
 
     /**
@@ -101,8 +105,8 @@ public class Led {
         //Shooting for Amp - Red
         //Else - TR86 Green
         
-        smStateSetter();
-
+        // normalState as opposed to just state in order to make sure there
+        // isn't confusion with other state based variables in this subsystem
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
                 cmdUpdate(COLOR_TRGREEN);
@@ -112,7 +116,10 @@ public class Led {
                 cmdUpdate(COLOR_SNORFLE);
                 if(Snorfler.getState() == 4) normalState++; //if ring is seen, go to state 2
                 break;
-            case 2: //Snorfle blink total of 9 times on and off
+            case 2: //Snorfle blink green total of 9 times on and off
+                // Note: If you're paying attention, if shooting is started before blinking is done
+                //       the state machine may suddenly switch cases, this is intended and preferred
+                //       behavior, and this is designed to handle it
                 if(snorfleStrobeCount >= 16) {
                     normalState = 0;
                     break;
@@ -130,6 +137,8 @@ public class Led {
 
                 break;
             case 3: //Speaker Shoot (rainbow)
+                // Shooterhue is never reset when coming back to this state, and it doesn't need to
+                // but if anyone is like, really butthurt about it you can add that in I guess
                 if(Shooter.getState() >= 5 || Shooter.getState() == 0) {
                     normalState = 0; //Go back to` default
                     break;
@@ -174,15 +183,15 @@ public class Led {
             return;
         }
         if(Shooter.getState() == 10) {
-            normalState = 4; //Set to amp shot (red)
+            normalState = 4; //Set to amp shot (blue)
             return;
-        }
+        } //Mind how these top two states are shooter while bottom two are snorfler, different state 10's
         if(Snorfler.getState() == 10 || Snorfler.getState() == 11) {
-            normalState = 5; //Set to snorfler reject
+            normalState = 5; //Set to snorfler reject (red)
             return;
         }
         if(Snorfler.getState() == 1 || Snorfler.getState() == 2) {
-            normalState = 1; //Set to snorfler lights (solid orange)
+            normalState = 1; //Set to snorfler lights (orange)
             return;
         }
     }
@@ -293,15 +302,15 @@ public class Led {
      * 
      * @return - present state of Shooter state machine.
      */
-    public static int getRainbowState() {
-        return rainbowState;
+    public static int getState() {
+        return normalState;
     }
 
     /**
      * @return If the state machine is running, not idle.
      */
     public static boolean getStatus(){
-        return rainbowState != 0;      //This example says the sm is runing, not idle.
+        return normalState != 0;      //This example says the sm is runing, not idle.
     }
 
 
