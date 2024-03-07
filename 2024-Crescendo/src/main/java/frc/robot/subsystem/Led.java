@@ -270,8 +270,8 @@ public class Led {
 
                 cmdUpdate(interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker));
             } else {
-                chasingLights(new Color(255, 0, 0), 0);
-                chasingLights(new Color(0, 0, 255), 3);
+                chasingLights(Color.kRed, 0);
+                chasingLights(Color.kBlue, 3);
 
                 chasingLights(Color.kWhite, 1);
                 chasingLights(Color.kWhite, 2);
