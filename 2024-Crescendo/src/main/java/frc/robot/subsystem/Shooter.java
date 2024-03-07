@@ -107,7 +107,8 @@ public class Shooter {
     public enum RQShooter {
         kNoReq(0, "No request"),        //No request from other subsystems
         kSpkrShot(1, "Speaker Shot"),   //Speaker shot request from auto
-        kAmpShot(2, "Amp Shot"),        //Amp shot request from auto
+        kAmpShot(2, "Amp Shot"),        //Amp shot request from autoa
+        kShoot(3, "Shoot Note"),        //Shoot the Note Speaker or Amp
         kClimbLock(3, "Climber Lock");  //Lock Arm down by Climber
         // kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
 
@@ -203,7 +204,7 @@ public class Shooter {
             case 2: // Wait for shot or cancel
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 if(btnSpkrShot.onButtonPressed()) state = 0;    //2nd Press, Cancel Speaker shot
-                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //Goto shot
+                if(btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; //Goto shot
                 break;
             case 3: // Confirm if arm dn
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -234,14 +235,14 @@ public class Shooter {
                 cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
                 if (stateTmr.hasExpired(shtrAmpLd_Tm, state)) state++;
                 break;
-            case 13: // wait to raise Arm on 2nd btn press or auto
+            case 13: // wait to raise Arm on 2nd btn press (visual) or auto
                 cmdUpdate(0.0, 0.0, false, false);
                 if(btnAmpShot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //2nd press raise arm
                 break;
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
                 cmdUpdate(0.0, 0.0, false, true);
                 if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
-                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //SHOOT!
+                if(btnShoot.onButtonPressed() || shtrRequest != RQShooter.kShoot) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
                 cmdUpdate(0.0, 0.0, false, true);
