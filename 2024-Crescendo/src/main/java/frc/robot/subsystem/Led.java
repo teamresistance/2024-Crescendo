@@ -25,12 +25,15 @@ public class Led {
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
     private static final Color COLOR_SNORFLEREJECT = new Color(0, 210, 255);
     private static final Color COLOR_AMPSHOT = new Color(255, 0, 0);
-    private static final Color COLOR_LEDSOFF = new Color(0, 0, 0);
+    private static final Color COLOR_LEDOFF = new Color(0, 0, 0);
 
     // variables:
     private static int rainbowState; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
     private static Timer rainbowTimer = new Timer(.05); // Timer for state machine
     private static boolean rainbowIncreaseState;
+
+    private static boolean prevRainbowIncreaseState;
+    private static Timer disabledUpdateTimer = new Timer(10);
 
     private static int normalState;
     private static Timer snorfleStrobeTimer = new Timer(0.05);
@@ -51,6 +54,7 @@ public class Led {
         //This is most definitely necessary to have on the robot
         rainbowState = 0; // Start at state 0
         rainbowIncreaseState = true;
+        prevRainbowIncreaseState = rainbowIncreaseState;
 
         normalState = 0;
         snorfleStrobeCount = 0;
@@ -101,11 +105,11 @@ public class Led {
 
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
-                cmdUpdate(0, COLOR_TRGREEN);
+                cmdUpdate(COLOR_TRGREEN);
                 break;
             case 1: //Snorfle looking for ring
                 snorfleStrobeCount = 0;
-                cmdUpdate(0, COLOR_SNORFLE);
+                cmdUpdate(COLOR_SNORFLE);
                 if(Snorfler.getState() == 4) normalState++; //if ring is seen, go to state 2
                 break;
             case 2: //Snorfle blink total of 9 times on and off
@@ -116,9 +120,9 @@ public class Led {
                 
                 if(snorfleStrobeTimer.hasExpired(0.1, snorfleStrobeCount)) {
                     if(snorfleStrobeCount % 2 == 0) {
-                        cmdUpdate(0, COLOR_LEDSOFF);
+                        cmdUpdate(COLOR_LEDOFF);
                     } else {
-                        cmdUpdate(0, COLOR_TRGREEN);
+                        cmdUpdate(COLOR_TRGREEN);
                     }
 
                     snorfleStrobeCount++;
@@ -131,32 +135,32 @@ public class Led {
                     break;
                 }
 
-                shooterHue += 6;
+                shooterHue += 7;
 
                 if(shooterHue >= 360) {
-                    shooterHue = 0;
+                    shooterHue -= 360;
                 }
 
                 int[] rgbValues = hsvToRgb(new float[]{(float)shooterHue, 1.0f, 1.0f});
 
-                cmdUpdate(0, new Color(rgbValues[0], rgbValues[1], rgbValues[2]));
+                cmdUpdate(new Color(rgbValues[0], rgbValues[1], rgbValues[2]));
                 break;
             case 4: //Amp Shoot
                 if(Shooter.getState() == 16 || Shooter.getState() < 10) {
                     normalState = 0;
                     break;
                 }
-                cmdUpdate(0, COLOR_AMPSHOT);
+                cmdUpdate(COLOR_AMPSHOT);
                 break;
             case 5: //Snorfler reject (it's case 5 because it was added after everything else ok)
                 if(Snorfler.hasGP()) {
                     normalState = 0;
                     break;
                 }
-                cmdUpdate(0, COLOR_SNORFLEREJECT);
+                cmdUpdate(COLOR_SNORFLEREJECT);
                 break;
             default:
-                cmdUpdate(0, COLOR_LEDSOFF);
+                cmdUpdate(COLOR_LEDOFF);
                 System.out.println("Unexpected state in LED smUpdate()");
                 break;
         }
@@ -167,12 +171,15 @@ public class Led {
         //It should prioritize that rather than anything else, right?
         if(Shooter.getState() == 1 || Shooter.getState() == 2) {
             normalState = 3; //Set to speaker shot lights (rainbow)
+            return;
         }
         if(Shooter.getState() == 10) {
             normalState = 4; //Set to amp shot (red)
+            return;
         }
         if(Snorfler.getState() == 10 || Snorfler.getState() == 11) {
             normalState = 5; //Set to snorfler reject
+            return;
         }
         if(Snorfler.getState() == 1 || Snorfler.getState() == 2) {
             normalState = 1; //Set to snorfler lights (solid orange)
@@ -180,12 +187,17 @@ public class Led {
         }
     }
 
+    public static void disabledUpdate() {
+        if(disabledUpdateTimer.hasExpired(10.0, prevRainbowIncreaseState)) {
+            rainbowUpdate();
+            prevRainbowIncreaseState = rainbowIncreaseState;
+        } else {
+            chasingLights(COLOR_TRGREEN);
+        }
+    }
 
     public static void rainbowUpdate() { // State Machine Update
         if(rainbowTimer.hasExpired(0.005, rainbowState)) {
-            int[] rgb = hsvToRgb(new float[]{(float)rainbowState, 0.9f, 0.75f});
-            cmdUpdate(0, new Color(rgb[0],rgb[1],rgb[2]));
-            
             if(rainbowIncreaseState) {
                 rainbowState++;
             } else {
@@ -195,35 +207,64 @@ public class Led {
             if(rainbowState > 360) {
                 rainbowIncreaseState = false;
                 rainbowState = 360;
-            }
-            if(rainbowState < 0) {
+            } else if(rainbowState < 0) {
                 rainbowIncreaseState = true;
                 rainbowState = 0;
             }
-
-            // System.out.println(rgb[0] + " | " + rgb[1] + " | " + rgb[2]);
-
         }
 
+        for(int i = 0; i < ledBuffer.getLength(); i++) {
+            int hue = rainbowState + (4 * i);
+            if(hue >= 360) hue -= 360;
+
+            int[] rgb = hsvToRgb(new float[]{(float)hue, 1.0f, 1.0f});
+            ledBuffer.setLED(i, new Color(rgb[1], rgb[0], rgb[2]));
+        }
+
+        ledStrip.setData(ledBuffer);
     }
 
-    /**
-     * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
-     *
-     * @param select_low    - select the low goal, other wise the high goal
-     * @param left_trigger  - triggers the left catapult
-     * @param right_trigger - triggers the right catapult
-     *
-     */
-    private static void cmdUpdate(int index, Color c) {
+    private static int chasingLightsTracker = 0;
+    private static Timer chasingLightsTimer = new Timer(0.02);
+
+    private static void chasingLights(Color c) {
+        if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
+            if(chasingLightsTracker >= 4) {
+                chasingLightsTracker = 0;
+            }
+            for(int i = 0; i < ledBuffer.getLength(); i++) {
+                if((i + chasingLightsTracker) % 4 == 0) {
+                    ledBuffer.setLED(i, COLOR_TRGREEN);
+                } else {
+                    ledBuffer.setLED(i, COLOR_LEDOFF);
+                }
+            }
+
+            chasingLightsTracker++;
+        }
+    }
+
+    private static void chasingLights(Color c, int offset) {
+            if(chasingLightsTracker >= 4) {
+                chasingLightsTracker = 0;
+            }
+            for(int i = 0; i < ledBuffer.getLength(); i++) {
+                if((i + chasingLightsTracker + offset) % 4 == 0) {
+                    ledBuffer.setLED(i, COLOR_TRGREEN);
+                } else {
+                    ledBuffer.setLED(i, COLOR_LEDOFF);
+                }
+            }
+
+            chasingLightsTracker++;
+    }
+
+    
+    private static void cmdUpdate(Color c) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         
         for (var i = 0; i < ledBuffer.getLength(); i++) {
-            // ledBuffer.setLED(i,new Color(c.green + (3 * i) > 255 ? c.green - (3 * i) : c.green + (3 * i),
-            //                             c.red + (3 * i) > 255 ? c.red - (3 * i) : c.red + (3* i),
-            //                             c.blue + (3 * i) > 255 ? c.blue - (3 * i) : c.blue + (3 * i)));
-
             ledBuffer.setLED(i, new Color(c.green, c.red, c.blue));
         }
         
@@ -243,7 +284,7 @@ public class Led {
         // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
 
         //Put other stuff to be displayed here
-        SmartDashboard.putNumber("LED/state", rainbowState);
+        SmartDashboard.putNumber("LED/state", normalState);
     }
 
     // ----------------- Shooter statuses and misc.-----------------
