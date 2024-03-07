@@ -109,7 +109,7 @@ public class Shooter {
         kSpkrShot(1, "Speaker Shot"),   //Speaker shot request from auto
         kAmpShot(2, "Amp Shot"),        //Amp shot request from autoa
         kShoot(3, "Shoot Note"),        //Shoot the Note Speaker or Amp
-        kClimbLock(3, "Climber Lock");  //Lock Arm down by Climber
+        kClimbLock(4, "Climber Lock");  //Lock Arm down by Climber
         // kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
 
         private final int num;
