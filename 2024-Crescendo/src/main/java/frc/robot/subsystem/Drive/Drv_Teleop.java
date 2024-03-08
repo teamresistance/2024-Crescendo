@@ -19,7 +19,7 @@ import frc.util.PropMath;
 /**
  * Extends the Drive class to manually control the robot in teleop mode.
  */
-public class Drv_Teleop extends Drive {
+public class Drv_Teleop extends Drive2 {
     
     // joystick:
     private static Axis jsX = JS_IO.axLeftX;
@@ -42,6 +42,8 @@ public class Drv_Teleop extends Drive {
     private static double jsRot() {return JS_IO.axRightX.get();}       //Curvature direction, left.right
 
     public static double teleopScale = 100.0;   //scale to use when active in telop
+    
+    public static double[] driveCmd = new double[3];
 
     private static int state = 1;   //Can be set by btn or sdb chooser
     private static String[] teleDrvType = {"Off", "Robot", "Field"};       //All drive type choices
@@ -105,18 +107,24 @@ public class Drv_Teleop extends Drive {
             }
             else rotSpd = 0.0;
         }
+        driveCmd[0] = fwdSpd;
+        driveCmd[1] = rlSpd;
+        driveCmd[2] = rotSpd;
+
         smUpdate();
 
         //Autoalign stuff
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            goTo(setPoint1X, setPoint1Y, 10.0, 1.0, 1.0);
+            if (goTo(setPoint1X, setPoint1Y, 10.0, driveCmd, 1.0)){
+                //Do something when done?
+            };
         }
         if (btnAuto1.isDown()){
-            //Calculate based on where setpoint is
-            // stuff is reversed cus confusing
-            goTo(setPoint2X, setPoint2Y, 0.0, 1.0, 1.0);
+            //Calculate based on where setpoint is            
+            if (goTo(setPoint2X, setPoint2Y, 0.0, driveCmd, 1.0)){
+                //Do something when done?
+            };
         }
         
         if (btnGyroReset.isDown()) {
@@ -124,13 +132,15 @@ public class Drv_Teleop extends Drive {
         }
                 
         if (lookAtNote.isDown()){
-            goToNote(1.0);
+            if (goToNote(1.0, driveCmd)){ //driveCmd should be set by the joystick
+                setDriveCmds(driveCmd[0], driveCmd[1], driveCmd[2], true); //Rotate towards note
+            }
+            setDriveCmds(0.3, 0.0, driveCmd[2], false); //Drive forward a little bit 
         }
 
         if (headingHoldBtn.isDown()){
-          rotSpd = pidHdg.calculateX(Drive.navX.getAngle(), 0.0);
+            rotSpd = pidHdg.calculateX(Drive.navX.getAngle(), 0.0);
         }
-
         // sdbUpdate();
     }
 

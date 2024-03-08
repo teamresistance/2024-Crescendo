@@ -170,7 +170,7 @@ public class Drive2 {
     //Setpoints for alignement
     public static final double setPoint1X = 14.4;
     public static final double setPoint1Y = 4.58;
-    public static final double setPoint2X = 14.35;
+    public static final double setPoint2X = 1.88; //Set for blue amp as of 3/7/2024
     public static final double setPoint2Y = 8.0;
 
     //Speaker setpoint
@@ -499,8 +499,6 @@ public class Drive2 {
          * Custom velocity contrl class feeds joystick inputs into a calculator that outputs four wheel velociites
          * Each wheel has a PID controller that is then updated to match that speed.
          */
-    
-        // System.out.println(rlSpeed + " " + fwdSpeed + " " + rotSpeed);
         if (!fieldOriented)
         {
             //Robot - apply JS signals r/l, fwd & rot to Mecanum in robot oriented.
