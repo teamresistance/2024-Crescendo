@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 
 import com.revrobotics.CANSparkFlex;
@@ -28,7 +27,8 @@ public class IO {
     /**
      * Object that talks to the navX module on the roboRIO
      */
-    public static NavX navX = new NavX(SPI.Port.kMXP);
+    // public static NavX navX = new NavX(SPI.Port.kMXP);
+    public static Pigeon2 navX = new Pigeon2(2);
 
     // PDH Power
     /**
@@ -60,7 +60,7 @@ public class IO {
     // public static MecanumDriveKinematics kinematics = null;
 
     // Ticks Per Foot??
-    public static double tpfAll = 4346.0;       //12.7;?? //37 rot for 10' = 3.7'/rot * 1024 ticks = 3789.
+    public static double tpfAll = 3911.4;       //12.7;?? //37 rot for 10' = 3.7'/rot * 1024 ticks = 3789.
     public static double frontLeftTPF = tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double backLeftTPF = tpfAll;  // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
     public static double frontRightTPF = tpfAll;// 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63

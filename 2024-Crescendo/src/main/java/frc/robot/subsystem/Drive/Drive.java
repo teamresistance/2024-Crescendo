@@ -663,8 +663,8 @@ public class Drive {
         SmartDashboard.putNumber("Drv/hdgHold_SP", hdgHold_SP == null ? 999 : hdgHold_SP);
         SmartDashboard.putNumber("Drv/botHold_SP", botHold_SP == null ? 999 : botHold_SP);
 
-        SmartDashboard.putNumber("bal/pitch", IO.navX.getPitch());
-        SmartDashboard.putNumber("bal/roll", IO.navX.getRoll());
+        // SmartDashboard.putNumber("bal/pitch", IO.navX.getPitch());
+        // SmartDashboard.putNumber("bal/roll", IO.navX.getRoll());
 
         SmartDashboard.putNumber("Gyro", IO.navX.getNormalizedAngle());
 		SmartDashboard.putBoolean("robot", isFieldOriented);
