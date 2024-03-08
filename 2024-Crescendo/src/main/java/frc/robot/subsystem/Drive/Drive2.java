@@ -171,13 +171,15 @@ public class Drive2 {
             // navX.getInvRotation2d(), 
             navX.getRotation2d(),
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
-            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)
-        )
-    );
+            // Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf),
+            // Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            // Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf),
+            // Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
+            drvEncFL.meters(),
+            drvEncBL.meters(),
+            drvEncFR.meters(),
+            drvEncBR.meters()),
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)));
 
     //Setpoints for alignement
     public static final double setPoint1X = 14.4;
@@ -263,13 +265,20 @@ public class Drive2 {
 
     public static void reset(){
         navX.reset();
-        IO.motorFrontLeft.getEncoder().setPosition(0.0);
-        IO.motorFrontRight.getEncoder().setPosition(0.0);
-        IO.motorBackLeft.getEncoder().setPosition(0.0);
-        IO.motorBackRight.getEncoder().setPosition(0.0);
+        // IO.motorFrontLeft.getEncoder().setPosition(0.0);
+        // IO.motorFrontRight.getEncoder().setPosition(0.0);
+        // IO.motorBackLeft.getEncoder().setPosition(0.0);
+        // IO.motorBackRight.getEncoder().setPosition(0.0);
+        // var wheelPositions = new MecanumDriveWheelPositions(
+        //     IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
+        //     IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
+        drvEncFL.reset();
+        drvEncBL.reset();
+        drvEncFR.reset();
+        drvEncBR.reset();
         var wheelPositions = new MecanumDriveWheelPositions(
-            IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
-            IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
+            drvEncFL.rotations(), drvEncFR.rotations(),
+            drvEncFR.rotations(), drvEncBR.rotations());
 
         // Get the rotation of the robot from the gyro.
         // var gyroAngle = navX.getRotation2d();
@@ -280,8 +289,8 @@ public class Drive2 {
             navX.getRotation2d(),
             // navX.getInvRotation2d(),
             new MecanumDriveWheelPositions(
-                Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-                Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
+                drvEncFL.meters(), drvEncBL.meters(),
+                drvEncFR.meters(), drvEncBR.meters()),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
     }
@@ -306,8 +315,10 @@ public class Drive2 {
 
         // poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
         poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf))
+            // Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            // Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf))
+            drvEncFL.meters(), drvEncBL.meters(),
+            drvEncFR.meters(), drvEncBR.meters())
         );
 
         // TODO: test
