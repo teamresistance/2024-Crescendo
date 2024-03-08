@@ -383,7 +383,7 @@ public class Drive2 {
         double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() + (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
     
         //Throw everything into a Pose2d
-        projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(futureRotation));
+        projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(Units.degreesToRadians(futureRotation)));
         /*
          * Calculate the angle between the robot and the speaker
          * We take our robot translation and subtract the speaker coordinate
