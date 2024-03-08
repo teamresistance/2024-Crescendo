@@ -26,10 +26,11 @@ import frc.io.hdw_io.util.Encoder_Neo;
 import frc.io.hdw_io.util.DigitalInput;
 import frc.io.hdw_io.util.Encoder_Flex;
 import frc.io.hdw_io.util.NavX;
+import frc.io.hdw_io.util.Pigeon2;
 
 public class TestHdw {
     // navX
-    private static NavX navX = IO.navX;
+    private static Pigeon2 navX = IO.navX;
 
     // PDH Power
     private static PowerDistribution pdh = IO.pdh;
