@@ -2,6 +2,8 @@ package frc.io.hdw_io.util;
 
 import java.util.function.Consumer;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,7 +18,8 @@ import frc.io.hdw_io.IO;
 
 public class CoorSys {
     // Hardware
-    private NavX navX;
+    private NavX navX2;
+    private Pigeon2 navX;
     private Encoder_Flex frontLeft;
     private Encoder_Flex backLeft;
     private Encoder_Flex frontRight;
@@ -55,6 +58,24 @@ public class CoorSys {
     
     public CoorSys(NavX hdg, MecanumDriveKinematics _kinematics, Encoder_Flex _frontLeft, Encoder_Flex _backLeft,
             Encoder_Flex _frontRight, Encoder_Flex _backRight) {
+        navX2 = hdg;
+        kinematics = _kinematics;
+        frontLeft = _frontLeft;
+        backLeft = _backLeft;
+        frontRight = _frontRight;
+        backRight = _backRight;
+
+        // Creating odometry object from the kinematics object, navX rot, and the
+        // initial wheel positions.
+        odometry = new MecanumDriveOdometry(
+                kinematics,
+                // navX.getInvRotation2d(),
+                navX2.getRotation2d(),      //TODO: Need to check isn't diff from above
+                updateWheelPos());
+    }
+
+    public CoorSys(Pigeon2 hdg, MecanumDriveKinematics _kinematics, Encoder_Flex _frontLeft, Encoder_Flex _backLeft,
+            Encoder_Flex _frontRight, Encoder_Flex _backRight) {
         navX = hdg;
         kinematics = _kinematics;
         frontLeft = _frontLeft;
@@ -66,7 +87,8 @@ public class CoorSys {
         // initial wheel positions.
         odometry = new MecanumDriveOdometry(
                 kinematics,
-                navX.getInvRotation2d(),
+                // navX.getInvRotation2d(),
+                navX.getRotation2d(),      //TODO: Need to check isn't diff from above
                 updateWheelPos());
     }
 
@@ -89,7 +111,8 @@ public class CoorSys {
     public void update(){
 
         // Update the pose
-        pose = odometry.update(navX.getInvRotation2d(), updateWheelPos());
+        // pose = odometry.update(navX.getInvRotation2d(), updateWheelPos());
+        pose = odometry.update(navX.getRotation2d(), updateWheelPos()); //TODO: Need to check isn't diff from above
 
         coorY = Units.metersToFeet(pose.getY() * 0.8);
         coorX = Units.metersToFeet(pose.getX());
@@ -123,7 +146,11 @@ public class CoorSys {
         // IO.navX.reset();
         drvFeetRst();       //Resets encoders to 0
         // Get wheel positions
-        odometry.resetPosition(navX.getInvRotation2d(), updateWheelPos(), new Pose2d(Units.feetToMeters(-coorX_OS), Units.feetToMeters(-coorY_OS), navX.getInvRotation2d()));
+        // odometry.resetPosition(navX.getInvRotation2d(), updateWheelPos(), new Pose2d(Units.feetToMeters(-coorX_OS), Units.feetToMeters(-coorY_OS), navX.getInvRotation2d()));
+        odometry.resetPosition(navX.getRotation2d(), updateWheelPos(),
+                                new Pose2d(Units.feetToMeters(-coorX_OS),
+                                Units.feetToMeters(-coorY_OS), navX.getRotation2d())
+        ); //TODO: Need to check isn't diff from above
         //coorX = pose.getX();  //getX() returns 0
         //coorY = pose.getY();  //getY() returns 0
         // prstDist = drvFeet();

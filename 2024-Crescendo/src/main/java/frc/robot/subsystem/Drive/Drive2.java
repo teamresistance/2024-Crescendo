@@ -1,6 +1,5 @@
 package frc.robot.subsystem.Drive;
 
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -16,7 +15,6 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
-import com.ctre.phoenix6.hardware.Pigeon2;
 // import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -45,9 +43,11 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
+import frc.io.hdw_io.util.Encoder_Flex;
 import frc.io.hdw_io.util.MotorPID;
 import frc.io.hdw_io.util.MotorPID_Flex;
 import frc.io.hdw_io.util.NavX;
+import frc.io.hdw_io.util.Pigeon2;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
@@ -70,8 +70,26 @@ public class Drive2 {
 
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
-    public static Pigeon2 navX = new Pigeon2(0);
+    // public static NavX navX = IO.navX;
+    private static Pigeon2 navX = IO.navX;
+    private static CANSparkFlex drvMtrFL = IO.motorFrontLeft;
+    private static CANSparkFlex drvMtrBL = IO.motorBackLeft;
+    private static CANSparkFlex drvMtrFR = IO.motorFrontRight;
+    private static CANSparkFlex drvMtrBR = IO.motorBackRight;
     
+    private static Encoder_Flex drvEncFL = IO.frontLeftEnc;
+    private static Encoder_Flex drvEncBL = IO.backLeftEnc;
+    private static Encoder_Flex drvEncFR = IO.frontRightEnc;
+    private static Encoder_Flex drvEncBR = IO.backRightEnc;
+    
+    //Velocity Controlled Mecanum
+    public static final double maxRPM = 5700;
+
+    public static MotorPID_Flex drvPidFL = new MotorPID_Flex(drvMtrFL, "Drive");
+    public static MotorPID_Flex drvPidBL = new MotorPID_Flex(drvMtrBL, "Drive");
+    public static MotorPID_Flex drvPidFR = new MotorPID_Flex(drvMtrFR, "Drive");
+    public static MotorPID_Flex drvPidBR = new MotorPID_Flex(drvMtrBR, "Drive");
+
     // variables:
     private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
     private static Rotation2d heading;  //used with fieldOriented
@@ -100,14 +118,6 @@ public class Drive2 {
 
     private static double[] inputs; //??
     
-    //Velocity Controlled Mecanum
-    public static final double maxRPM = 5700;
-
-    public static MotorPID_Flex motorFrontLeftPID =  new MotorPID_Flex(IO.motorFrontLeft, "Drive");
-    public static MotorPID_Flex motorBackLeftPID =   new MotorPID_Flex(IO.motorBackLeft, "Drive");
-    public static MotorPID_Flex motorFrontRightPID = new MotorPID_Flex(IO.motorFrontRight, "Drive");
-    public static MotorPID_Flex motorBackRightPID =  new MotorPID_Flex(IO.motorBackRight, "Drive");
-
     //Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private static NetworkTableEntry tx = table.getEntry("tx");
@@ -161,8 +171,10 @@ public class Drive2 {
             // navX.getInvRotation2d(), 
             navX.getRotation2d(),
             new MecanumDriveWheelPositions(
-            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
+            Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf),
+            Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)
         )
     );
@@ -177,8 +189,8 @@ public class Drive2 {
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
 
-    public static double hdgFB() {return IO.navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
-    public static void hdgRst() { IO.navX.reset(); }
+    public static double hdgFB() {return navX.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
+    public static void hdgRst() { navX.reset(); }
     public static double distFB() { return 0.0;}  //IO.coorXY.drvFeet(); }
     
     public static void distRst() { }//IO.coorXY.drvFeetRst(); }
@@ -219,10 +231,10 @@ public class Drive2 {
         pidHdg.enableContinuousInput(-180, 180);
         
         //Move this to IO.motorInit()????
-        motorFrontLeftPID.init();
-        motorBackLeftPID.init();
-        motorFrontRightPID.init();
-        motorBackRightPID.init();
+        drvPidFL.init();
+        drvPidBL.init();
+        drvPidFR.init();
+        drvPidBR.init();
 
         reset();
 
@@ -424,7 +436,8 @@ public class Drive2 {
     private static void smUpdate() {
         // System.out.println(state);
         
-        heading = IO.navX.getInvRotation2d();
+        // heading = navX.getInvRotation2d();
+        heading = navX.getRotation2d(); //TO DO: need to check
         
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
@@ -513,16 +526,16 @@ public class Drive2 {
         }
     
         //Set the RPM setpoint for the 4 motors.
-        motorFrontLeftPID.setSetpoint(inputs[0] * maxRPM);
-        motorFrontRightPID.setSetpoint(inputs[1] * maxRPM);
-        motorBackLeftPID.setSetpoint(inputs[2] * maxRPM);
-        motorBackRightPID.setSetpoint(inputs[3] * maxRPM);
+        drvPidFL.setSetpoint(inputs[0] * maxRPM);
+        drvPidFR.setSetpoint(inputs[1] * maxRPM);
+        drvPidBL.setSetpoint(inputs[2] * maxRPM);
+        drvPidBR.setSetpoint(inputs[3] * maxRPM);
         
         //Updates the reference in the SparkFlex.
-        motorFrontLeftPID.update();
-        motorBackLeftPID.update();
-        motorFrontRightPID.update();
-        motorBackRightPID.update();
+        drvPidFL.update();
+        drvPidBL.update();
+        drvPidFR.update();
+        drvPidBR.update();
     }
 
     /**
@@ -555,7 +568,8 @@ public class Drive2 {
             botHold_SP = null;
             return jsRot;
         }else{
-            if(botHold_SP == null) botHold_SP = IO.navX.getNormalizedTo180();
+            // if(botHold_SP == null) botHold_SP = IO.navX.getNormalizedTo180();
+            if(botHold_SP == null) botHold_SP = navX.getNormalizedTo180();
             return calcHdgHold(botHold_SP);
         }
     }
@@ -667,10 +681,10 @@ public class Drive2 {
         SmartDashboard.putNumber("Drv/hdgHold_SP", hdgHold_SP == null ? 999 : hdgHold_SP);
         SmartDashboard.putNumber("Drv/botHold_SP", botHold_SP == null ? 999 : botHold_SP);
 
-        SmartDashboard.putNumber("bal/pitch", IO.navX.getPitch());
-        SmartDashboard.putNumber("bal/roll", IO.navX.getRoll());
+        // SmartDashboard.putNumber("bal/pitch", (Double)navX.getPitch()); //To Do: fix
+        // SmartDashboard.putNumber("bal/roll", (double)navX.getRoll());
 
-        SmartDashboard.putNumber("Gyro", IO.navX.getNormalizedAngle());
+        SmartDashboard.putNumber("Gyro", navX.getNormalizedAngle());
 		SmartDashboard.putBoolean("robot", isFieldOriented);
 
         SmartDashboard.putNumber("SP/FrontLeft SP", inputs[0] * maxRPM);
