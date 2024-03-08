@@ -56,7 +56,8 @@ public class NavX extends AHRS {
         double tmpD = angle % 360.0;  //Modulo 0 to 360
         if( tmpD < -180.0 ){    //If LT -180 add 360 for complement angle
             tmpD += 360.0;
-        }else if(tmpD > 180){   //If GT +180 substract 360 for complement angle
+        }else if(tmpD 
+		> 180){   //If GT +180 substract 360 for complement angle
             tmpD -= 360;
         }
         return tmpD;

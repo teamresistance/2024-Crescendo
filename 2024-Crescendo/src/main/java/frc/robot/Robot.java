@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.io.hdw_io.IO;
@@ -109,6 +111,7 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         Led.disabledUpdate();
     }
+    private static Pigeon2 testpig = new Pigeon2(0);
 
     /** This function is called once when test mode is enabled. */
     @Override
@@ -123,6 +126,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {
+        System.out.println(testpig.getAngle());
         Led.update();
         Tests.update();
         // If test selected has changed, intialize all test, turn off everything.

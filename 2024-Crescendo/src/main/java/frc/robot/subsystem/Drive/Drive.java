@@ -14,6 +14,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 // import com.revrobotics.SparkMaxPIDController;
@@ -61,7 +62,7 @@ import edu.wpi.first.math.VecBuilder;
 public class Drive {
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
-    public static NavX navX = IO.navX;
+    public static Pigeon2 navX = new Pigeon2(0);
     
     // variables:
     private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
@@ -82,8 +83,8 @@ public class Drive {
     
     //PIDS
 
-    private static PIDXController pidControllerX = new PIDXController(0.05, 0.0, 0.0);
-    private static PIDXController pidControllerY = new PIDXController(0.05, 0.0, 0.0);
+    private static PIDXController pidControllerX = new PIDXController(0.45, 0.0, 0.0);
+    private static PIDXController pidControllerY = new PIDXController(0.45, 0.0, 0.0);
     private static PIDController pidControllerZ = new PIDXController(0.004, 0.0, 0.0);
     // private static PIDController pidControllerZ2 = new PIDXController(0.008, 0.0, 0.0);
     
@@ -122,8 +123,8 @@ public class Drive {
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
 
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.3302,-0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,2.967)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(-0.3302,-0.2604,  0.3937), new Rotation3d(0.0 ,0.43633,-3.067));
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.3302, 0.2604, 0.3937), new Rotation3d(0.0 ,0.43633,2.86)); //Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.3302,-0.2604,  0.3937), new Rotation3d(0.0 ,0.43633,-3.067));
 
     private static boolean followNote;
     private static boolean parkAtTarget;
@@ -159,7 +160,7 @@ public class Drive {
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getInvRotation2d(), 
+            navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
@@ -170,7 +171,7 @@ public class Drive {
     //Setpoints for alignement
     public static final double setPoint1X = 14.4;
     public static final double setPoint1Y = 4.58;
-    public static final double setPoint2X = 14.35;
+    public static final double setPoint2X = 1.88;
     public static final double setPoint2Y = 8.0;
 
     //Speaker setpoint
@@ -265,7 +266,7 @@ public class Drive {
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getInvRotation2d(), 
+            navX.getRotation2d(), 
             new MecanumDriveWheelPositions(
                 Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
                 Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
@@ -292,7 +293,7 @@ public class Drive {
 
         poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker(), 0.1 * getDistanceFromSpeaker()));
 
-        poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
+        poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
             Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
         ));
@@ -312,7 +313,7 @@ public class Drive {
 
                 // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-                System.out.println("Estimated pose: " + estimatedPose);
+                // System.out.println("Estimated pose: " + estimatedPose);
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
@@ -457,12 +458,12 @@ public class Drive {
      */
     public static void goTo(double x, double y, double hdg, double spd, double _rotSpd){
         double pidOutputX = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        // double pidOutputY = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         
         // set JS signals to apply
-        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg) * _rotSpd;
-        rlSpd = pidOutputX * spd;
-        fwdSpd = pidOutputY * spd;
+        rotSpd = pidHdg.calculateX(navX.getAngle(), hdg) * _rotSpd;
+        rlSpd = -pidOutputX * spd;
+        // fwdSpd = pidOutputY * spd;
     }
 
     public static void aimAtSpeaker(){

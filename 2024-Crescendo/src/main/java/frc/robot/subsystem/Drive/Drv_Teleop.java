@@ -116,7 +116,7 @@ public class Drv_Teleop extends Drive {
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is
             // stuff is reversed cus confusing
-            goTo(setPoint2X, setPoint2Y, -90.0, 1.0, 1.0);
+            goTo(setPoint2X, setPoint2Y, 0.0, 1.0, 1.0);
         }
         
         if (btnGyroReset.isDown()) {
@@ -128,7 +128,7 @@ public class Drv_Teleop extends Drive {
         }
 
         if (headingHoldBtn.isDown()){
-          rotSpd = pidHdg.calculateX(Drive.navX.getNormalizedTo180(), 0.0);
+          rotSpd = pidHdg.calculateX(Drive.navX.getAngle(), 0.0);
         }
 
         // sdbUpdate();
