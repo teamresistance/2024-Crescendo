@@ -151,7 +151,7 @@ public class Drive2 {
     // new Pose2d(0.0, 0.0, new Rotation2d())
     // );
 
-    private static final double tpf = 3.47; //ticks per foot
+    private static final double tpf = 3.82; //ticks per foot gut really rev / ft
     private static final Field2d m_field = new Field2d();
 
     private static MecanumDrivePoseEstimator poseEstimator = 
