@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystem.Drive.trajFunk.*;
 import frc.util.PIDXController;
 
-public class Drv_Auto extends Drive {
+public class Drv_Auto extends Drive2 {
 
     private static int autoStep = 0;        //State for Drv_Auto
     private static ATrajFunction[] traj;    //Choosen array of trajectories, legs.

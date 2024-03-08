@@ -395,9 +395,7 @@ public class Drive2 {
         robotToSpeaker = projectedPosition.getTranslation().minus(speakerPos);
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
-
-        //TODO: use this angle and do stuff.
-        // System.out.println(angleFromSpeaker);
+        
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
             aimAtSpeaker();
