@@ -28,7 +28,7 @@ public class IO {
      * Object that talks to the navX module on the roboRIO
      */
     // public static NavX navX = new NavX(SPI.Port.kMXP);
-    public static Pigeon2 navX = new Pigeon2(2);
+    public static Pigeon2 navX = new Pigeon2(0);
 
     // PDH Power
     /**

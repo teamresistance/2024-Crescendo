@@ -81,7 +81,7 @@ public class Shooter {
     private static double[][] clsDistToFPS;     //Array for Segmented Line close
     private static double[][] farDistToFPS;     //Array for Segmented Line far
     private static double farDistDB;            //Deadband, dist > fardistDiff[0] far shot else close shot
-    private static double fpsMax = 55.0;
+    private static double fpsMax = 57.0;
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
     private static double shtrAmpLd_FPS = 26.0;     //FPS for Amp load
@@ -150,17 +150,10 @@ public class Shooter {
      */
     public static void update() {
         //Add code here to start state machine or override the sm sequence
-        if(btnUnload.onButtonPressed()) state = 20;
-        if(shtrRequest == RQShooter.kClimbLock) state = 30;
-        // If snorfling need to rotate top motor slowly to get note to roll into shooter
-        if(Snorfler.getState() == 2 || Snorfler.getState() == 3){
-            state = 40;
-        }else{
-            if(state == 40) state = 0;
-        }
+
 
         /*
-         * All other buttons are handled in smUpdate
+         * All buttons are handled in smUpdate
          * btnLoadForSpeaker - 1st press ramp up motors for speaker shot
          * 2nd press cancel Speaker shot else btnShoot shoot.
          * btnLoadForAmp - 1st press ramp to speed, 2nd press raise arm
@@ -184,8 +177,18 @@ public class Shooter {
      * <p>state 20 22 - unload from Amp
      * <p>state 30 - arm up lock up by climber
      * <p>state 40 - snorfling rotate top motor slowly
+     * <p>state 50 - note caught on robot, toss it.
      */
     private static void smUpdate() { // State Machine Update
+
+        if(btnUnload.onButtonPressed()) state = 20;
+        if(shtrRequest == RQShooter.kClimbLock) state = 30;
+        // If snorfling need to rotate top motor slowly to get note to roll into shooter
+        if(Snorfler.getState() == 2 || Snorfler.getState() == 3){
+            state = 40;
+        }else{
+            if(state == 40) state = 0;
+        }
 
         switch (state) {
             case 0: // Everything is off
@@ -199,7 +202,9 @@ public class Shooter {
             //---------- Shoot at Speaker  ---------------
             case 1: // Get shooters up to speed for Speaker shot
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-                if (stateTmr.hasExpired(0.25, state)) state++;
+                //Debug to see if the timer is too slow for speedup of shooter
+                System.out.println((shtrAEncoder.getFPS() >= shtrAFPS_SP * 0.98) + " | " + stateTmr.hasExpired(0.25, state)); 
+                if (stateTmr.hasExpired(0.225, state)) state++;
                 break;
             case 2: // Wait for shot or cancel
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -304,7 +309,7 @@ public class Shooter {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
         if(Math.abs(mtrAFPS) > 1.0){
-                shtrMtrAPid.setSetpoint(mtrAFPS * 6000/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrAPid.setSetpoint(0.0);
             shtrMtrA.disable();
@@ -312,7 +317,7 @@ public class Shooter {
         shtrMtrAPid.update();   //Update the PID reference
 
         if(Math.abs(mtrBFPS) > 1.0){
-                shtrMtrBPid.setSetpoint(mtrBFPS * 6000/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+                shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
             shtrMtrBPid.setSetpoint(0.0);
             shtrMtrB.disable();
@@ -385,8 +390,8 @@ public class Shooter {
         shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
         shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
         shtrMtrBPid = new MotorPID_NEO(shtrMtrB, "Shooter", shtrPIDParms);
-        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1777.41);
-        shtrBEncoder = new Encoder_Neo(shtrMtrB, 1777.41);
+        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1556.67);  //Modded for GR 16:14
+        shtrBEncoder = new Encoder_Neo(shtrMtrB, 1556.67);
     }
 
     /** Calculate shtrAFPS_SP, shtrBFPS_SP and whether shooter pitch is low or high.

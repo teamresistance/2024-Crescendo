@@ -266,16 +266,18 @@ public class Led {
 
                 cmdUpdate(interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker));
             } else {
-                chasingLights(Color.kRed, 0);
-                chasingLights(Color.kBlue, 3);
+                if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
+                    chasingLights(Color.kRed, 0);
+                    chasingLights(Color.kBlue, 3);
 
-                chasingLights(Color.kWhite, 1);
-                chasingLights(Color.kWhite, 2);
-                chasingLights(Color.kWhite, 4);
-                chasingLights(Color.kWhite, 5);
+                    chasingLights(COLOR_LEDOFF, 1);
+                    chasingLights(COLOR_LEDOFF, 2);
+                    chasingLights(COLOR_LEDOFF, 4);
+                    chasingLights(COLOR_LEDOFF, 5);
 
-                ledStrip.setData(ledBuffer);
-                chasingLightsTracker++;
+                    ledStrip.setData(ledBuffer);
+                    chasingLightsTracker++;
+                }
             }
         }
     }

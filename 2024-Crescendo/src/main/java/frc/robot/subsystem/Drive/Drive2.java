@@ -1,5 +1,7 @@
 package frc.robot.subsystem.Drive;
 
+import static frc.robot.subsystem.Drive.Drive.maxRPM;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -85,7 +87,7 @@ public class Drive2 {
     private static Encoder_Flex drvEncBR = IO.backRightEnc;
     
     //Velocity Controlled Mecanum
-    public static final double maxRPM = 5700;
+    public static double maxRPM = 20000;    //should be 5700
 
     public static MotorPID_Flex drvPidFL = new MotorPID_Flex(drvMtrFL, "Drive");
     public static MotorPID_Flex drvPidBL = new MotorPID_Flex(drvMtrBL, "Drive");
@@ -164,7 +166,7 @@ public class Drive2 {
     // new Pose2d(0.0, 0.0, new Rotation2d())
     // );
 
-    private static final double tpf = 3.82; //ticks per foot gut really rev / ft
+    // private static final double tpf = 3.82; //ticks per foot gut really rev / ft
     private static final Field2d m_field = new Field2d();
 
     private static MecanumDrivePoseEstimator poseEstimator = 
@@ -709,6 +711,9 @@ public class Drive2 {
         SmartDashboard.putNumber("Drv/Test/rP", 0.008);
         SmartDashboard.putNumber("Drv/Test/rI", 0.000);
         SmartDashboard.putNumber("Drv/Test/rD", 0.0);
+
+        SmartDashboard.putNumber("SP/maxRPM", maxRPM);
+
     }
 
     /**Update the Smartdashboard. */
@@ -731,6 +736,11 @@ public class Drive2 {
         SmartDashboard.putNumber("SP/FrontRight SP", inputs[1] * maxRPM);
         SmartDashboard.putNumber("SP/BackLeft SP", inputs[2] * maxRPM);
         SmartDashboard.putNumber("SP/BackRight SP", inputs[3] * maxRPM);
+        SmartDashboard.putNumber("SP/FrontLeft RPM", drvEncFL.getSpeed());
+        SmartDashboard.putNumber("SP/FrontRight RPM", drvEncBL.getSpeed());
+        SmartDashboard.putNumber("SP/BackLeft RPM", drvEncFR.getSpeed());
+        SmartDashboard.putNumber("SP/BackRight RPM", drvEncBR.getSpeed());
+        maxRPM = SmartDashboard.getNumber("SP/maxRPM", maxRPM);
         // SmartDashboard.putNumber("", )
         
         // SmartDashboard.putNumber("Drv/coorX", IO.coorXY.getX());
