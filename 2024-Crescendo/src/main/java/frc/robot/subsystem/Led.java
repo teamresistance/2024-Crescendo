@@ -128,11 +128,7 @@ public class Led {
         // isn't confusion with other state based variables in this subsystem
         switch(normalState) {
             case 0: // Case the robot is in at most times, simply glow green
-                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LIGHTERGREEN, defaultTracker));
-                defaultTracker += 0.02;
-                if(defaultTracker > 1.0) {
-                    defaultTracker = 0;
-                }
+                cmdUpdate(COLOR_TRGREEN);
                 break;
             case 1: //Snorfle looking for ring
                 // snorfleStrobeCounter = 0;
@@ -143,7 +139,7 @@ public class Led {
                 cmdUpdate(COLOR_SNORFLE);
                 if(Snorfler.getState() == 4) {
                     normalState++; //if ring is seen, go to state 2
-                    snorfleStrobeTimer.startTimer(3.0);
+                    snorfleStrobeTimer.startTimer(4.0);
                     snorfleStrobeTracker = 0;
                     snorfleStrobeIncrease = true;
                 }
@@ -178,9 +174,9 @@ public class Led {
                 }
 
                 if(snorfleStrobeIncrease) {
-                    snorfleStrobeTracker += 0.12;
+                    snorfleStrobeTracker += 0.2;
                 } else {
-                    snorfleStrobeTracker -= 0.12;
+                    snorfleStrobeTracker -= 0.2;
                 }
 
                 cmdUpdate(interpolate(COLOR_LEDOFF, COLOR_TRGREEN, snorfleStrobeTracker));
@@ -190,7 +186,7 @@ public class Led {
             case 3: //Speaker Shoot (rainbow)
                 // Shooterhue is never reset when coming back to this state, and it doesn't need to
                 // but if anyone is like, really butthurt about it you can add that in I guess
-                if(Shooter.getState() >= 5 || Shooter.getState() == 0) {
+                if(Shooter.getState() > 5 || Shooter.getState() == 0) {
                     normalState = 0; //Go back to` default
                     break;
                 }
