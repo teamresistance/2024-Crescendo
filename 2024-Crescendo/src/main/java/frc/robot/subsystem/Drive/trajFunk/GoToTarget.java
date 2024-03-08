@@ -42,7 +42,7 @@ public class GoToTarget extends ATrajFunction {
             // Drive.goTo(x, y, hdg, spd, rotSpd);
             // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            if(Drive2.goTo(x, y, hdg, trajCmd)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            if(Drive2.goTo(x, y, hdg, trajCmd, 1.0)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
             sendDriveCmds(trajCmd[0], trajCmd[1], trajCmd[2], false);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Goto - 1: ---------- Going to [" + x + ", " + y + "] -----------");

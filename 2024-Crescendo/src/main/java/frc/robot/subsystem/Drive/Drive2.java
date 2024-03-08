@@ -16,6 +16,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix6.hardware.Pigeon2;
 // import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -69,7 +70,7 @@ public class Drive2 {
 
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
-    public static NavX navX = IO.navX;
+    public static Pigeon2 navX = new Pigeon2(0);
     
     // variables:
     private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
@@ -156,13 +157,14 @@ public class Drive2 {
 
     private static MecanumDrivePoseEstimator poseEstimator = 
         new MecanumDrivePoseEstimator(
-            IO.kinematics, 
-            navX.getInvRotation2d(), 
+            IO.kinematics,
+            // navX.getInvRotation2d(), 
+            navX.getRotation2d(),
             new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
-            ),
-            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
+            new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)
+        )
     );
 
     //Setpoints for alignement
@@ -263,11 +265,11 @@ public class Drive2 {
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            navX.getInvRotation2d(), 
+            navX.getRotation2d(),
+            // navX.getInvRotation2d(),
             new MecanumDriveWheelPositions(
                 Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-                Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
-            ),
+                Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
     }
@@ -290,10 +292,11 @@ public class Drive2 {
 
         poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker(), 0.1 * getDistanceFromSpeaker()));
 
-        poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
+        // poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
+        poseEstimator.update(navX.getRotation2d(), new MecanumDriveWheelPositions(
             Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)
-        ));
+            Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf))
+        );
 
         // TODO: test
         // Get target
@@ -453,13 +456,15 @@ public class Drive2 {
      * @param x - SP for desired up field loc, + is up field from blue
      * @param y - SP for desired left/right loc, + is left from blue
      * @param hdg - SP for desired hdgHold(?), fieldOriented?, 0 degree is blue up field
+     * @param _rotSpd - ???
      * 
      * @return true if all, X/Y/Z, are at setpoint, within deadband.
      */
-    public static boolean goTo(double x, double y, double hdg, double[] _spdCmds){
+    public static boolean goTo(double x, double y, double hdg, double[] _spdCmds, double _rotSpd){
         rlSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
         fwdSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
-        rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
+        // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
+        rotSpd = pidHdg.calculateX(navX.getAngle(), hdg) * _rotSpd;
 
         _spdCmds[0] = fwdSpd;   _spdCmds[1] = rlSpd;   _spdCmds[2] = rotSpd;
         return (pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint());
