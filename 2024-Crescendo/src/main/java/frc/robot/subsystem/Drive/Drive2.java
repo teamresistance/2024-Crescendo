@@ -32,8 +32,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
+import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
@@ -187,6 +189,8 @@ public class Drive2 {
     public static final double setPoint2X = 1.88; //Set for blue amp as of 3/7/2024
     public static final double setPoint2Y = 8.0;
 
+    private static final double timeAhead = 3.0; //Projected note time of flight, used for accounting for movement
+    private static Pose2d projectedPosition;
     //Speaker setpoint
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
@@ -359,9 +363,34 @@ public class Drive2 {
             }
         }
 
-        robotToSpeaker = poseEstimator.getEstimatedPosition().getTranslation().minus(speakerPos);
 
-        // robotToSpeaker = speakerPos.minus(poseEstimator.getEstimatedPosition().getTranslation()); //Subtract current position from speaker position
+        /*
+         * Math for aiming at speaker
+         * We account for our velocity by adding our (current chasis speed * note time of flight)
+         * to our current position (d = vt; theta final = omega * time)
+         * 
+         * This will return a new projectedPosition, which should be used for Speaker angle calcuations
+         */
+
+        //Calculate Wheel Speeds
+        MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds(IO.frontLeftEnc.getSpeed(), IO.frontRightEnc.getSpeed(), IO.backLeftEnc.getSpeed(), IO.backRightEnc.getSpeed());
+        //Convert individual wheel speeds to speed robot is moving at
+        ChassisSpeeds chassisSpeeds = IO.kinematics.toChassisSpeeds(wheelSpeeds);
+
+        //Add our current to our project after 3 seconds (becuase d = vt)
+        double futureX = poseEstimator.getEstimatedPosition().getX() + (chassisSpeeds.vxMetersPerSecond * timeAhead);
+        double futureY = poseEstimator.getEstimatedPosition().getY() + (chassisSpeeds.vyMetersPerSecond * timeAhead);
+        double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() + (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
+    
+        //Throw everything into a Pose2d
+        projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(futureRotation));
+        /*
+         * Calculate the angle between the robot and the speaker
+         * We take our robot translation and subtract the speaker coordinate
+         * This gives us a position vector, which is the x distance and y distance between the two objects
+         * We then use this to calculate the angle from the speaker
+         */
+        robotToSpeaker = projectedPosition.getTranslation().minus(speakerPos);
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
 
