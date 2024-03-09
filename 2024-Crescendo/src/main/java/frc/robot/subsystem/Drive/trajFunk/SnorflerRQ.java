@@ -1,6 +1,7 @@
 package frc.robot.subsystem.Drive.trajFunk;
 
 import frc.robot.subsystem.Snorfler;
+import frc.robot.subsystem.Snorfler.RQSnorf;
 
 /**
  * This ATrajFunction controls the Snorfler.
@@ -21,7 +22,7 @@ public class SnorflerRQ extends ATrajFunction {
     public void execute() {
         switch (state) {
         case 0: // Init Trajectory for Snorfler
-            Snorfler.snorfRequest = snorf;
+            Snorfler.snorfRequest = RQSnorf.kAutoSnorf;
             state++;
             System.out.println("Snorf - 0:");
         case 1: // Done

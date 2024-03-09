@@ -145,6 +145,11 @@ public class IO {
         motorFrontRight.setInverted(true);
         motorBackRight.setInverted(true);
 
+        // motorFrontLeft.setSmartCurrentLimit(30);
+        // motorBackLeft.setSmartCurrentLimit(30);
+        // motorFrontRight.setSmartCurrentLimit(30);
+        // motorBackRight.setSmartCurrentLimit(30);
+
         //Snorfler moved to Snorfler hdwInit()
 
         //Shooter moved to Shooter hdwInit()

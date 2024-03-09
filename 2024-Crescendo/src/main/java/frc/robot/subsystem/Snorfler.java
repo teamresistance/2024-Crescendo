@@ -145,8 +145,8 @@ public class Snorfler {
                         snorflerEnable = false;
                         state = 0;
                     }
-                    break;
                 } 
+                break;
             case 3: // Keep going slowly until banner sensor can't see note
                 cmdUpdate(pullBackPct);
                 if(!snorfhasGP.get()) state++;

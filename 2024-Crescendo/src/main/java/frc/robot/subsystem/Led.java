@@ -300,7 +300,7 @@ public class Led {
         }
 
         for(int i = 0; i < ledBuffer.getLength(); i++) {
-            int hue = rainbowState + (4 * i);
+            int hue = rainbowState + (12 * i);
             if(hue >= 360) hue -= 360;
 
             int[] rgb = hsvToRgb(new float[]{(float)hue, 1.0f, 1.0f});
