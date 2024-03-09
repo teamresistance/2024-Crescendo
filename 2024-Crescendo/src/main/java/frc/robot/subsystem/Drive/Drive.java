@@ -173,7 +173,7 @@ public class Drive {
         new MecanumDrivePoseEstimator(
             IO.kinematics,
             // navX.getInvRotation2d(), 
-            pigeon.getRotation2d(),
+            pigeon.getInvRotation2d(),
             new MecanumDriveWheelPositions(
             // Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf),
             // Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
@@ -292,7 +292,7 @@ public class Drive {
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
-            pigeon.getRotation2d(),
+            pigeon.getInvRotation2d(),
             // navX.getInvRotation2d(),
             new MecanumDriveWheelPositions(
                 drvEncFL.meters(), drvEncBL.meters(),
@@ -477,7 +477,7 @@ public class Drive {
         // System.out.println(state);
         
         // heading = navX.getInvRotation2d();
-        heading = pigeon.getRotation2d(); //TO DO: need to check
+        heading = pigeon.getInvRotation2d(); //TO DO: need to check
         
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
     }
