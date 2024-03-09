@@ -203,7 +203,7 @@ public class Shooter {
             case 1: // Get shooters up to speed for Speaker shot
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 //Debug to see if the timer is too slow for speedup of shooter
-                System.out.println((shtrAEncoder.getFPS() >= shtrAFPS_SP * 0.925) + " | " + stateTmr.hasExpired(0.25, state) + " | " + (shtrAEncoder.getFPS()) + " | "  + (shtrAFPS_SP)); 
+                // System.out.println((shtrAEncoder.getFPS() >= shtrAFPS_SP * 0.925) + " | " + stateTmr.hasExpired(0.25, state) + " | " + (shtrAEncoder.getFPS()) + " | "  + (shtrAFPS_SP)); 
                 if (stateTmr.hasExpired(0.225, state)) state++;
                 break;
             case 2: // Wait for shot or cancel
@@ -337,9 +337,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
         SmartDashboard.putNumber("Shooter/Dist/Far DB ", farDistDB);
 
-        SmartDashboard.putBoolean("Shooter/Test Active", shtrTestActive);
-        SmartDashboard.putNumber("Shooter/Test FPS", shtrTest_FPS);
-        SmartDashboard.putBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
+        SmartDashboard.putBoolean("Shooter/Test/Active", shtrTestActive);
+        SmartDashboard.putNumber("Shooter/Test/FPS", shtrTest_FPS);
+        SmartDashboard.putBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
@@ -350,9 +350,9 @@ public class Shooter {
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
         farDistDB = SmartDashboard.getNumber("Shooter/Dist/Far DB ", farDistDB);
 
-        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test Active", shtrTestActive);
-        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test FPS", shtrTest_FPS);
-        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test Pitch Low", shtrTestPitchLow);
+        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test/Active", shtrTestActive);
+        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test/FPS", shtrTest_FPS);
+        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -400,24 +400,24 @@ public class Shooter {
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
         distToTarget = Drive.getDistanceFromSpeaker();
-        if(!shtrTestActive){
-            // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
-            // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
-            if(distToTarget - farDistToFPS[0][0] > farDistDB) shotIsFar = false;
-            if(shotIsFar){
-                shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
-                if(farDistToFPS[0][0] - farDistDB < distToTarget) shotIsFar = false;
-            }else{
-                shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
-                if(farDistToFPS[0][0] + farDistDB > distToTarget) shotIsFar = true;
-            }
-            shtrBFPS_SP = shtrAFPS_SP;
-        }else{
+        // if(!shtrTestActive){
+        //     // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
+        //     // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+        //     if(distToTarget - farDistToFPS[0][0] > farDistDB) shotIsFar = false;
+        //     if(shotIsFar){
+        //         shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+        //         if(farDistToFPS[0][0] - farDistDB < distToTarget) shotIsFar = false;
+        //     }else{
+        //         shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+        //         if(farDistToFPS[0][0] + farDistDB > distToTarget) shotIsFar = true;
+        //     }
+        //     shtrBFPS_SP = shtrAFPS_SP;
+        // }else{
             //Temporary testpoints.
             shotIsFar = shtrTestPitchLow;
             shtrAFPS_SP = shtrTest_FPS;
             shtrBFPS_SP = shtrTest_FPS;
-        }
+        // }
     }
 
     /**

@@ -28,6 +28,7 @@ public class GoToTarget extends ATrajFunction {
         x = _x; y = _y; hdg = _hdg; spd = _spd; rotSpd = _rotSpd;
         timeDelay = _timeDelay;
         delayTimer = new Timer(timeDelay);
+        state = 0;
     }
 
     public void execute() {
@@ -42,8 +43,8 @@ public class GoToTarget extends ATrajFunction {
             // Drive.goTo(x, y, hdg, spd, rotSpd);
             // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            if(Drive.goTo(x, y, hdg, trajCmd, 1.0)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
-            sendDriveCmds(trajCmd[0], trajCmd[1], trajCmd[2], false);  //fwdSpd, rlSpd & rotSpd set in goto()
+            if(Drive.goTo(x, y, hdg, trajCmd, 1.0) || delayTimer.hasExpired(timeDelay, state)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            sendDriveCmds(trajCmd[0], trajCmd[1], trajCmd[2], true);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Goto - 1: ---------- Going to [" + x + ", " + y + "] -----------");
             break;

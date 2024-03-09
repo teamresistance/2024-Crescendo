@@ -15,8 +15,10 @@ import frc.robot.subsystem.Led;
 import frc.robot.subsystem.Shooter;
 import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.Drive;
+import frc.robot.subsystem.Drive.Drv_Auto;
 import frc.robot.subsystem.Drive.Drv_Teleop;
 import frc.robot.subsystem.Drive.FieldInfo;
+import frc.robot.subsystem.Drive.Trajectories;
 import frc.robot.subsystem.tests.TestHdw;
 import frc.robot.subsystem.tests.TestMtrFPS;
 import frc.robot.subsystem.tests.TestMtrPct;
@@ -46,6 +48,7 @@ public class Robot extends TimedRobot {
         JS_IO.init();
         IO.init();
         Drive.init();
+        Trajectories.chsrInit();
     }
 
     /**
@@ -62,12 +65,14 @@ public class Robot extends TimedRobot {
         JS_IO.update();
         IO.update();
         Drive.update();
+        Trajectories.chsrUpdate();
     }
 
     /** This function is called once when autonomous is enabled. */
     @Override
     public void autonomousInit() {
-        IO.pigeon.reset();
+        // IO.pigeon.reset();
+        Drv_Auto.init();
         Snorfler.init();
         Shooter.init();
     }
@@ -75,6 +80,7 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {
+        Drv_Auto.update();
         Snorfler.update();
         Shooter.update();
         Led.update();
@@ -84,7 +90,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         Climber.init();
-        IO.pigeon.reset();
+        // IO.pigeon.reset();
         Drv_Teleop.init();
         Snorfler.init();
         Shooter.init();

@@ -11,6 +11,7 @@ import frc.util.Timer;
 public class AimAtSpeaker extends ATrajFunction {
 
     double speed;
+    private static Timer delayTimer;
 
     /**
      * Constructor to go to target
@@ -19,19 +20,21 @@ public class AimAtSpeaker extends ATrajFunction {
      */
     public AimAtSpeaker(double _spd){
         speed = _spd;
+        delayTimer = new Timer(2.0);
     }
 
     public void execute() {
         // Drive.cmdUpdate();   //By defualt issues 0, 0 cmds.
         switch (state) {
         case 0: // Initialize
+            delayTimer.clearTimer();
             state++;
             System.out.println("Aim - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            
-            if(Drive.aimAtSpeaker()) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
-            sendDriveCmds(trajCmd[0], trajCmd[1], Drive.rotSpd, false);  //fwdSpd, rlSpd & rotSpd set in goto()
+            Drive.aimAtSpeaker();
+            if(delayTimer.hasExpired()) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            sendDriveCmds(0.0, 0.0, Drive.rotSpd, false);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Aim - 1: -------------Working-------------");
             break;

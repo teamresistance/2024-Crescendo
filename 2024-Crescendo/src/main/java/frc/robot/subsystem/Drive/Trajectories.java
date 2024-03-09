@@ -1,15 +1,18 @@
 package frc.robot.subsystem.Drive;
 
+import static frc.robot.subsystem.Drive.Drive.goToNote;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystem.Drive.trajFunk.*;
+import frc.robot.subsystem.Shooter.RQShooter;
+import frc.robot.subsystem.Snorfler.RQSnorf;
 
 public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "RightCone", "RightCube","LeftCone", "LeftCube", "Balance", "MobilityBalance", "RightConeBalance", "LeftConeBalance", "RightConeDrive", "LeftConeDrive"
-    
+            "Test", "Default"
         };
     //
     /** Optional position for 'some' Trajectories. */
@@ -60,6 +63,8 @@ public class Trajectories {
         switch (chsr.getSelected()) {
             case "Test":
                 return test(pwr);
+            case "Default":
+                return nothing(pwr);
             // case "test":
             // return test(pwr);
             default:
@@ -99,9 +104,42 @@ public class Trajectories {
     public static ATrajFunction[] test(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-                new Offset(2.0, 0.5, 0.0),
-                new GoToTarget(1.88, 0.0, 0.0, pwr, 1.0, 1.0),
+                new Offset(15.15, 5.32, -180.0),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new TrajDelay(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+                // new MoveTimed(1.0, -0.3, 0.0, 0.0, true),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new GoToTarget(14.0, 4.0, -45.0, pwr, 0.2, 4.0),
 
+                // new GoToNote(1.0, 2.0),
+                new MoveTimed(1.0, 0.1, pwr, 0.15, true),
+
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+
+                new GoToTarget(14.0, 5.32, 0.0, 0.5, 0.2, 4.0),
+                // new TrajDelay(1.0),
+
+                // new GoToTarget(pwr, pwr, pwr, pwr, pwr, pwr)
+                // new MoveOnHdgFwd(0.0, 5.0, 0.3),
+                // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
+                // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
+                // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'
+                // new MoveOnHdgRL(0.0, -5.0, 0.3) //Move left 5'
+        };
+        return traj;
+    }
+
+    public static ATrajFunction[] nothing(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+
+            new SnorflerRQ(RQSnorf.kAutoSnorf),
+            new TrajDelay(1.0),
+                // new MoveOnHdgFwd(0.0, -3.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
                 // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'

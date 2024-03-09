@@ -116,7 +116,7 @@ public class Drv_Teleop extends Drive {
         //Autoalign stuff
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
-            if (goTo(setPoint1X, setPoint1Y, 10.0, driveCmd, 1.0)){
+            if (goTo(setPoint1X, setPoint1Y, -21.73, driveCmd, 1.0)){
                 //Do something when done?
             };
         }

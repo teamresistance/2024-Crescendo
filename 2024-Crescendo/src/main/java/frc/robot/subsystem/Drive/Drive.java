@@ -115,6 +115,7 @@ public class Drive {
     private static PIDXController pidControllerX = new PIDXController(1.0/2.0, 0.0, 0.0); //JS X responce
     private static PIDXController pidControllerY = new PIDXController(1.0/2.0, 0.0, 0.0); //JS Y responce
     private static PIDXController pidControllerZ = new PIDXController(1.0/1000.0, 0.0, 0.0);//JS Z responce
+    private static PIDXController pidControllerSpeaker = new PIDXController(1.0/2000.0, 0.0, 0.0);//JS Z responce
 
     //Legacy shtuff
     public static PIDXController pidDist = new PIDXController(1.0/2, 0.0, 0.0);    //adj fwdSpd for auto
@@ -186,15 +187,15 @@ public class Drive {
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)));
 
     //Setpoints for alignement
-    public static final double setPoint1X = 14.4;
-    public static final double setPoint1Y = 4.58;
+    public static final double setPoint1X = 14.25;
+    public static final double setPoint1Y = 4.29;
     public static final double setPoint2X = 1.88; //Set for blue amp as of 3/7/2024
     public static final double setPoint2Y = 8.0;
 
     private static final double timeAhead = 3.0; //Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
     //Speaker setpoint
-    public static final Translation2d speakerPos = new Translation2d(16.0, 5.0); //TODO: Fill in translation2d object with speaker coords
+    public static final Translation2d speakerPos = new Translation2d(16.0, 5.42); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
 
     public static double hdgFB() {return pigeon.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -230,9 +231,10 @@ public class Drive {
         drvBrake(true);    //set motors to coast
 
         //                             name    SP,      P,       DB,     mn,      mx,     exp,    clamp
-        PIDXController.setExt(pidControllerX, 0.0, 1.0/2,  0.5, 0.2, 1.0, 1.0, true); //JS X responce
-        PIDXController.setExt(pidControllerY, 0.0, 1.0/2,  0.5, 0.2, 1.0, 1.0, true); //JS Y responce
+        PIDXController.setExt(pidControllerX, 0.0, 1.0/8,  5.5, 0.2, 1.0, 1.0, true); //JS X responce
+        PIDXController.setExt(pidControllerY, 0.0, 1.0/8,  5.5, 0.2, 1.0, 1.0, true); //JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
+        PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
 
         //                     name    SP,   P,      DB,  mn, mx,  exp, clamp
         PIDXController.setExt(pidHdg, 0.0, 1.0/30, 1.0, 0.05, 0.5, 2.0, true);
@@ -258,7 +260,7 @@ public class Drive {
         
         
         // Create a vector with 3 elements, all initialized to zero
-        var visionMeasurementStdDevs = VecBuilder.fill(0.2, 0.2, 0.2);
+        var visionMeasurementStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
@@ -342,7 +344,7 @@ public class Drive {
 
                 // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
                 
-                System.out.println("Estimated pose: " + estimatedPose);
+                // System.out.println("Estimated pose: " + estimatedPose);
                 poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
             }
         }
@@ -392,10 +394,11 @@ public class Drive {
          * This gives us a position vector, which is the x distance and y distance between the two objects
          * We then use this to calculate the angle from the speaker
          */
-        robotToSpeaker = projectedPosition.getTranslation().minus(speakerPos);
+        robotToSpeaker = poseEstimator.getEstimatedPosition().getTranslation().minus(speakerPos);
+        // System.out.println(robotToSpeaker);
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
-
+        // System.out.println("angleFromX: " + angleFromX + " Angle from Speaker: " + angleFromSpeaker.getDegrees());
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
             aimAtSpeaker();
@@ -514,10 +517,10 @@ public class Drive {
      * @return true if all, X/Y/Z, are at setpoint, within deadband.
      */
     public static boolean goTo(double x, double y, double hdg, double[] _spdCmds, double _rotSpd){
-        rlSpd  = -pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        // fwdSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
+        rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
-        rotSpd = pidHdg.calculateX(pigeon.getAngle(), hdg) * _rotSpd;
+        rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * _rotSpd;
 
         _spdCmds[0] = fwdSpd;   _spdCmds[1] = rlSpd;   _spdCmds[2] = rotSpd;
         return (pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint());
@@ -529,8 +532,8 @@ public class Drive {
      * @return true if on target.
      */
     public static boolean aimAtSpeaker(){
-        rotSpd = -1.0 * pidControllerZ.calculate(0.0, angleFromSpeaker.getDegrees());
-        return pidControllerZ.atSetpoint();
+        rotSpd = -1.0 * pidControllerSpeaker.calculate(0.0, (angleFromSpeaker.getDegrees()));
+        return pidControllerSpeaker.atSetpoint();
     }
 
     /**
@@ -738,6 +741,9 @@ public class Drive {
         SmartDashboard.putNumber("SP/FrontRight RPM", drvEncBL.getSpeed());
         SmartDashboard.putNumber("SP/BackLeft RPM", drvEncFR.getSpeed());
         SmartDashboard.putNumber("SP/BackRight RPM", drvEncBR.getSpeed());
+        
+        SmartDashboard.putNumber("SP/heading", pigeon.getNormalizedTo180());
+
         maxRPM = SmartDashboard.getNumber("SP/maxRPM", maxRPM);
         // SmartDashboard.putNumber("", )
         

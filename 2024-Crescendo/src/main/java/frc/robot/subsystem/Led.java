@@ -179,7 +179,7 @@ public class Led {
                     snorfleStrobeTracker -= 0.2;
                 }
 
-                cmdUpdate(interpolate(COLOR_LEDOFF, COLOR_TRGREEN, snorfleStrobeTracker));
+                cmdUpdate(interpolate(COLOR_LEDOFF, Color.kWhite, snorfleStrobeTracker));
                 
 
                 break;
@@ -268,11 +268,11 @@ public class Led {
             } else {
                 if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
                     chasingLights(Color.kRed, 0);
-                    chasingLights(Color.kBlue, 3);
+                    chasingLights(Color.kWhite, 2);
+                    chasingLights(Color.kBlue, 4);
 
                     chasingLights(COLOR_LEDOFF, 1);
-                    chasingLights(COLOR_LEDOFF, 2);
-                    chasingLights(COLOR_LEDOFF, 4);
+                    chasingLights(COLOR_LEDOFF, 3);
                     chasingLights(COLOR_LEDOFF, 5);
 
                     ledStrip.setData(ledBuffer);

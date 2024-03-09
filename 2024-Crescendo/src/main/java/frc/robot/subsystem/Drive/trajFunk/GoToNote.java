@@ -40,8 +40,10 @@ public class GoToNote extends ATrajFunction {
             System.out.println("GotoNote - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            if(Drive.goToNote(spd, trajCmd)) state++;
+            Drive.goToNote(spd, trajCmd);
+            if(Snorfler.hasGP_FB) state++;
             sendDriveCmds(0.0, -0.3, trajCmd[2], false);
+            delayTimer.clearTimer();
             // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
             // System.out.println("GotoNote - 1: ---------- Moving on note -----------");
