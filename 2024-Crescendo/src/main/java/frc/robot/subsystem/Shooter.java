@@ -127,8 +127,8 @@ public class Shooter {
     public static void init() {
         hdwInit();
         
-        clsDistToFPS = new double[][] {{3.25, 4.25, 4.9},{fpsMax, 55.0, 37.88}};  //Segmented Line close
-        farDistToFPS = new double[][] {{4.9, 5.5, 7.25},{fpsMax, 49.83, 43.19}};  //Segmented Line far
+        clsDistToFPS = new double[][] {{3.25, 4.25, 4.9},{fpsMax, fpsMax, fpsMax}};  //Segmented Line close
+        farDistToFPS = new double[][] {{4.9, 5.5, 7.25},{fpsMax, fpsMax, fpsMax}};  //Segmented Line far
         farDistDB = 0.15;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
         //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true
 
@@ -203,7 +203,7 @@ public class Shooter {
             case 1: // Get shooters up to speed for Speaker shot
                 cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
                 //Debug to see if the timer is too slow for speedup of shooter
-                System.out.println((shtrAEncoder.getFPS() >= shtrAFPS_SP * 0.98) + " | " + stateTmr.hasExpired(0.25, state)); 
+                System.out.println((shtrAEncoder.getFPS() >= shtrAFPS_SP * 0.925) + " | " + stateTmr.hasExpired(0.25, state) + " | " + (shtrAEncoder.getFPS()) + " | "  + (shtrAFPS_SP)); 
                 if (stateTmr.hasExpired(0.225, state)) state++;
                 break;
             case 2: // Wait for shot or cancel

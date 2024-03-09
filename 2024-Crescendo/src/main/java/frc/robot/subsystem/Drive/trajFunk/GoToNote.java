@@ -2,8 +2,8 @@ package frc.robot.subsystem.Drive.trajFunk;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystem.Snorfler;
+// import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drive;
-import frc.robot.subsystem.Drive.Drive2;
 import frc.util.Timer;
 
 /**
@@ -40,7 +40,7 @@ public class GoToNote extends ATrajFunction {
             System.out.println("GotoNote - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            if(Drive2.goToNote(spd, trajCmd)) state++;
+            if(Drive.goToNote(spd, trajCmd)) state++;
             sendDriveCmds(0.0, -0.3, trajCmd[2], false);
             // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());

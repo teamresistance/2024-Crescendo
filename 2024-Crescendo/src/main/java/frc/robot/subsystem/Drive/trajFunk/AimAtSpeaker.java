@@ -1,0 +1,48 @@
+package frc.robot.subsystem.Drive.trajFunk;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import frc.robot.subsystem.Drive.Drive2;
+import frc.robot.subsystem.Drive.Drive;
+import frc.util.Timer;
+
+/**
+ * This TrajFunction delays execution of the trajectory.
+ */
+public class AimAtSpeaker extends ATrajFunction {
+
+    double speed;
+
+    /**
+     * Constructor to go to target
+     * Coordinates, and heading are coordinates on field in meters
+     * @param spd and @param rotSpd are percentage speed multipliers from 0 to 1
+     */
+    public AimAtSpeaker(double _spd){
+        speed = _spd;
+    }
+
+    public void execute() {
+        // Drive.cmdUpdate();   //By defualt issues 0, 0 cmds.
+        switch (state) {
+        case 0: // Initialize
+            state++;
+            System.out.println("Aim - 0: ---------- Init -----------");
+            break;
+        case 1: // Wait for the timer
+            
+            if(Drive.aimAtSpeaker()) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            sendDriveCmds(trajCmd[0], trajCmd[1], Drive.rotSpd, false);  //fwdSpd, rlSpd & rotSpd set in goto()
+            
+            System.out.println("Aim - 1: -------------Working-------------");
+            break;
+        case 2:
+            setDone();
+            System.out.println("Aim - 2: ---------- Done -----------");
+            break;
+        default:
+            setDone();
+            System.out.println("Aim - Dflt: ------  Bad state  ----");
+            break;
+        }
+    }
+}

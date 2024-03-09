@@ -30,7 +30,7 @@ import frc.io.hdw_io.util.Pigeon2;
 
 public class TestHdw {
     // navX
-    private static Pigeon2 navX = IO.navX;
+    private static Pigeon2 navX = IO.pigeon;
 
     // PDH Power
     private static PowerDistribution pdh = IO.pdh;

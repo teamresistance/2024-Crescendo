@@ -99,7 +99,9 @@ public class Trajectories {
     public static ATrajFunction[] test(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-                
+                new Offset(2.0, 0.5, 0.0),
+                new GoToTarget(1.88, 0.0, 0.0, pwr, 1.0, 1.0),
+
                 // new MoveOnHdgFwd(0.0, 5.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
                 // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'

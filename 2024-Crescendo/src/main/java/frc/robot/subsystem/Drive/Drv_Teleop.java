@@ -1,6 +1,6 @@
 package frc.robot.subsystem.Drive;
 
-import static frc.robot.subsystem.Drive.Drive.navX;
+import static frc.robot.subsystem.Drive.Drive.pigeon;
 import static frc.robot.subsystem.Drive.Drive.reset;
 import static frc.robot.subsystem.Drive.Drive.setPoint1X;
 import static frc.robot.subsystem.Drive.Drive.setPoint1Y;
@@ -19,7 +19,7 @@ import frc.util.PropMath;
 /**
  * Extends the Drive class to manually control the robot in teleop mode.
  */
-public class Drv_Teleop extends Drive2 {
+public class Drv_Teleop extends Drive {
     
     // joystick:
     private static Axis jsX = JS_IO.axLeftX;
@@ -135,11 +135,12 @@ public class Drv_Teleop extends Drive2 {
             if (goToNote(1.0, driveCmd)){ //driveCmd should be set by the joystick
                 setDriveCmds(driveCmd[0], driveCmd[1], driveCmd[2], true); //Rotate towards note
             }
-            setDriveCmds(0.3, 0.0, driveCmd[2], false); //Drive forward a little bit 
+            // else
+            setDriveCmds(-0.3, 0.0, driveCmd[2], false); //Drive forward a little bit 
         }
 
         if (headingHoldBtn.isDown()){
-            rotSpd = pidHdg.calculateX(Drive.navX.getAngle(), 0.0);
+            rotSpd = pidHdg.calculateX(Drive.pigeon.getAngle(), 0.0);
         }
         // sdbUpdate();
     }

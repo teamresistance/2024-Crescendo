@@ -28,7 +28,7 @@ public class IO {
      * Object that talks to the navX module on the roboRIO
      */
     // public static NavX navX = new NavX(SPI.Port.kMXP);
-    public static Pigeon2 navX = new Pigeon2(0);
+    public static Pigeon2 pigeon = new Pigeon2(0);
 
     // PDH Power
     /**
@@ -83,7 +83,7 @@ public class IO {
             frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
     );
     
-    public static CoorSys coorXY = new CoorSys(navX, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
+    public static CoorSys coorXY = new CoorSys(pigeon, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
@@ -110,7 +110,7 @@ public class IO {
      */
     public static void init() {
         pch.enableAnalog(105.0, 120.0); //Reads 120 high
-        navX.reset();
+        pigeon.reset();
 
         // drvsInit();
         motorsInit();
@@ -122,7 +122,7 @@ public class IO {
 
         //Resets navX, angle offset, coorXY & offsets to zero.  
         //Also set scaled driving for climbing
-        if(JS_IO.btnGyroReset.onButtonPressed()) navX.reset();
+        if(JS_IO.btnGyroReset.onButtonPressed()) pigeon.reset();
         // coorXY.update();
         sdbUpdate();
         // sdbUpdPDH(); //Enable when troubleshooting power

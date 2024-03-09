@@ -26,7 +26,7 @@ public abstract class ATrajFunction {
     public static PIDXController pidHdg = Drive.pidHdg;
     public static PIDXController pidDist = Drive.pidDist;
 
-    public static double hdgFB() {return IO.navX.getNormalizedTo180();}
+    public static double hdgFB() {return IO.pigeon.getNormalizedTo180();}
     public static double distFB() {return IO.coorXY.drvFeet();}
     public static double distFBX() {return IO.getmecDistX();}   //Mec fwd movement
     public static double distFBY() {return IO.getmecDistY();}   //Mec side movement
