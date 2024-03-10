@@ -13,12 +13,13 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "Test", "Default"
-        };
+            "Test", "Test2", "Default"
+    };
     //
     /** Optional position for 'some' Trajectories. */
     private static SendableChooser<Integer> chsrAutoPos = new SendableChooser<Integer>();
-    //private static SendableChooser<Boolean> isRed = new SendableChooser<Boolean>();
+    // private static SendableChooser<Boolean> isRed = new
+    // SendableChooser<Boolean>();
 
     /** Initialize Traj chooser */
     public static void chsrInit() {
@@ -29,7 +30,7 @@ public class Trajectories {
         int dflt = 1; // default - rightRun
         chsr.setDefaultOption(chsrDesc[dflt] + " (Default)", chsrDesc[dflt]); // Default MUST have a different name
         SmartDashboard.putData("Drv/Traj/Traj Choice", chsr);
-        //SmartDashboard.putData("Drv/Traj/IsRed", isRed);
+        // SmartDashboard.putData("Drv/Traj/IsRed", isRed);
 
         // IF USED: Initialize position trajectory to start at. --- Testing ---
         for (int i = 0; i <= 7; i++) {
@@ -50,7 +51,7 @@ public class Trajectories {
     public static void chsrUpdate() {
         SmartDashboard.putString("Drv/Traj/Traj Chosen", chsr.getSelected());
         SmartDashboard.putNumber("Drv/Traj/Position Chosen", chsrAutoPos.getSelected());
-        //SmartDashboard.putBoolean("Drv/Traj/IsRed", isRed.getSelected());
+        // SmartDashboard.putBoolean("Drv/Traj/IsRed", isRed.getSelected());
 
     }
 
@@ -64,6 +65,8 @@ public class Trajectories {
         switch (chsr.getSelected()) {
             case "Test":
                 return test(pwr);
+            case "Test2":
+                return test2(pwr);
             case "Default":
                 return nothing(pwr);
             // case "test":
@@ -73,7 +76,6 @@ public class Trajectories {
                 return test(pwr);
         }
 
-        
     }
 
     /**
@@ -113,12 +115,12 @@ public class Trajectories {
 
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
-                new MoveOnHdgRot(-35.0, 0.3),                
-                new GoToNote(0.15, 1.25),
+                new MoveOnHdgRot(-35.0, 0.3),
+                new GoToNote(0.15, 1.1),
 
                 new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
+                new MoveTimed(1.0, 0.25, 0.25, 0.0, false),
                 // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
 
                 new AimAtSpeaker(1.0),
@@ -126,10 +128,10 @@ public class Trajectories {
                 // new TrajDelay(1.6),
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
 
-                new MoveOnHdgRot(0.0, 0.3),
-                new GoToNote(0.3, 0.7),
+                new MoveOnHdgRot(0.0, 0.15),
+                new GoToNote(0.2, 0.9),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
+                new MoveTimed(0.75, 0.2, 0.0, 0.0, true),
                 // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
                 // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
 
@@ -137,14 +139,14 @@ public class Trajectories {
                 new ShooterRQ(RQShooter.kShoot),
                 // new TrajDelay(1.6),
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
-                
+
                 // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
-                new MoveOnHdgRot(35.0, 0.3),
+                new MoveOnHdgRot(15.0, 0.3),
                 // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
-                new GoToNote(0.3, 1.0),
+                new GoToNote(0.3, 0.8),
                 new ShooterRQ(RQShooter.kSpkrShot),
                 // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
-                new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 1.0),
+                new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.8),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
@@ -152,51 +154,102 @@ public class Trajectories {
         return traj;
     }
 
+    // public static ATrajFunction[] test2(double pwr) {
+    // pwr = 0.3;
+    // ATrajFunction traj[] = {
+    // new Offset(15.15, 5.32, -180.0),
+    // new ShooterRQ(RQShooter.kSpkrShot),
+    // // new TrajDelay(0.5),
+    // new ShooterRQ(RQShooter.kShoot),
+    // // new TrajDelay(0.6),
+
+    // new SnorflerRQ(RQSnorf.kAutoSnorf),
+    // new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
+    // new MoveOnHdgRot(-35.0, 0.3),
+    // new GoToNote(0.35, 0.6),
+
+    // // new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
+    // new ShooterRQ(RQShooter.kSpkrShot),
+    // // new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
+    // new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.3),
+
+    // new AimAtSpeaker(1.0),
+    // new ShooterRQ(RQShooter.kShoot),
+    // // new TrajDelay(1.6),
+    // new SnorflerRQ(RQSnorf.kAutoSnorf),
+
+    // new MoveOnHdgRot(15.0, 0.3),
+    // new GoToNote(0.2, 0.4),
+    // new ShooterRQ(RQShooter.kSpkrShot),
+    // // new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
+    // // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
+    // // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
+
+    // new AimAtSpeaker(1.0),
+    // new ShooterRQ(RQShooter.kShoot),
+    // // new TrajDelay(1.6),
+    // new SnorflerRQ(RQSnorf.kAutoSnorf),
+
+    // // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
+    // new MoveOnHdgRot(45.0, 0.5),
+    // // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
+    // new GoToNote(0.2, 0.8),
+    // new ShooterRQ(RQShooter.kSpkrShot),
+    // // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
+    // new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.3),
+    // new AimAtSpeaker(1.0),
+    // new ShooterRQ(RQShooter.kShoot),
+    // };
+    // return traj;
+    // }
+
     public static ATrajFunction[] test2(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-            new Offset(15.15, 5.32, -180.0),
-            new ShooterRQ(RQShooter.kSpkrShot),
-            // new TrajDelay(0.5),
-            new ShooterRQ(RQShooter.kShoot),
-            // new TrajDelay(0.6),
+                new Offset(15.15, 5.32, -180.0),
+                // preload note
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new ShooterRQ(RQShooter.kShoot),
 
-            new SnorflerRQ(RQSnorf.kAutoSnorf),
-            new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
-            new MoveOnHdgRot(-35.0, 0.3),                
-            new GoToNote(0.35, 0.6),
+                // note middle
 
-            // new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
-            new ShooterRQ(RQShooter.kSpkrShot),
-            // new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
-            new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.5),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new GoToNote(0.2, 1.0),
+                // new GoToTarget(14.61, 6.19, 24.4, 1.0, 1.0, 2.5),
+                new MoveTimed(0.83, 0.4, 0.0, 0.0, true),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                // new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
 
-            new AimAtSpeaker(1.0),
-            new ShooterRQ(RQShooter.kShoot),
-            // new TrajDelay(1.6),
-            new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveTimed(0.7, -.2, .2, 0.12, true),
 
-            new MoveOnHdgRot(15.0, 0.3),
-            new GoToNote(0.2, 0.6),
-            new ShooterRQ(RQShooter.kSpkrShot),
-            // new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
-            // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
-            // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
+                // // note right
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                // new MoveOnHdgRot(45.0, 0.3),
+                new GoToNote(0.2, 0.6),
 
-            new AimAtSpeaker(1.0),
-            new ShooterRQ(RQShooter.kShoot),
-            // new TrajDelay(1.6),
-            new SnorflerRQ(RQSnorf.kAutoSnorf),
-            
-            // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
-            new MoveOnHdgRot(35.0, 0.3),
-            // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
-            new GoToNote(0.2, 0.6),
-            new ShooterRQ(RQShooter.kSpkrShot),
-            // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
-            new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.3),
-            new AimAtSpeaker(1.0),
-            new ShooterRQ(RQShooter.kShoot),
+                // // closer to speaker
+                new TrajDelay(0.2),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(14.7, 5.2, -20.0, 1.0, 0.3, 1.5),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+                new MoveTimed(0.7, 0.0, -0.3, 0.0, true),
+                // new MoveTimed(0.5, 0.2, -0.2, 0.0, true),
+
+                // // note left
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                // new MoveTimed(0.5, -0.2, -0.2, -0.3, true),
+                new MoveOnHdgRot(-30, 0.3),
+                new GoToNote(0.18, 0.6),
+
+                // // closer to speaker
+                new MoveTimed(0.7, 0.3, 0.0, 0.0, false),
+                // new GoToTarget(14.9, 4.8, -30.0, 1.0, 0.4, 1.5),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
         };
         return traj;
     }
@@ -205,8 +258,8 @@ public class Trajectories {
         pwr = 0.3;
         ATrajFunction traj[] = {
 
-            new SnorflerRQ(RQSnorf.kAutoSnorf),
-            new TrajDelay(1.0),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new TrajDelay(1.0),
                 // new MoveOnHdgFwd(0.0, -3.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, 0.3),
                 // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
