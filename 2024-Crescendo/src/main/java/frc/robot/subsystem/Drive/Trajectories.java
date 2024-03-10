@@ -1,10 +1,7 @@
 package frc.robot.subsystem.Drive;
 
-import static frc.robot.subsystem.Drive.Drive.goToNote;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.trajFunk.*;
 import frc.robot.subsystem.Shooter.RQShooter;
 import frc.robot.subsystem.Snorfler.RQSnorf;
@@ -13,7 +10,7 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "Test", "Test2", "Default"
+            "RedLeft", "RedMiddle", "Default"
     };
     //
     /** Optional position for 'some' Trajectories. */
@@ -63,17 +60,17 @@ public class Trajectories {
      */
     public static ATrajFunction[] getTraj(double pwr) {
         switch (chsr.getSelected()) {
-            case "Test":
-                return test(pwr);
-            case "Test2":
-                return test2(pwr);
+            case "RedLeft":
+                return RedLeft(pwr);
+            case "RedMiddle":
+                return RedMiddle(pwr);
             case "Default":
                 return nothing(pwr);
             // case "test":
             // return test(pwr);
             default:
                 System.out.println("Traj/Bad Traj Desc - " + chsr.getSelected());
-                return test(pwr);
+                return RedLeft(pwr);
         }
 
     }
@@ -104,7 +101,7 @@ public class Trajectories {
      * @return An array of Traj Functions, commands to control the robot
      *         autonomously.
      */
-    public static ATrajFunction[] test(double pwr) {
+    public static ATrajFunction[] RedLeft(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
                 new Offset(15.15, 5.32, -180.0),
@@ -154,56 +151,7 @@ public class Trajectories {
         return traj;
     }
 
-    // public static ATrajFunction[] test2(double pwr) {
-    // pwr = 0.3;
-    // ATrajFunction traj[] = {
-    // new Offset(15.15, 5.32, -180.0),
-    // new ShooterRQ(RQShooter.kSpkrShot),
-    // // new TrajDelay(0.5),
-    // new ShooterRQ(RQShooter.kShoot),
-    // // new TrajDelay(0.6),
-
-    // new SnorflerRQ(RQSnorf.kAutoSnorf),
-    // new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
-    // new MoveOnHdgRot(-35.0, 0.3),
-    // new GoToNote(0.35, 0.6),
-
-    // // new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
-    // new ShooterRQ(RQShooter.kSpkrShot),
-    // // new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
-    // new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.3),
-
-    // new AimAtSpeaker(1.0),
-    // new ShooterRQ(RQShooter.kShoot),
-    // // new TrajDelay(1.6),
-    // new SnorflerRQ(RQSnorf.kAutoSnorf),
-
-    // new MoveOnHdgRot(15.0, 0.3),
-    // new GoToNote(0.2, 0.4),
-    // new ShooterRQ(RQShooter.kSpkrShot),
-    // // new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
-    // // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
-    // // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
-
-    // new AimAtSpeaker(1.0),
-    // new ShooterRQ(RQShooter.kShoot),
-    // // new TrajDelay(1.6),
-    // new SnorflerRQ(RQSnorf.kAutoSnorf),
-
-    // // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
-    // new MoveOnHdgRot(45.0, 0.5),
-    // // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
-    // new GoToNote(0.2, 0.8),
-    // new ShooterRQ(RQShooter.kSpkrShot),
-    // // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
-    // new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.3),
-    // new AimAtSpeaker(1.0),
-    // new ShooterRQ(RQShooter.kShoot),
-    // };
-    // return traj;
-    // }
-
-    public static ATrajFunction[] test2(double pwr) {
+    public static ATrajFunction[] RedMiddle(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
                 new Offset(15.15, 5.32, -180.0),
@@ -250,6 +198,111 @@ public class Trajectories {
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
+        };
+        return traj;
+    }
+    
+    private static double mirror_angle(double angle) {
+        return (angle + 180.0) % 360.0;
+    }
+    
+    public static ATrajFunction[] BlueLeft(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+          new Offset(-15.15, 5.32, 0.0),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          // new TrajDelay(0.5),
+          new ShooterRQ(RQShooter.kShoot),
+          // new TrajDelay(0.6),
+          
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
+          new MoveOnHdgRot(mirror_angle(-35.0), 0.3),
+          new GoToNote(0.15, 1.1),
+          
+          new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new MoveTimed(1.0, 0.25, 0.25, 0.0, false),
+          // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
+          
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+          // new TrajDelay(1.6),
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          
+          new MoveOnHdgRot(mirror_angle(0.0), 0.15),
+          new GoToNote(0.2, 0.9),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new MoveTimed(0.75, 0.2, 0.0, 0.0, true),
+          // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
+          // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
+          
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+          // new TrajDelay(1.6),
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          
+          // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
+          new MoveOnHdgRot(mirror_angle(15.0), 0.3),
+          // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
+          new GoToNote(0.3, 0.8),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
+          new GoToTarget(-14.5, 5.32, mirror_angle(0.0), 3.0, 1.0, 0.8),
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+          
+        };
+        return traj;
+    }
+    
+    public static ATrajFunction[] BlueMiddle(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+          new Offset(-15.15, 5.32, 0.0),
+          // preload note
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new ShooterRQ(RQShooter.kShoot),
+          
+          // note middle
+          
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          new GoToNote(0.2, 1.0),
+          // new GoToTarget(14.61, 6.19, 24.4, 1.0, 1.0, 2.5),
+          new MoveTimed(0.83, 0.4, 0.0, 0.0, true),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          // new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+          
+          new MoveTimed(0.7, -.2, .2, 0.12, true),
+          
+          // // note right
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          // new MoveOnHdgRot(45.0, 0.3),
+          new GoToNote(0.2, 0.6),
+          
+          // // closer to speaker
+          new TrajDelay(0.2),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new GoToTarget(-14.7, 5.2, -20.0 + 180.0, 1.0, 0.3, 1.5),
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+          
+          new MoveTimed(0.7, 0.0, -0.3, 0.0, true),
+          // new MoveTimed(0.5, 0.2, -0.2, 0.0, true),
+          
+          // // note left
+          new SnorflerRQ(RQSnorf.kAutoSnorf),
+          // new MoveTimed(0.5, -0.2, -0.2, -0.3, true),
+          new MoveOnHdgRot(-30, 0.3),
+          new GoToNote(0.18, 0.6),
+          
+          // // closer to speaker
+          new MoveTimed(0.7, 0.3, 0.0, 0.0, false),
+          // new GoToTarget(14.9, 4.8, -30.0, 1.0, 0.4, 1.5),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
         };
         return traj;
     }
