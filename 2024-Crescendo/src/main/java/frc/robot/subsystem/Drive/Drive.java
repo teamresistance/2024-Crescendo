@@ -187,27 +187,28 @@ public class Drive {
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)));
 
     //Setpoints for alignement
-    public static final double setPoint1X = 14.25;
-    public static final double setPoint1Y = 4.29;
-    public static final double setPoint2X = 14.76; //Set for blue amp as of 3/7/2024
-    public static final double setPoint2Y = 7.60;
+    public static final double redAmpX = 14.25;
+    public static final double redAmpY = 4.29;
+    public static final double blueAmpX = 14.76; //Set for blue amp as of 3/7/2024
+    public static final double blueAmpY = 7.60;
 
-    public static final double setPointLX = 14.79;
-    public static final double setPointLY = 4.19;
-    public static final double setPointLAngle = -45.3;
+    public static final double redSpeakerLX = 14.79;
+    public static final double redSpeakerLY = 4.19;
+    public static final double redSpeakerLA = -45.3;
 
-    public static final double setPointMX = 14.57;
-    public static final double setPointMY = 5.52;
-    public static final double setPointMAngle = 1.77;
+    public static final double redSpeakerMX = 14.57;
+    public static final double redSpeakerMY = 5.52;
+    public static final double redSpeakerMA = 1.77;
 
-    public static final double setPointRX = 14.47;
-    public static final double setPointRY = 5.95;
-    public static final double setPointRAngle = 21.25;
+    public static final double redSpeakerRX = 14.47;
+    public static final double redSpeakerRY = 5.95;
+    public static final double redSpeakerRA = 21.25;
 
     private static final double timeAhead = 0.0002; //Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
     //Speaker setpoint
-    public static final Translation2d speakerPos = new Translation2d(16.0, 5.7); //TODO: Fill in translation2d object with speaker coords
+    public static final Translation2d redSpeakerPos = new Translation2d(16.0, 5.7); //TODO: Fill in translation2d object with speaker coords
+    public static final Translation2d bluSpeakerPos = new Translation2d(0.4, 5.7); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
 
     public static double hdgFB() {return pigeon.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -406,7 +407,7 @@ public class Drive {
          * This gives us a position vector, which is the x distance and y distance between the two objects
          * We then use this to calculate the angle from the speaker
          */
-        robotToSpeaker = projectedPosition.getTranslation().minus(speakerPos);
+        robotToSpeaker = projectedPosition.getTranslation().minus(redSpeakerPos);
         // System.out.println(robotToSpeaker);
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker

@@ -2,10 +2,10 @@ package frc.robot.subsystem.Drive;
 
 import static frc.robot.subsystem.Drive.Drive.pigeon;
 import static frc.robot.subsystem.Drive.Drive.reset;
-import static frc.robot.subsystem.Drive.Drive.setPoint1X;
-import static frc.robot.subsystem.Drive.Drive.setPoint1Y;
-import static frc.robot.subsystem.Drive.Drive.setPoint2X;
-import static frc.robot.subsystem.Drive.Drive.setPoint2Y;
+import static frc.robot.subsystem.Drive.Drive.redAmpX;
+import static frc.robot.subsystem.Drive.Drive.redAmpY;
+import static frc.robot.subsystem.Drive.Drive.blueAmpX;
+import static frc.robot.subsystem.Drive.Drive.blueAmpY;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -116,32 +116,32 @@ public class Drv_Teleop extends Drive {
         //Autoalign stuff
         if (btnAuto.isDown()){
             //Calculate based on where setpoint is
-            if (goTo(setPoint1X, setPoint1Y, -21.73, driveCmd, 1.0)){
+            if (goTo(redAmpX, redAmpY, -21.73, driveCmd, 1.0)){
                 //Do something when done?
             };
         }
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(setPoint2X, setPoint2Y, -90.0, driveCmd, 1.0)){
+            if (goTo(blueAmpX, blueAmpY, -90.0, driveCmd, 1.0)){
                 //Do something when done?
             };
         }
 
         if (JS_IO.btnRightSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(setPointRX, setPointRY, setPointRAngle, driveCmd, 1.0)){
+            if (goTo(redSpeakerRX, redSpeakerRY, redSpeakerRA, driveCmd, 1.0)){
                 //Do something when done?
             };
         }
         if (JS_IO.btnMiddleSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(setPointMX, setPointMY, setPointMAngle, driveCmd, 1.0)){
+            if (goTo(redSpeakerMX, redSpeakerMY, redSpeakerMA, driveCmd, 1.0)){
                 //Do something when done?
             };
         }
         if (JS_IO.btnLeftSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(setPointLX, setPointLY, setPointLAngle, driveCmd, 1.0)){
+            if (goTo(redSpeakerLX, redSpeakerLY, redSpeakerLA, driveCmd, 1.0)){
                 //Do something when done?
             };
         }
