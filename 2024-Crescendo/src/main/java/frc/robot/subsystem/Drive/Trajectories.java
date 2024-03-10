@@ -107,18 +107,18 @@ public class Trajectories {
         ATrajFunction traj[] = {
                 new Offset(15.15, 5.32, -180.0),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new TrajDelay(1.0),
+                // new TrajDelay(0.5),
                 new ShooterRQ(RQShooter.kShoot),
                 // new TrajDelay(0.6),
 
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
                 new MoveOnHdgRot(-35.0, 0.3),                
-                new GoToNote(0.15, 1.1),
+                new GoToNote(0.15, 1.25),
 
                 new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new MoveTimed(0.4, 0.25, 0.1, 0.0, false),
+                new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
                 // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
 
                 new AimAtSpeaker(1.0),
@@ -129,8 +129,8 @@ public class Trajectories {
                 new MoveOnHdgRot(0.0, 0.3),
                 new GoToNote(0.3, 0.7),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new MoveTimed(1.0, 0.2, 0.0, 0.0, true),
-                new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
+                new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
+                // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
                 // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
 
                 new AimAtSpeaker(1.0),
@@ -138,16 +138,65 @@ public class Trajectories {
                 // new TrajDelay(1.6),
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 
-                new MoveTimed(0.4, -0.2, 0.1, 0.3, true),
-                // new MoveOnHdgRot(25.0, 0.3),
+                // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
+                new MoveOnHdgRot(35.0, 0.3),
                 // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
-                new GoToNote(0.3, 0.7),
+                new GoToNote(0.3, 1.0),
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new MoveTimed(0.5, 0.2, -0.3, 0.0, true),
-                new GoToTarget(15.25, 5.32, 0.0, 3.0, 1.0, 2.0),
+                // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
+                new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 1.0),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
+        };
+        return traj;
+    }
+
+    public static ATrajFunction[] test2(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+            new Offset(15.15, 5.32, -180.0),
+            new ShooterRQ(RQShooter.kSpkrShot),
+            // new TrajDelay(0.5),
+            new ShooterRQ(RQShooter.kShoot),
+            // new TrajDelay(0.6),
+
+            new SnorflerRQ(RQSnorf.kAutoSnorf),
+            new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
+            new MoveOnHdgRot(-35.0, 0.3),                
+            new GoToNote(0.35, 0.6),
+
+            // new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
+            new ShooterRQ(RQShooter.kSpkrShot),
+            // new MoveTimed(0.8, 0.25, 0.25, 0.0, false),
+            new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 1.0),
+
+            new AimAtSpeaker(1.0),
+            new ShooterRQ(RQShooter.kShoot),
+            // new TrajDelay(1.6),
+            new SnorflerRQ(RQSnorf.kAutoSnorf),
+
+            new MoveOnHdgRot(0.0, 0.3),
+            new GoToNote(0.3, 0.7),
+            new ShooterRQ(RQShooter.kSpkrShot),
+            new MoveTimed(0.5, 0.2, 0.0, 0.0, true),
+            // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 0.6),
+            // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
+
+            new AimAtSpeaker(1.0),
+            new ShooterRQ(RQShooter.kShoot),
+            // new TrajDelay(1.6),
+            new SnorflerRQ(RQSnorf.kAutoSnorf),
+            
+            // new MoveTimed(0.7, -0.2, 0.15, 0.3, true),
+            new MoveOnHdgRot(35.0, 0.3),
+            // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
+            new GoToNote(0.3, 1.0),
+            new ShooterRQ(RQShooter.kSpkrShot),
+            // new MoveTimed(0.5, 0.4, -0.4, -0.15, true),
+            new GoToTarget(14.5, 5.32, 0.0, 3.0, 1.0, 0.5),
+            new AimAtSpeaker(1.0),
+            new ShooterRQ(RQShooter.kShoot),
         };
         return traj;
     }

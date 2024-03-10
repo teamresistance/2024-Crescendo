@@ -109,7 +109,9 @@ public class Shooter {
         kSpkrShot(1, "Speaker Shot"),   //Speaker shot request from auto
         kAmpShot(2, "Amp Shot"),        //Amp shot request from autoa
         kShoot(3, "Shoot Note"),        //Shoot the Note Speaker or Amp
-        kClimbLock(4, "Climber Lock");  //Lock Arm down by Climber
+        kClimbLock(4, "Climber Lock"),  //Lock Arm down by Climber
+        kDblClutchSnorf(5,"Snorf Double Clutch"),
+        kUnloadSnorf(5,"Snorf Unload Dbl Clutch");
         // kSnorfLock(4, "Snorfle Lock");  //Lock Arm down by Snorfler, same as CLimber lock
 
         private final int num;
@@ -127,8 +129,10 @@ public class Shooter {
     public static void init() {
         hdwInit();
         
-        clsDistToFPS = new double[][] {{2.05, 2.35, 2.70, 3.00, 3.32},{fpsMax, fpsMax, fpsMax, fpsMax, 35.0}};  //Segmented Line close
-        farDistToFPS = new double[][] {{3.30, 5.5, 7.25},{fpsMax, fpsMax, fpsMax}};  //Segmented Line far
+        clsDistToFPS = new double[][] {{  2.05,   2.35,   2.70,   3.00, 3.32},
+                                       {fpsMax, fpsMax, fpsMax, fpsMax, 35.0}};  //Segmented Line close
+        farDistToFPS = new double[][] {{  3.30, 5.80, 9.99, 10.0},
+                                       {fpsMax, 50.5,  50.5, fpsMax}};  //Segmented Line far
         farDistDB = 0.2;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
         //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true
 
@@ -181,7 +185,7 @@ public class Shooter {
      */
     private static void smUpdate() { // State Machine Update
 
-        if(btnUnload.onButtonPressed()) state = 20;
+        if(btnUnload.onButtonPressed() || shtrRequest == RQShooter.kUnloadSnorf) state = 20;
         if(shtrRequest == RQShooter.kClimbLock) state = 30;
         // If snorfling need to rotate top motor slowly to get note to roll into shooter
         if(Snorfler.getState() == 2 || Snorfler.getState() == 3){
@@ -242,7 +246,11 @@ public class Shooter {
                 break;
             case 13: // wait to raise Arm on 2nd btn press (visual) or auto
                 cmdUpdate(0.0, 0.0, false, false);
-                if(btnAmpShot.onButtonPressed() || shtrRequest != RQShooter.kNoReq) state++; //2nd press raise arm
+                if(btnAmpShot.onButtonPressed() || shtrRequest == RQShooter.kAmpShot) state++; //2nd press raise arm
+                if(shtrRequest == RQShooter.kDblClutchSnorf){
+                    shtrRequest = RQShooter.kNoReq;
+                    state = 0;
+                }
                 break;
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
                 cmdUpdate(0.0, 0.0, false, true);
@@ -265,6 +273,7 @@ public class Shooter {
             case 20: // Check Arm is down
                 cmdUpdate(0.0, 0.0, false, false);
                 if (!armUp_FB) state++;   //wait for arm to lower FB
+                shtrRequest = RQShooter.kNoReq;
                 break;
             case 21: // unload from amp shot, request snorfler to unload
                 cmdUpdate(-shtrAmpUnld_FPS, -shtrAmpUnld_FPS, false, false);
@@ -337,9 +346,9 @@ public class Shooter {
         SmartDashboard.putNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
         SmartDashboard.putNumber("Shooter/Dist/Far DB ", farDistDB);
 
-        SmartDashboard.putBoolean("Shooter/Test/Active", shtrTestActive);
-        SmartDashboard.putNumber("Shooter/Test/FPS", shtrTest_FPS);
-        SmartDashboard.putBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
+        SmartDashboard.putBoolean("ShooterTest/Active", shtrTestActive);
+        SmartDashboard.putNumber("ShooterTest/FPS", shtrTest_FPS);
+        SmartDashboard.putBoolean("ShooterTest/Pitch Low", shtrTestPitchLow);
     }
 
     /**Update the Smartdashboard. */
@@ -350,9 +359,9 @@ public class Shooter {
         shtrAmpLd_Tm = SmartDashboard.getNumber("Shooter/Amp Load Sec", shtrAmpLd_Tm);
         farDistDB = SmartDashboard.getNumber("Shooter/Dist/Far DB ", farDistDB);
 
-        shtrTestActive = SmartDashboard.getBoolean("Shooter/Test/Active", shtrTestActive);
-        shtrTest_FPS = SmartDashboard.getNumber("Shooter/Test/FPS", shtrTest_FPS);
-        shtrTestPitchLow = SmartDashboard.getBoolean("Shooter/Test/Pitch Low", shtrTestPitchLow);
+        shtrTestActive = SmartDashboard.getBoolean("ShooterTest/Active", shtrTestActive);
+        shtrTest_FPS = SmartDashboard.getNumber("ShooterTest/FPS", shtrTest_FPS);
+        shtrTestPitchLow = SmartDashboard.getBoolean("ShooterTest/Pitch Low", shtrTestPitchLow);
 
         //Put other stuff to be displayed here
         SmartDashboard.putNumber("Shooter/state", state);
@@ -393,19 +402,21 @@ public class Shooter {
         shtrAEncoder = new Encoder_Neo(shtrMtrA, 1556.67);  //Modded for GR 16:14
         shtrBEncoder = new Encoder_Neo(shtrMtrB, 1556.67);
     }
-
+    
+    private static double prvDistToTarget = 0.0;
     /** Calculate shtrAFPS_SP, shtrBFPS_SP and whether shooter pitch is low or high.
      * by interpolating between points in a feet v. FPS in 2 array, clsDistToFPS[][]
      * and farDistFeetToFPS[][]. */
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
         distToTarget = Drive.getDistanceFromSpeaker();
+        prvDistToTarget = distToTarget * 0.25 + prvDistToTarget * 0.75;
         if(!shtrTestActive){
             // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
             // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
-            if(distToTarget - farDistToFPS[0][0] < farDistDB){
+            if(prvDistToTarget - farDistToFPS[0][0] < farDistDB){
                 shotIsFar = false;
-            }else if(distToTarget + farDistToFPS[0][0] > farDistDB){
+            }else if(prvDistToTarget + farDistToFPS[0][0] > farDistDB){
                 shotIsFar = true;
             }
 

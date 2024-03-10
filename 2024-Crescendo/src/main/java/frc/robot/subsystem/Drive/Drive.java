@@ -192,10 +192,22 @@ public class Drive {
     public static final double setPoint2X = 14.76; //Set for blue amp as of 3/7/2024
     public static final double setPoint2Y = 7.60;
 
+    public static final double setPointLX = 14.79;
+    public static final double setPointLY = 4.19;
+    public static final double setPointLAngle = -45.3;
+
+    public static final double setPointMX = 14.57;
+    public static final double setPointMY = 5.52;
+    public static final double setPointMAngle = 1.77;
+
+    public static final double setPointRX = 14.47;
+    public static final double setPointRY = 5.95;
+    public static final double setPointRAngle = 21.25;
+
     private static final double timeAhead = 0.0002; //Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
     //Speaker setpoint
-    public static final Translation2d speakerPos = new Translation2d(16.0, 5.42); //TODO: Fill in translation2d object with speaker coords
+    public static final Translation2d speakerPos = new Translation2d(16.0, 5.7); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
 
     public static double hdgFB() {return pigeon.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -231,8 +243,8 @@ public class Drive {
         drvBrake(true);    //set motors to coast
 
         //                             name    SP,      P,       DB,     mn,      mx,     exp,    clamp
-        PIDXController.setExt(pidControllerX, 0.0, 1.0/8,  5.5, 0.2, 1.0, 1.0, true); //JS X responce
-        PIDXController.setExt(pidControllerY, 0.0, 1.0/8,  5.5, 0.2, 1.0, 1.0, true); //JS Y responce
+        PIDXController.setExt(pidControllerX, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS X responce
+        PIDXController.setExt(pidControllerY, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
         PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
 
@@ -260,7 +272,7 @@ public class Drive {
         
         
         // Create a vector with 3 elements, all initialized to zero
-        var visionMeasurementStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
+        var visionMeasurementStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
@@ -319,7 +331,7 @@ public class Drive {
 
         // // Update the drivetrain pose
 
-        // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.3 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker(), 0.1 * getDistanceFromSpeaker()));
+        poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5 * getDistanceFromSpeaker(), 0.5 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker()));
 
         // poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
         poseEstimator.update(pigeon.getInvRotation2d(), new MecanumDriveWheelPositions(
@@ -424,8 +436,8 @@ public class Drive {
 
     /** @return distance in feet to speaker based on present position. */
     public static double getDistanceFromSpeaker() {
-        double feetAway = Units.metersToFeet(speakerPos.getDistance(poseEstimator.getEstimatedPosition().getTranslation()));//
-        // System.out.println(feetAway);
+        double feetAway = Units.metersToFeet(new Translation2d(16.0, 5.42).getDistance(poseEstimator.getEstimatedPosition().getTranslation()));//
+        System.out.println(feetAway);
         // System.out.println(poseEstimator.getEstimatedPosition());
         return feetAway;
         // double feetAway = Units.metersToFeet(Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2)));
@@ -518,7 +530,7 @@ public class Drive {
      */
     public static boolean goTo(double x, double y, double hdg, double[] _spdCmds, double _rotSpd){
         fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        // rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
         rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * _rotSpd;
 

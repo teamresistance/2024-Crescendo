@@ -16,6 +16,7 @@ import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Button;
+import frc.robot.subsystem.Shooter.RQShooter;
 import frc.util.Timer;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -43,7 +44,7 @@ public class Snorfler {
     private static double rejMtrPct = 0.25;     // Reject Snorfling speed
     private static double rejMtrMnTm = 0.04;    //Min Time to run to ensure note is passed sensor
     private static double loadMtrPct = 0.80;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
-    private static double loadShtrTm = 0.5;      //Seconds Snorfler runs to load note to Shooter
+    private static double loadShtrTm = 0.3;      //Seconds Snorfler runs to load note to Shooter
     private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
     private static double pullBackPct = 0.1;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double pullbackTm = 0.2;     //Seconds Snorfler runs rev to pull back note
@@ -154,6 +155,11 @@ public class Snorfler {
             case 4: // Then back up a little slowly until it see it again
                 cmdUpdate(-pullBackPct);
                 if(snorfhasGP.get()) state = 0;
+                break;
+            case 5: // --- Need to double clutch to center note move to shooter ----
+                cmdUpdate(loadMtrPct);
+                Shooter.shtrRequest = RQShooter.kDblClutchSnorf;
+                if(stateTmr.hasExpired(loadShtrTm, state)) state = 30;
                 break;
             // ----------- Reject, run motor backward -----------------
             case 10: // Snorfler Reject

@@ -94,16 +94,16 @@ public class Drv_Teleop extends Drive {
         }
         
         if (!auto){
-            if(Math.abs(jsX.getRaw()) > 0.07){
-                rlSpd = PropMath.span2(jsX.getRaw(), 0.07, 1.0, 0.0, 1.0, true, 0);
+            if(Math.abs(jsX.getRaw()) > 0.15){
+                rlSpd = PropMath.span2(jsX.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             }
             else rlSpd = 0.0;
-            if(Math.abs(jsY.getRaw()) > 0.07){
-                fwdSpd = PropMath.span2(jsY.getRaw(), 0.07, 1.0, 0.0, 1.0, true, 0);
+            if(Math.abs(jsY.getRaw()) > 0.15){
+                fwdSpd = PropMath.span2(jsY.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             }
             else fwdSpd = 0.0;
-            if(Math.abs(jsRot.getRaw()) > 0.05){
-                rotSpd = PropMath.span2(jsRot.getRaw(), 0.05, 1.0, 0.0, 1.0, true, 0);
+            if(Math.abs(jsRot.getRaw()) > 0.15){
+                rotSpd = PropMath.span2(jsRot.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             }
             else rotSpd = 0.0;
         }
@@ -123,6 +123,25 @@ public class Drv_Teleop extends Drive {
         if (btnAuto1.isDown()){
             //Calculate based on where setpoint is            
             if (goTo(setPoint2X, setPoint2Y, -90.0, driveCmd, 1.0)){
+                //Do something when done?
+            };
+        }
+
+        if (JS_IO.btnRightSP.isDown()){
+            //Calculate based on where setpoint is            
+            if (goTo(setPointRX, setPointRY, setPointRAngle, driveCmd, 1.0)){
+                //Do something when done?
+            };
+        }
+        if (JS_IO.btnMiddleSP.isDown()){
+            //Calculate based on where setpoint is            
+            if (goTo(setPointMX, setPointMY, setPointMAngle, driveCmd, 1.0)){
+                //Do something when done?
+            };
+        }
+        if (JS_IO.btnLeftSP.isDown()){
+            //Calculate based on where setpoint is            
+            if (goTo(setPointLX, setPointLY, setPointLAngle, driveCmd, 1.0)){
                 //Do something when done?
             };
         }

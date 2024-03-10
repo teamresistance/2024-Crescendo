@@ -76,6 +76,11 @@ public class JS_IO {
     //Hold angle to look at speaker
     public static Button lookAtSpeaker = new Button();  // Align shooter to Speaker
 
+    //Setpoints
+    public static Button btnLeftSP = new Button();
+    public static Button btnRightSP = new Button();
+    public static Button btnMiddleSP = new Button();
+
     // Constructor not needed, bc
     public JS_IO() {
         init();
@@ -170,6 +175,10 @@ public class JS_IO {
 
         btnSnorflerEnaTgl.setButton(coJoystick, 3);
         btnSnorfleReject.setButton(coJoystick, 5);
+
+        btnLeftSP.setButton(rightJoystick, 12);
+        btnRightSP.setButton(rightJoystick, 8);
+        btnMiddleSP.setButton(rightJoystick, 10);
 
         //Shooter / Arm buttons
         btnSpkrShot.setButton(coJoystick, 4);   // Prep to shoot to Speaker
