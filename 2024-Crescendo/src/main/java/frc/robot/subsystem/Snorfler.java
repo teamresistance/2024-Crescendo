@@ -44,7 +44,7 @@ public class Snorfler {
     private static double rejMtrPct = 0.25;     // Reject Snorfling speed
     private static double rejMtrMnTm = 0.04;    //Min Time to run to ensure note is passed sensor
     private static double loadMtrPct = 0.80;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
-    private static double loadShtrTm = 0.3;      //Seconds Snorfler runs to load note to Shooter
+    private static double loadShtrTm = 0.5;      //Seconds Snorfler runs to load note to Shooter
     private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
     private static double pullBackPct = 0.1;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double pullbackTm = 0.2;     //Seconds Snorfler runs rev to pull back note
