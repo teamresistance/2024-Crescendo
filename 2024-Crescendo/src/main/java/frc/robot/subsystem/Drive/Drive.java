@@ -189,10 +189,10 @@ public class Drive {
     //Setpoints for alignement
     public static final double setPoint1X = 14.25;
     public static final double setPoint1Y = 4.29;
-    public static final double setPoint2X = 1.88; //Set for blue amp as of 3/7/2024
-    public static final double setPoint2Y = 8.0;
+    public static final double setPoint2X = 14.76; //Set for blue amp as of 3/7/2024
+    public static final double setPoint2Y = 7.60;
 
-    private static final double timeAhead = 3.0; //Projected note time of flight, used for accounting for movement
+    private static final double timeAhead = 0.0002; //Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
     //Speaker setpoint
     public static final Translation2d speakerPos = new Translation2d(16.0, 5.42); //TODO: Fill in translation2d object with speaker coords
@@ -382,9 +382,9 @@ public class Drive {
         ChassisSpeeds chassisSpeeds = IO.kinematics.toChassisSpeeds(wheelSpeeds);
 
         //Add our current to our project after 3 seconds (becuase d = vt)
-        double futureX = poseEstimator.getEstimatedPosition().getX() + (chassisSpeeds.vxMetersPerSecond * timeAhead);
-        double futureY = poseEstimator.getEstimatedPosition().getY() + (chassisSpeeds.vyMetersPerSecond * timeAhead);
-        double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() + (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
+        double futureX = poseEstimator.getEstimatedPosition().getX() - (chassisSpeeds.vxMetersPerSecond * timeAhead);
+        double futureY = poseEstimator.getEstimatedPosition().getY() - (chassisSpeeds.vyMetersPerSecond * timeAhead);
+        double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() - (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
     
         //Throw everything into a Pose2d
         projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(Units.degreesToRadians(futureRotation)));
@@ -394,7 +394,7 @@ public class Drive {
          * This gives us a position vector, which is the x distance and y distance between the two objects
          * We then use this to calculate the angle from the speaker
          */
-        robotToSpeaker = poseEstimator.getEstimatedPosition().getTranslation().minus(speakerPos);
+        robotToSpeaker = projectedPosition.getTranslation().minus(speakerPos);
         // System.out.println(robotToSpeaker);
         Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
         angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
@@ -518,7 +518,7 @@ public class Drive {
      */
     public static boolean goTo(double x, double y, double hdg, double[] _spdCmds, double _rotSpd){
         fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
+        // rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
         // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
         rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * _rotSpd;
 

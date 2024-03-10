@@ -20,7 +20,7 @@ public class AimAtSpeaker extends ATrajFunction {
      */
     public AimAtSpeaker(double _spd){
         speed = _spd;
-        delayTimer = new Timer(2.0);
+        delayTimer = new Timer(1.0);
     }
 
     public void execute() {
@@ -33,7 +33,7 @@ public class AimAtSpeaker extends ATrajFunction {
             break;
         case 1: // Wait for the timer
             Drive.aimAtSpeaker();
-            if(delayTimer.hasExpired()) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            if(delayTimer.hasExpired(1.0 ,state)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
             sendDriveCmds(0.0, 0.0, Drive.rotSpd, false);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Aim - 1: -------------Working-------------");

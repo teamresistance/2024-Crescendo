@@ -43,7 +43,7 @@ public class Snorfler {
     private static double rejMtrPct = 0.25;     // Reject Snorfling speed
     private static double rejMtrMnTm = 0.04;    //Min Time to run to ensure note is passed sensor
     private static double loadMtrPct = 0.80;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
-    private static double loadMtrTm = 1.5;      //Seconds Snorfler runs to load note to Shooter
+    private static double loadShtrTm = 0.5;      //Seconds Snorfler runs to load note to Shooter
     private static double unloadMtrTm = 0.1;    //Seconds Snorfler runs to unload note from Shooter
     private static double pullBackPct = 0.1;    //Speed in which Snorfler loads game piece into Shooter. NOT FINAL.
     private static double pullbackTm = 0.2;     //Seconds Snorfler runs rev to pull back note
@@ -125,7 +125,8 @@ public class Snorfler {
             case 0: // Everything is off
                 cmdUpdate(0.0);
                 stateTmr.clearTimer();
-                if(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf) state++;
+                if(snorflerEnable ) state++;
+                if(snorfRequest == RQSnorf.kAutoSnorf) state = 50;
                 break;
             // ------------- Snorfler a Note off the floor -------------
             case 1: // Snorfler enabled, check if Shooter arm is in place and lock.
@@ -136,11 +137,10 @@ public class Snorfler {
                 if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
                 cmdUpdate(fwdMtrPct);
                 if( hasGP_FB ) {
-                    snorfRequest = RQSnorf.kNoReq;
                     snorflerEnable = false;
                     state++;
                 }else {
-                    if(!(snorflerEnable || snorfRequest == RQSnorf.kAutoSnorf)){
+                    if(!(snorflerEnable)){
                         snorfRequest = RQSnorf.kNoReq;
                         snorflerEnable = false;
                         state = 0;
@@ -171,7 +171,7 @@ public class Snorfler {
             case 20: // Shooter request to Snorfler to load for amplifier or shoot speaker
                 cmdUpdate(loadMtrPct);
                 snorfRequest = RQSnorf.kNoReq;
-                if(stateTmr.hasExpired(loadMtrTm, state)) state = 0;
+                if(stateTmr.hasExpired(loadShtrTm, state)) state = 0;
                 break;
             // ------ Unload Note from Shooter to Snorfler, abort Amp shot ---------
             case 30: // Shooter request to Snorfler to unload.  Backup to center of note
@@ -184,6 +184,31 @@ public class Snorfler {
                 if(snorfhasGP.get() || stateTmr.hasExpired(unloadMtrTm, state)) state = 0;
                 break;
             // ----------- Bad call ------------
+            case 50: // Everything is off,  Kept it to match
+                state++;
+                break;
+            // ------------- Snorfler a Note off the floor -------------
+            case 51: // Snorfler enabled, check if Shooter arm is in place and lock.
+                cmdUpdate(0.0);
+                if(!Shooter.isArmUp()) state++;
+                break;
+            case 52: // Snorfler enabled, retriving note, Spdfwd
+                if(snorfhasGP.get()) hasGP_FB = true;   //Used to lock snorfler off
+                cmdUpdate(fwdMtrPct * 0.5);
+                if( hasGP_FB ) {
+                    snorfRequest = RQSnorf.kNoReq;
+                    snorflerEnable = false;
+                    state++;
+                } 
+                break;
+            case 53: // Keep going slowly until banner sensor can't see note
+                cmdUpdate(pullBackPct);
+                if(!snorfhasGP.get()) state++;
+                break;
+            case 54: // Then back up a little slowly until it see it again
+                cmdUpdate(-pullBackPct);
+                if(snorfhasGP.get()) state = 0;
+                break;
             default: // all off%
                 cmdUpdate(0.0);
                 System.out.println("Bad Snorfle State: " + state);
@@ -216,7 +241,7 @@ public class Snorfler {
         SmartDashboard.putNumber("Snorf/Fwd Motor Pct", fwdMtrPct);
         SmartDashboard.putNumber("Snorf/Rej Motor Pct", rejMtrPct);
         SmartDashboard.putNumber("Snorf/Load Shtr Motor Pct", loadMtrPct);
-        SmartDashboard.putNumber("Snorf/Load Shtr Motor Sec", loadMtrTm);
+        SmartDashboard.putNumber("Snorf/Load Shtr Motor Sec", loadShtrTm);
         SmartDashboard.putNumber("Snorf/Unload Shtr Time", unloadMtrTm);
         SmartDashboard.putNumber("Snorf/Pull back Pct", pullBackPct);
         SmartDashboard.putNumber("Snorf/Pull back Time", pullbackTm);
@@ -228,7 +253,7 @@ public class Snorfler {
         fwdMtrPct = SmartDashboard.getNumber("Snorf/Fwd Motor Pct", fwdMtrPct);
         rejMtrPct = SmartDashboard.getNumber("Snorf/Rej Motor Pct", rejMtrPct);
         loadMtrPct = SmartDashboard.getNumber("Snorf/Load Shtr Motor Pct", loadMtrPct);
-        loadMtrTm = SmartDashboard.getNumber("Snorf/Load Shtr Motor Sec", loadMtrTm);
+        loadShtrTm = SmartDashboard.getNumber("Snorf/Load Shtr Motor Sec", loadShtrTm);
         unloadMtrTm = SmartDashboard.getNumber("Snorf/Unload Shtr Time", unloadMtrTm);
         pullBackPct = SmartDashboard.getNumber("Snorf/Pull back Pct", pullBackPct);
         pullbackTm = SmartDashboard.getNumber("Snorf/Pull back Time", pullbackTm);
@@ -283,4 +308,5 @@ public class Snorfler {
         return state != 0;      //This example says the sm is runing, not idle.
     }
 
+    public static double getLoadShtrTm(){ return loadShtrTm; }
 }

@@ -41,16 +41,17 @@ public class GoToNote extends ATrajFunction {
             break;
         case 1: // Wait for the timer
             Drive.goToNote(spd, trajCmd);
-            if(Snorfler.hasGP_FB) state++;
-            sendDriveCmds(0.0, -0.3, trajCmd[2], false);
-            delayTimer.clearTimer();
+            //Snorfler.hasGP_FB || 
+            if(delayTimer.hasExpired(timeDelay, state)) state++;
+            sendDriveCmds(-spd, 0.0, trajCmd[2], false);
+            // delayTimer.clearTimer();
             // if(delayTimer.hasExpired(timeDelay, true)) state++;
             // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
             // System.out.println("GotoNote - 1: ---------- Moving on note -----------");
             break;
         case 2: //Contine to move forward slowly for max time or until we have note.
-            sendDriveCmds(0.0, -0.3, 0.0, false);
-            if((delayTimer.hasExpired(timeDelay, true) || Snorfler.hasGP_FB)) state++;
+            sendDriveCmds(0.0, 0.0, 0.0, false);
+            state++;
             setDone();
             System.out.println("GotoNote - 2: ---------- Get Note -----------");
             break;

@@ -4,6 +4,7 @@ import static frc.robot.subsystem.Drive.Drive.goToNote;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.subsystem.Snorfler;
 import frc.robot.subsystem.Drive.trajFunk.*;
 import frc.robot.subsystem.Shooter.RQShooter;
 import frc.robot.subsystem.Snorfler.RQSnorf;
@@ -108,30 +109,45 @@ public class Trajectories {
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new TrajDelay(1.0),
                 new ShooterRQ(RQShooter.kShoot),
-                // new MoveTimed(1.0, -0.3, 0.0, 0.0, true),
-                new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new GoToTarget(14.0, 4.0, -45.0, pwr, 0.2, 2.0),
-                new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new MoveTimed(0.5, -0.3, 0.0, 0.0, false),
+                // new TrajDelay(0.6),
 
-                // new GoToNote(1.0, 2.0),
-                new MoveTimed(2.0, 0.1, pwr, 0.08, true),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveTimed(0.35, -0.2, -0.2, -0.3, true),
+                new MoveOnHdgRot(-35.0, 0.3),                
+                new GoToNote(0.15, 1.1),
 
+                new MoveTimed(0.5, 0.3, 0.15, 0.0, false),
                 new ShooterRQ(RQShooter.kSpkrShot),
+                new MoveTimed(0.4, 0.25, 0.1, 0.0, false),
+                // new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
+
                 new AimAtSpeaker(1.0),
-                new TrajDelay(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+                // new TrajDelay(1.6),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+
+                new MoveOnHdgRot(0.0, 0.3),
+                new GoToNote(0.3, 0.7),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new MoveTimed(1.0, 0.2, 0.0, 0.0, true),
+                new GoToTarget(15.2, 5.32, 0.0, 3.0, 1.0, 1.0),
+                // new MoveTimed(0.5, 0.1, 0.0, 0.0, true),
+
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+                // new TrajDelay(1.6),
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                
+                new MoveTimed(0.4, -0.2, 0.1, 0.3, true),
+                // new MoveOnHdgRot(25.0, 0.3),
+                // new MoveTimed(0.4, -0.2, 0.0, 0.0, false),
+                new GoToNote(0.3, 0.7),
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new MoveTimed(0.5, 0.2, -0.3, 0.0, true),
+                new GoToTarget(15.25, 5.32, 0.0, 3.0, 1.0, 2.0),
+                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
-
-                new GoToTarget(14.0, 5.32, 0.0, 0.5, 0.2, 4.0),
-                // new TrajDelay(1.0),
-
-                // new GoToTarget(pwr, pwr, pwr, pwr, pwr, pwr)
-                // new MoveOnHdgFwd(0.0, 5.0, 0.3),
-                // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
-                // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
-                // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'
-                // new MoveOnHdgRL(0.0, -5.0, 0.3) //Move left 5'
         };
         return traj;
     }

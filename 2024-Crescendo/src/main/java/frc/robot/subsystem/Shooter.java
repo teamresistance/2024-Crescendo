@@ -127,9 +127,9 @@ public class Shooter {
     public static void init() {
         hdwInit();
         
-        clsDistToFPS = new double[][] {{3.25, 4.25, 4.9},{fpsMax, fpsMax, fpsMax}};  //Segmented Line close
-        farDistToFPS = new double[][] {{4.9, 5.5, 7.25},{fpsMax, fpsMax, fpsMax}};  //Segmented Line far
-        farDistDB = 0.15;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
+        clsDistToFPS = new double[][] {{2.05, 2.35, 2.70, 3.00, 3.32},{fpsMax, fpsMax, fpsMax, fpsMax, 35.0}};  //Segmented Line close
+        farDistToFPS = new double[][] {{3.30, 5.5, 7.25},{fpsMax, fpsMax, fpsMax}};  //Segmented Line far
+        farDistDB = 0.2;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
         //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true
 
         shtrAFPS_SP = 0.0;
@@ -400,24 +400,27 @@ public class Shooter {
     private static void calcShotDist(){
         // distToTarget = Vision.getDistToTarget(); //temp use SDB to test
         distToTarget = Drive.getDistanceFromSpeaker();
-        // if(!shtrTestActive){
-        //     // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
-        //     // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
-        //     if(distToTarget - farDistToFPS[0][0] > farDistDB) shotIsFar = false;
-        //     if(shotIsFar){
-        //         shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
-        //         if(farDistToFPS[0][0] - farDistDB < distToTarget) shotIsFar = false;
-        //     }else{
-        //         shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
-        //         if(farDistToFPS[0][0] + farDistDB > distToTarget) shotIsFar = true;
-        //     }
-        //     shtrBFPS_SP = shtrAFPS_SP;
-        // }else{
+        if(!shtrTestActive){
+            // if(distToTarget > clsDistToFPS[0][clsDistToFPS[0].length - 1]) shotIsFar = true;
+            // if(distToTarget < farDistToFPS[0][0]) shotIsFar = false;
+            if(distToTarget - farDistToFPS[0][0] < farDistDB){
+                shotIsFar = false;
+            }else if(distToTarget + farDistToFPS[0][0] > farDistDB){
+                shotIsFar = true;
+            }
+
+            if(shotIsFar){
+                shtrAFPS_SP = PropMath.segLine(distToTarget, farDistToFPS);
+            }else{
+                shtrAFPS_SP = PropMath.segLine(distToTarget, clsDistToFPS);
+            }
+            shtrBFPS_SP = shtrAFPS_SP;
+        }else{
             //Temporary testpoints.
             shotIsFar = shtrTestPitchLow;
             shtrAFPS_SP = shtrTest_FPS;
             shtrBFPS_SP = shtrTest_FPS;
-        // }
+        }
     }
 
     /**
