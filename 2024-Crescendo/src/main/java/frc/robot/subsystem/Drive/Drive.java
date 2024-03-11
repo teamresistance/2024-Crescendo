@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -95,8 +96,8 @@ public class Drive {
     public static MotorPID_Flex drvPidBR = new MotorPID_Flex(drvMtrBR, "Drive");
 
     // variables:
-    private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
-    private static Rotation2d heading;  //used with fieldOriented
+    // private static int state; // DriveMec state machine. 0=robotOriented, 1=fieldOriented
+    // private static Rotation2d heading;  //used with fieldOriented
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
 
     public static boolean isFieldOriented = true;     //Mecanum drive is using fieldOriented else robotOriented
@@ -152,20 +153,6 @@ public class Drive {
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
     private static PhotonPoseEstimator photonPoseEstimator2;
-    
-    //Odometry
-    // Creating my odometry object from the kinematics object and the initial wheel positions.
-    // Here, our starting pose is 5 meters along the long end of the field and in the
-    // center of the field along the short end, facing the opposing alliance wall.
-    // private static MecanumDriveOdometry odometry = new MecanumDriveOdometry(
-    // IO.kinematics,
-    // navX.getRotation2d(),
-    // new MecanumDriveWheelPositions(
-    //     IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
-    //     IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition()
-    // ),
-    // new Pose2d(0.0, 0.0, new Rotation2d())
-    // );
 
     // private static final double tpf = 3.82; //ticks per foot gut really rev / ft
     private static final Field2d m_field = new Field2d();
@@ -176,39 +163,16 @@ public class Drive {
             // navX.getInvRotation2d(), 
             pigeon.getInvRotation2d(),
             new MecanumDriveWheelPositions(
-            // Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf),
-            // Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            // Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf),
-            // Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf)),
             drvEncFL.meters(),
             drvEncBL.meters(),
             drvEncFR.meters(),
             drvEncBR.meters()),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)));
 
-    //Setpoints for alignement
-    public static final double redAmpX = 14.25;
-    public static final double redAmpY = 4.29;
-    public static final double blueAmpX = 14.76; //Set for blue amp as of 3/7/2024
-    public static final double blueAmpY = 7.60;
-
-    public static final double redSpeakerLX = 14.79;
-    public static final double redSpeakerLY = 4.19;
-    public static final double redSpeakerLA = -45.3;
-
-    public static final double redSpeakerMX = 14.57;
-    public static final double redSpeakerMY = 5.52;
-    public static final double redSpeakerMA = 1.77;
-
-    public static final double redSpeakerRX = 14.47;
-    public static final double redSpeakerRY = 5.95;
-    public static final double redSpeakerRA = 21.25;
-
     private static final double timeAhead = 0.0002; //Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
+
     //Speaker setpoint
-    public static final Translation2d redSpeakerPos = new Translation2d(16.0, 5.7); //TODO: Fill in translation2d object with speaker coords
-    public static final Translation2d bluSpeakerPos = new Translation2d(0.4, 5.7); //TODO: Fill in translation2d object with speaker coords
     public static Rotation2d angleFromSpeaker;
 
     public static double hdgFB() {return pigeon.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
@@ -238,13 +202,13 @@ public class Drive {
      */
     public static void init() {
         sdbInit();
-        state = 1; // Start at state 0, 0=robotOriented, 2=fieldOriented
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold
         drvBrake(true);    //set motors to coast
 
         //                             name    SP,      P,       DB,     mn,      mx,     exp,    clamp
-        PIDXController.setExt(pidControllerX, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS X responce
+        PIDXController.setExt(pidControllerX
+        , 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS X responce
         PIDXController.setExt(pidControllerY, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
         PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
@@ -252,14 +216,8 @@ public class Drive {
         //                     name    SP,   P,      DB,  mn, mx,  exp, clamp
         PIDXController.setExt(pidHdg, 0.0, 1.0/30, 1.0, 0.05, 0.5, 2.0, true);
         pidHdg.enableContinuousInput(-180, 180);
-        
-        //Move this to IO.motorInit()????
-        drvPidFL.init();
-        drvPidBL.init();
-        drvPidFR.init();
-        drvPidBR.init();
 
-        reset();
+        reset(); //Reset NavX, motors, and Odometry
 
         //--------- Vision init -----------------
         try{
@@ -274,15 +232,11 @@ public class Drive {
         
         // Create a vector with 3 elements, all initialized to zero
         var visionMeasurementStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
+        //Sets how much the drivetrain pose estimator trusts the vision pose estimates
         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
     }
-
-    // public static Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    //     photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-    //     return photonPoseEstimator.update();
-    // }
 
     public static void reset(){
         pigeon.reset();
@@ -310,103 +264,26 @@ public class Drive {
      * of a JS button but can be caused by other events.
      */
     public static void update() {
-        
-        //Add code here to start state machine or override the sm sequence
-
-        // Checking for button presses !!! --- Moved to Drv_Teleop --- !!!
-
-        // state = isFieldOriented ? 1 : 0;
-
-        // // Update the drivetrain pose
-
-        poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.5 * getDistanceFromSpeaker(), 0.5 * getDistanceFromSpeaker(), 0.3 * getDistanceFromSpeaker()));
-
-        // poseEstimator.update(navX.getInvRotation2d(), new MecanumDriveWheelPositions(
+        // Update DriveTrain Pose Estimation
         poseEstimator.update(pigeon.getInvRotation2d(), new MecanumDriveWheelPositions(
-            // Units.feetToMeters(IO.motorFrontLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorFrontRight.getEncoder().getPosition()/tpf),
-            // Units.feetToMeters(IO.motorBackLeft.getEncoder().getPosition()/tpf), Units.feetToMeters(IO.motorBackRight.getEncoder().getPosition()/tpf))
             drvEncFL.meters(), drvEncBL.meters(),
             drvEncFR.meters(), drvEncBR.meters())
         );
 
-        // TODO: test
-        // Get target
-        var res = cam.getLatestResult();
-        if (res.hasTargets() && photonPoseEstimator.getReferencePose() != null){
-            // Store camera estimated pose, and calculated it based on current drivetrain position
-            var update = photonPoseEstimator.update();
-            if (!update.isEmpty()){
+        updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
+        updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
 
-                var imageCaptureTime = res.getTimestampSeconds();
-                
-                Pose3d estimatedPose3d = update.get().estimatedPose;
-                Pose2d estimatedPose = estimatedPose3d.toPose2d();
+        angleFromSpeaker = getAngleFromSpeaker(FieldInfo2.kSpeaker);
 
-                // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
-                
-                // System.out.println("Estimated pose: " + estimatedPose);
-                poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
-            }
-        }
-
-        var res2 = cam2.getLatestResult();
-        if (res2.hasTargets() && photonPoseEstimator2.getReferencePose() != null){
-            // Store camera estimated pose, and calculated it based on current drivetrain position
-            var update = photonPoseEstimator2.update();
-            if (!update.isEmpty()){
-
-                var imageCaptureTime = res2.getTimestampSeconds();
-                
-                Pose3d estimatedPose3d = update.get().estimatedPose;
-                Pose2d estimatedPose = estimatedPose3d.toPose2d();
-
-                // Pose2d estimatedPose = photonPoseEstimator.getReferencePose().toPose2d();
-                
-                // System.out.println("Estimated pose: " + estimatedPose);
-                poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
-            }
-        }
-
-
-        /*
-         * Math for aiming at speaker
-         * We account for our velocity by adding our (current chasis speed * note time of flight)
-         * to our current position (d = vt; theta final = omega * time)
-         * 
-         * This will return a new projectedPosition, which should be used for Speaker angle calcuations
-         */
-
-        //Calculate Wheel Speeds
-        MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds(IO.frontLeftEnc.getSpeed(), IO.frontRightEnc.getSpeed(), IO.backLeftEnc.getSpeed(), IO.backRightEnc.getSpeed());
-        //Convert individual wheel speeds to speed robot is moving at
-        ChassisSpeeds chassisSpeeds = IO.kinematics.toChassisSpeeds(wheelSpeeds);
-
-        //Add our current to our project after 3 seconds (becuase d = vt)
-        double futureX = poseEstimator.getEstimatedPosition().getX() - (chassisSpeeds.vxMetersPerSecond * timeAhead);
-        double futureY = poseEstimator.getEstimatedPosition().getY() - (chassisSpeeds.vyMetersPerSecond * timeAhead);
-        double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() - (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
-    
-        //Throw everything into a Pose2d
-        projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(Units.degreesToRadians(futureRotation)));
-        /*
-         * Calculate the angle between the robot and the speaker
-         * We take our robot translation and subtract the speaker coordinate
-         * This gives us a position vector, which is the x distance and y distance between the two objects
-         * We then use this to calculate the angle from the speaker
-         */
-        robotToSpeaker = projectedPosition.getTranslation().minus(redSpeakerPos);
-        // System.out.println(robotToSpeaker);
-        Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
-        angleFromSpeaker = angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
-        // System.out.println("angleFromX: " + angleFromX + " Angle from Speaker: " + angleFromSpeaker.getDegrees());
         //Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()){
-            aimAtSpeaker();
+            aimAtSpeaker(1.0); //Aim at full speed
         }
 
-        // System.out.println(poseEstimator.getEstimatedPosition());
+        // System.out.println(poseEstimator.getEstimatedPosition())
 
-        smUpdate();
+        //Main Command Update Loop
+        cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
         sdbUpdate();
     }
 
@@ -456,30 +333,56 @@ public class Drive {
     /** @return true if robot is field oriented. */
     public static boolean getFieldOriented() {return isFieldOriented;}
 
-     /** Probably shouldn't use this bc the states can change. Use statuses.
-     * @return - present state of Shooter state machine.
-     */
-    public static int getState() {
-        return state;
+    //Update drivetrain pose estimator with the camera pose estimator
+    private static void updatePoseWithVision(PhotonCamera _cam, PhotonPoseEstimator _photonPoseEstimator, MecanumDrivePoseEstimator _poseEstimator){
+        // Get target
+        PhotonPipelineResult res = _cam.getLatestResult();
+        if (res.hasTargets() && _photonPoseEstimator.getReferencePose() != null){
+            // Store camera estimated pose, and calculated it based on current drivetrain position
+            var update = _photonPoseEstimator.update();
+            if (!update.isEmpty()){
+                var imageCaptureTime = res.getTimestampSeconds();
+                
+                Pose3d estimatedPose3d = update.get().estimatedPose;
+                Pose2d estimatedPose = estimatedPose3d.toPose2d();
+
+                // System.out.println("Estimated pose: " + estimatedPose);
+                _poseEstimator.addVisionMeasurement(new Pose2d(estimatedPose.getTranslation(), estimatedPose.getRotation()), imageCaptureTime);
+            }
+        }
     }
 
-    /**
-     * @return If the state machine is running, not idle.
-     */
-    public static boolean getStatus(){
-        return state != 0;      //This example says the sm is runing, not idle.
-    }
+    /*
+        * Math for aiming at speaker
+        * We account for our velocity by adding our (current chasis speed * note time of flight)
+        * to our current position (d = vt; theta final = omega * time)
+        * 
+        * This will return a new projectedPosition, which should be used for Speaker angle calcuations
+        */
+    public static Rotation2d getAngleFromSpeaker(Translation2d speakerPos){
 
-    /**
-     * State Machine Update
-     */
-    private static void smUpdate() {
-        // System.out.println(state);
-        
-        // heading = navX.getInvRotation2d();
-        heading = pigeon.getInvRotation2d(); //TO DO: need to check
-        
-        cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
+        //Calculate Wheel Speeds
+        MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds(IO.frontLeftEnc.getSpeed(), IO.frontRightEnc.getSpeed(), IO.backLeftEnc.getSpeed(), IO.backRightEnc.getSpeed());
+        //Convert individual wheel speeds to speed robot is moving at
+        ChassisSpeeds chassisSpeeds = IO.kinematics.toChassisSpeeds(wheelSpeeds);
+
+        //Add our current to our project after 3 seconds (becuase d = vt)
+        double futureX = poseEstimator.getEstimatedPosition().getX() - (chassisSpeeds.vxMetersPerSecond * timeAhead);
+        double futureY = poseEstimator.getEstimatedPosition().getY() - (chassisSpeeds.vyMetersPerSecond * timeAhead);
+        double futureRotation = poseEstimator.getEstimatedPosition().getRotation().getDegrees() - (Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond) * timeAhead);
+    
+        //Throw everything into a Pose2d
+        projectedPosition = new Pose2d(new Translation2d(futureX, futureY), new Rotation2d(Units.degreesToRadians(futureRotation)));
+        /*
+         * Calculate the angle between the robot and the speaker
+         * We take our robot translation and subtract the speaker coordinate
+         * This gives us a position vector, which is the x distance and y distance between the two objects
+         * We then use this to calculate the angle from the speaker
+         */
+        robotToSpeaker = projectedPosition.getTranslation().minus(FieldInfo2.kSpeaker);
+        // System.out.println(robotToSpeaker);
+        Rotation2d angleFromX = robotToSpeaker.getAngle(); //Angle between robot and X axis
+        return angleFromX.minus(poseEstimator.getEstimatedPosition().getRotation()); //Angle between robot and speaker
     }
 
     /**
@@ -491,13 +394,12 @@ public class Drive {
      * 
      * @return true if at setpoint, within deadband set in pid initialization.
      */
-    public static boolean goToNote(double _spd, double[] _spdCmds){
+    public static boolean goToNote(double _spd){
         //Limelight stuff
         double x = tx.getDouble(0.0);
         if (x != 0.0){
             rotSpd = _spd * pidControllerZ.calculate(0.0, x);
         }
-        _spdCmds[2] = rotSpd;
         return pidControllerZ.atSetpoint();
     }
 
@@ -513,13 +415,18 @@ public class Drive {
      * 
      * @return true if all, X/Y/Z, are at setpoint, within deadband.
      */
-    public static boolean goTo(double x, double y, double hdg, double[] _spdCmds, double _rotSpd){
-        fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x);
-        rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y);
-        // rotSpd = pidHdg.calculateX(navX.getNormalizedTo180(), hdg);
-        rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * _rotSpd;
+    public static boolean goTo(double x, double y, double hdg, double speed, double rotationSpeed){
+        fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * speed;
+        rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y) * speed;
+        rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * rotationSpeed;
 
-        _spdCmds[0] = fwdSpd;   _spdCmds[1] = rlSpd;   _spdCmds[2] = rotSpd;
+        return (pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint());
+    }
+    
+    public static boolean goToAmp(double x, double hdg, double speed, double rotationSpeed){
+        fwdSpd  = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * speed;
+        rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * rotationSpeed;
+
         return (pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint());
     }
 
@@ -528,8 +435,8 @@ public class Drive {
      * <p>rotational signal passed in rotSpd.
      * @return true if on target.
      */
-    public static boolean aimAtSpeaker(){
-        rotSpd = -1.0 * pidControllerSpeaker.calculate(0.0, (angleFromSpeaker.getDegrees()));
+    public static boolean aimAtSpeaker(double speed){
+        rotSpd = -1.0 * pidControllerSpeaker.calculate(0.0, (angleFromSpeaker.getDegrees())) * speed;
         return pidControllerSpeaker.atSetpoint();
     }
 
@@ -543,11 +450,11 @@ public class Drive {
      * 
      */
     private static void cmdUpdate(double _fwdSpd, double _rlSpd, double _rotSpd, boolean _isFieldOriented) {
-        double fwdSpeed, rlSpeed, rotSpeed;
+        double fwdSpeed, rlSpeed, rotSpeed; //Redundant? Should remove - TODO: After Competition
         fwdSpeed = _fwdSpd; rlSpeed = _rlSpd; rotSpeed = _rotSpd; boolean fieldOriented = _isFieldOriented;
-        
-        //Check any safeties, mod passed cmds if needed.
+
         chkInput();
+
         /*
          * Custom velocity contrl class feeds joystick inputs into a calculator that outputs four wheel velociites
          * Each wheel has a PID controller that is then updated to match that speed.
@@ -556,13 +463,13 @@ public class Drive {
         {
             //Robot - apply JS signals r/l, fwd & rot to Mecanum in robot oriented.
             //Returns motor signal array for 4 motors -1.0 to 1.0 as an array
-            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-rlSpeed, -fwdSpeed, rotSpeed);
+            inputs = MecanumDriveCalculator.calculateMecanumDriveRobot(-rlSpeed, fwdSpeed, rotSpeed);
         }
         else
         {
             //Field - apply JS signals r/l, fwd & rot to Mecanum in field oriented.
             //Returns motor signal array for 4 motors -1.0 to 1.0 as an array
-            inputs = MecanumDriveCalculator.calculateMecanumDrive(-rlSpeed, -fwdSpeed, rotSpeed, pigeon.getAngle());
+            inputs = MecanumDriveCalculator.calculateMecanumDrive(-rlSpeed, fwdSpeed, rotSpeed, pigeon.getAngle());
         }
     
         //Set the RPM setpoint for the 4 motors.
@@ -584,12 +491,8 @@ public class Drive {
      * <p>Modifies fwdSpd (jsY), left/right spd (jsX) or/and rotation, (jsRot)
      */
     private static void chkInput() {
-        // rotSpd = chk_jsRot(rotSpd);  //Keep bot on last driver heading using jsRot
         chkHdgHold();       //If ena. mod jsRot to hold a heading
         chkScale();
-        // chkFwdHold();
-        // chkRlHold();
-        //chkgoToTarget();
     }
 
     /**Check for scaling.  Set the max output of the diffDrv else set to 1.0 */
@@ -612,6 +515,10 @@ public class Drive {
             if(botHold_SP == null) botHold_SP = pigeon.getNormalizedTo180();
             return calcHdgHold(botHold_SP);
         }
+    }
+
+    public static double holdHeading2(double _heading){
+        return pidControllerZ.calculateX(IO.pigeon.getNormalizedTo180(), _heading);  //Calc rotation
     }
     
     // Target is/isnot in frame - TgtInFrame
@@ -711,7 +618,6 @@ public class Drive {
         SmartDashboard.putNumber("Drv/Test/rD", 0.0);
 
         SmartDashboard.putNumber("SP/maxRPM", maxRPM);
-
     }
 
     /**Update the Smartdashboard. */

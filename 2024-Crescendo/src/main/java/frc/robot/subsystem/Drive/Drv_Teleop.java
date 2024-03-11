@@ -37,7 +37,7 @@ public class Drv_Teleop extends Drive {
     public static double[] driveCmd = new double[3];
 
     private static int state = 1;   //Can be set by btn or sdb chooser
-    private static String[] teleDrvType = {"Off", "Robot", "Field"};       //All drive type choices
+    private static String[] teleDrvType = {"Off", "Robot",  "Field"};       //All drive type choices
 
     //Teleop Drive Chooser sdb chooser.  Note can also choose state by btn
     private static SendableChooser<Integer> teleDrvChsr = new SendableChooser<>();   //sdb Chooser
@@ -90,7 +90,7 @@ public class Drv_Teleop extends Drive {
             }
             else rlSpd = 0.0;
             if(Math.abs(jsY.getRaw()) > 0.15){
-                fwdSpd = PropMath.span2(jsY.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
+                fwdSpd = -1.0 * PropMath.span2(jsY.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             }
             else fwdSpd = 0.0;
             if(Math.abs(jsRot.getRaw()) > 0.15){
@@ -105,34 +105,21 @@ public class Drv_Teleop extends Drive {
         smUpdate();
 
         //Autoalign stuff
-        if (btnAuto.isDown()){
-            //Calculate based on where setpoint is
-            if (goTo(redAmpX, redAmpY, -21.73, driveCmd, 1.0)){
-                //Do something when done?
-            };
-        }
-        if (btnAuto1.isDown()){
-            //Calculate based on where setpoint is            
-            if (goTo(blueAmpX, blueAmpY, -90.0, driveCmd, 1.0)){
-                //Do something when done?
-            };
-        }
-
         if (JS_IO.btnRightSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(redSpeakerRX, redSpeakerRY, redSpeakerRA, driveCmd, 1.0)){
+            if (goTo(FieldInfo2.speakerRPose2d.getX(), FieldInfo2.speakerRPose2d.getY(), FieldInfo2.speakerRPose2d.getRotation().getDegrees(), 1.0, 1.0)){
                 //Do something when done?
             };
         }
         if (JS_IO.btnMiddleSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(redSpeakerMX, redSpeakerMY, redSpeakerMA, driveCmd, 1.0)){
+            if (goTo(FieldInfo2.speakerMPose2d.getX(), FieldInfo2.speakerMPose2d.getY(), FieldInfo2.speakerMPose2d.getRotation().getDegrees(), 1.0, 1.0)){
                 //Do something when done?
             };
         }
         if (JS_IO.btnLeftSP.isDown()){
             //Calculate based on where setpoint is            
-            if (goTo(redSpeakerLX, redSpeakerLY, redSpeakerLA, driveCmd, 1.0)){
+            if (goTo(FieldInfo2.speakerLPose2d.getX(), FieldInfo2.speakerLPose2d.getY(), FieldInfo2.speakerLPose2d.getRotation().getDegrees(), 1.0, 1.0)){
                 //Do something when done?
             };
         }
@@ -142,11 +129,8 @@ public class Drv_Teleop extends Drive {
         }
                 
         if (lookAtNote.isDown()){
-            if (goToNote(1.0, driveCmd)){ //driveCmd should be set by the joystick
-                setDriveCmds(driveCmd[0], driveCmd[1], driveCmd[2], true); //Rotate towards note
-            }
-            // else
-            setDriveCmds(-0.3, 0.0, driveCmd[2], false); //Drive forward a little bit 
+            goToNote(1.0);
+            fwdSpd = -0.3;
         }
 
         if (headingHoldBtn.isDown()){

@@ -1,5 +1,8 @@
 package frc.robot.subsystem.Drive.trajFunk;
 
+import static frc.robot.subsystem.Drive.Drive.fwdSpd;
+import static frc.robot.subsystem.Drive.Drive.rlSpd;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 // import frc.robot.subsystem.Drive.Drive2;
 import frc.robot.subsystem.Drive.Drive;
@@ -40,11 +43,8 @@ public class GoToTarget extends ATrajFunction {
             System.out.println("Goto - 0: ---------- Init -----------");
             break;
         case 1: // Wait for the timer
-            // Drive.goTo(x, y, hdg, spd, rotSpd);
-            // if(delayTimer.hasExpired(timeDelay, true)) state++;
-            // SmartDashboard.putNumber("Traj/TrajDelay", delayTimer.getRemainingSec());
-            if(Drive.goTo(x, y, hdg, trajCmd, 1.0) || delayTimer.hasExpired(timeDelay, state)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
-            sendDriveCmds(trajCmd[0], trajCmd[1], trajCmd[2], true);  //fwdSpd, rlSpd & rotSpd set in goto()
+            if(Drive.goTo(x, y, hdg, 1.0, 1.0) || delayTimer.hasExpired(timeDelay, state)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
+            sendDriveCmds(fwdSpd, rlSpd, rotSpd, true);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Goto - 1: ---------- Going to [" + x + ", " + y + "] -----------");
             break;

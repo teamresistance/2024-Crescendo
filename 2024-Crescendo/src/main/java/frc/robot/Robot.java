@@ -18,6 +18,7 @@ import frc.robot.subsystem.Drive.Drive;
 import frc.robot.subsystem.Drive.Drv_Auto;
 import frc.robot.subsystem.Drive.Drv_Teleop;
 import frc.robot.subsystem.Drive.FieldInfo;
+import frc.robot.subsystem.Drive.FieldInfo2;
 import frc.robot.subsystem.Drive.Trajectories;
 import frc.robot.subsystem.tests.TestHdw;
 import frc.robot.subsystem.tests.TestMtrFPS;
@@ -43,7 +44,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         Led.init();
-        FieldInfo.chsrInit();
+        FieldInfo2.chsrInit();
         Tests.chsrInit();
         JS_IO.init();
         IO.init();
@@ -60,12 +61,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotPeriodic() {
-        FieldInfo.chsrUpdate();
+        FieldInfo2.chsrUpdate();
         Tests.chsrUpdate();
         JS_IO.update();
         IO.update();
         Drive.update();
         Trajectories.chsrUpdate();
+
     }
 
     /** This function is called once when autonomous is enabled. */
