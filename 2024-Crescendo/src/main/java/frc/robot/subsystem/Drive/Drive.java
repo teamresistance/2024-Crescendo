@@ -286,23 +286,10 @@ public class Drive {
 
     public static void reset(){
         pigeon.reset();
-        // IO.motorFrontLeft.getEncoder().setPosition(0.0);
-        // IO.motorFrontRight.getEncoder().setPosition(0.0);
-        // IO.motorBackLeft.getEncoder().setPosition(0.0);
-        // IO.motorBackRight.getEncoder().setPosition(0.0);
-        // var wheelPositions = new MecanumDriveWheelPositions(
-        //     IO.motorFrontLeft.getEncoder().getPosition(), IO.motorFrontRight.getEncoder().getPosition(),
-        //     IO.motorBackLeft.getEncoder().getPosition(), IO.motorBackRight.getEncoder().getPosition());
         drvEncFL.reset();
         drvEncBL.reset();
         drvEncFR.reset();
         drvEncBR.reset();
-        var wheelPositions = new MecanumDriveWheelPositions(
-            drvEncFL.rotations(), drvEncFR.rotations(),
-            drvEncFR.rotations(), drvEncBR.rotations());
-
-        // Get the rotation of the robot from the gyro.
-        // var gyroAngle = navX.getRotation2d();
         
         poseEstimator = 
         new MecanumDrivePoseEstimator(
@@ -441,9 +428,6 @@ public class Drive {
         System.out.println(feetAway);
         // System.out.println(poseEstimator.getEstimatedPosition());
         return feetAway;
-        // double feetAway = Units.metersToFeet(Math.sqrt(Math.pow(robotToSpeaker.getX(),2) + Math.pow(robotToSpeaker.getY(),2)));
-        // System.out.println(feetAway);
-        // return feetAway;
     }
 
     /**

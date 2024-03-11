@@ -1,19 +1,10 @@
 package frc.robot.subsystem.Drive;
 
-import static frc.robot.subsystem.Drive.Drive.pigeon;
-import static frc.robot.subsystem.Drive.Drive.reset;
-import static frc.robot.subsystem.Drive.Drive.redAmpX;
-import static frc.robot.subsystem.Drive.Drive.redAmpY;
-import static frc.robot.subsystem.Drive.Drive.blueAmpX;
-import static frc.robot.subsystem.Drive.Drive.blueAmpY;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.joysticks.JS_IO;
 import frc.io.joysticks.util.Axis;
 import frc.io.joysticks.util.Button;
-import frc.io.joysticks.util.Pov;
-import frc.robot.subsystem.Snorfler;
 import frc.util.PropMath;
 
 /**
