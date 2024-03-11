@@ -43,8 +43,10 @@ public class FieldInfo2 {
     private static Translation2d kRAmp = new Translation2d(Units.feetToMeters(48.0), Units.feetToMeters(27.0));
     private static Translation2d kRLdSt = new Translation2d(Units.feetToMeters(51.0), Units.feetToMeters(3.0));
 
-    private static final Translation2d redSpeakerOffPos = new Translation2d(16.0, 5.7); //TODO: Fill in translation2d object with speaker coords
-    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.4, 5.7); //TODO: Fill in translation2d object with speaker coor
+    private static final Translation2d redSpeakerOffPos = new Translation2d(16.0, 5.7); // TODO: Fill in translation2d
+                                                                                        // object with speaker coords
+    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.4, 5.7); // TODO: Fill in translation2d
+                                                                                       // object with speaker coor
 
     private static Pose2d redAmpSP = new Pose2d(new Translation2d(Units.metersToFeet(14.25), Units.metersToFeet(4.29)),
             new Rotation2d(0.0));
