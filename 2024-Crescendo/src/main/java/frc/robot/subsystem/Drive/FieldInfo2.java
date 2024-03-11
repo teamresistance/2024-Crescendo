@@ -84,7 +84,7 @@ public class FieldInfo2 {
         for (int i = 0; i < fieldSide.length; i++) {
             fieldSideChsr.addOption(fieldSide[i], i);
         }
-        fieldSideChsr.setDefaultOption(fieldSide[2] + " (Default)", 2);
+        fieldSideChsr.setDefaultOption(fieldSide[1] + " (Default)", 1);
 
         chsrUpdate();
     }

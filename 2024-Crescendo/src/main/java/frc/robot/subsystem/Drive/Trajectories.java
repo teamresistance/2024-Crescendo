@@ -10,7 +10,7 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "RedLeft", "RedMiddle", "Default"
+            "RedLeft", "RedMiddle", "Default", "Red 3 Note"
     };
     //
     /** Optional position for 'some' Trajectories. */
@@ -64,6 +64,8 @@ public class Trajectories {
                 return RedLeft(pwr);
             case "RedMiddle":
                 return RedMiddle(pwr);
+            case "Red 3 Note":
+                return Red3Note(pwr);
             case "Default":
                 return nothing(pwr);
             // case "test":
@@ -319,6 +321,45 @@ public class Trajectories {
                 // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
                 // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'
                 // new MoveOnHdgRL(0.0, -5.0, 0.3) //Move left 5'
+        };
+        return traj;
+    }
+
+    public static ATrajFunction[] Red3Note(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+                new Offset(15.15, 5.32, -180.0),
+                //Shoot
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Move Forward to not hit the back
+                new MoveTimed(0.3, 0.3, 0.0, 0.0, true),
+                //Rotate towards left note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveOnHdgRot(-30.0, 0.2),
+                new GoToNote(0.3, 1.0),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Go to middle note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new GoToNote(0.3, 1.0),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Rotate towards left note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveOnHdgRot(30.0, 0.2),
+                new GoToNote(0.3, 1.0),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new ShooterRQ(RQShooter.kShoot),
         };
         return traj;
     }

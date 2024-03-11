@@ -283,7 +283,7 @@ public class Led {
     }
 
     public static void rainbowUpdate() { // State Machine Update
-        if(rainbowTimer.hasExpired(0.005, rainbowState)) {
+        if(rainbowTimer.hasExpired(0.0005, rainbowState)) {
             if(rainbowIncreaseState) {
                 rainbowState++;
             } else {
