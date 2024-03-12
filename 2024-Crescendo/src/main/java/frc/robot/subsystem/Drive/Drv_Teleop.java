@@ -25,8 +25,6 @@ public class Drv_Teleop extends Drive {
     // public static Button autoBtn = new Button();
     public static Button headingHoldBtn = JS_IO.headingHoldBtn;
     public static Button lookAtNote = JS_IO.lookAtNote;
-    public static Button btnAuto = JS_IO.autoBtn;
-    public static Button btnAuto1 = JS_IO.auto1Btn;
 
     private static double jsFwd() {
         return JS_IO.axLeftY.get();

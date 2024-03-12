@@ -54,8 +54,6 @@ public class JS_IO {
     public static Axis axCoDrvX = new Axis();       // not used
 
     //2024 stuff
-    public static Button autoBtn = new Button();        // auto testing??
-    public static Button auto1Btn = new Button();       // auto testing 2??
     public static Button headingHoldBtn = new Button(); // Robot hold heading
     public static Button lookAtNote = new Button();     // Search for Note
     public static Button btnGyroReset = new Button();   // Reset gyro to 0 heading
@@ -80,6 +78,8 @@ public class JS_IO {
     public static Button btnLeftSP = new Button();
     public static Button btnRightSP = new Button();
     public static Button btnMiddleSP = new Button();
+
+    public static Button btnAuto = new Button(); //Testing auto trajectories in teleop
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -166,8 +166,6 @@ public class JS_IO {
         axCoDrvY.setAxis(coJoystick, 1);
 
         //2024 Stuff
-        autoBtn.setButton(leftJoystick, 11);
-        auto1Btn.setButton(leftJoystick, 9);
         headingHoldBtn.setButton(leftJoystick, 12);
         lookAtNote.setButton(rightJoystick, 1);
         btnGyroReset.setButton(leftJoystick, 10);
@@ -190,6 +188,7 @@ public class JS_IO {
         //Climber Buttons
         btnClimberEna.setButton(coJoystick, 11); // climber to vertical, toggle hooks up/dn
 
+        btnAuto.setButton(leftJoystick, 9);
     }
 
     // ----- gamePad only --------
@@ -281,8 +280,6 @@ public class JS_IO {
         axCoDrvY.setAxis();
 
         //2024 Stuff
-        autoBtn.setButton();
-        auto1Btn.setButton();
         headingHoldBtn.setButton();
         lookAtNote.setButton();
         btnGyroReset.setButton();
