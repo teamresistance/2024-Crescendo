@@ -204,7 +204,7 @@ public class Drive {
         sdbInit();
         hdgHold_SP = null;  //deflt to no hdg hold
         botHold_SP = null;  //deflt to no bot hold
-        drvBrake(true);    //set motors to coast
+        drvBrake(false);    //set motors to coast
 
         //                             name    SP,      P,       DB,     mn,      mx,     exp,    clamp
         PIDXController.setExt(pidControllerX
@@ -255,6 +255,8 @@ public class Drive {
                 drvEncFR.meters(), drvEncBR.meters()),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
+
+        cmdUpdate(0.0, 0.0, 0.0, true);
     }
 
     /**
