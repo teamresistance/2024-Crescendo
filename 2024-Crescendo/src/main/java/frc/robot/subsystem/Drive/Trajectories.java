@@ -10,7 +10,7 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "RedLeft", "RedMiddle", "Default", "Red 3 Note"
+            "RedLeft", "RedMiddle", "Default", "Red 3 Note", "MOHFwd Test"
     };
     //
     /** Optional position for 'some' Trajectories. */
@@ -66,6 +66,8 @@ public class Trajectories {
                 return RedMiddle(pwr);
             case "Red 3 Note":
                 return Red3Note(pwr);
+            case "MOHFwd Test":
+                return nothing(pwr);
             case "Default":
                 return nothing(pwr);
             // case "test":
@@ -312,15 +314,7 @@ public class Trajectories {
     public static ATrajFunction[] nothing(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-
-                new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new TrajDelay(1.0),
-                // new MoveOnHdgFwd(0.0, -3.0, 0.3),
-                // new MoveOnHdgFwd(0.0, 5.0, 0.3),
-                // new MoveOnHdgFwd(0.0, 5.0, pwr), //Move fwd 5' at 0.3 pwr
-                // new MoveOnHdgRL(0.0, 5.0, 0.3), //Move right 5'
-                // new MoveOnHdgFwd(0.0, -5.0, 0.3),//Move back 5'
-                // new MoveOnHdgRL(0.0, -5.0, 0.3) //Move left 5'
+            new MoveOnHdgFwd(0.0, 5.0, 0.3)
         };
         return traj;
     }
