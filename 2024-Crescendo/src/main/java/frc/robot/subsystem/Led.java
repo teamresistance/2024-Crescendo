@@ -245,7 +245,11 @@ public class Led {
 
 
 
+    /** Set of animations on the LEDS for the robot to play while disabled
+     * 
+     */
     public static void disabledUpdate() {
+        //Play the rainbow animation until loop is complete, then when done start timer
         if(disabledUpdateTimer.hasExpired(10.0, prevRainbowIncreaseState)) {
             rainbowUpdate();
             if(prevRainbowIncreaseState != rainbowIncreaseState) {
@@ -253,7 +257,9 @@ public class Led {
             }
             prevRainbowIncreaseState = rainbowIncreaseState;
         } else {
+            //Every other time the 10s timer starts, swap between these two animations
             if(disabledAnimationTracker) {
+                //Interpolates between two colors (currenntly green and also green)
                 if(disabledInterpolateIncrease) {
                     disabledInterpolateTracker += 0.045;
                 } else {
@@ -266,9 +272,10 @@ public class Led {
 
                 cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LIGHTERGREEN, disabledInterpolateTracker));
             } else {
+                //Chasing lights animation, it's super ugly and I have no idea how to explain it
                 if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
                     chasingLights(Color.kRed, 0);
-                    chasingLights(Color.kWhite, 2);
+                    chasingLights(COLOR_TRGREEN, 2);
                     chasingLights(Color.kBlue, 4);
 
                     chasingLights(COLOR_LEDOFF, 1);
@@ -282,14 +289,20 @@ public class Led {
         }
     }
 
+    /**
+     * Sets the LEDs to rainbow colors like a RGB keyboard, very fanciful
+     */
     public static void rainbowUpdate() { // State Machine Update
+        //This timer expires before the next cycle even starts but meh
         if(rainbowTimer.hasExpired(0.0005, rainbowState)) {
+            // increment or decrement the hue
             if(rainbowIncreaseState) {
                 rainbowState++;
             } else {
                 rainbowState--;
             }
 
+            //If the hue is above or melow the cap, reset it and change the direction it increments/decrements
             if(rainbowState > 360) {
                 rainbowIncreaseState = false;
                 rainbowState = 360;
@@ -299,10 +312,12 @@ public class Led {
             }
         }
 
+        //Then, set the color for every LED
         for(int i = 0; i < ledBuffer.getLength(); i++) {
             int hue = rainbowState + (12 * i);
             if(hue >= 360) hue -= 360;
 
+            //Using HSV because the H value, hue, makes the rainbow animation really easy to work with
             int[] rgb = hsvToRgb(new float[]{(float)hue, 1.0f, 1.0f});
             ledBuffer.setLED(i, new Color(rgb[1], rgb[0], rgb[2]));
         }
@@ -310,7 +325,14 @@ public class Led {
         ledStrip.setData(ledBuffer);
     }
 
-    // Interpolate between two RGB colors
+    /**
+     *  Interpolate between two RGB colors
+     * @param color1 The first color to interpolate between
+     * @param color2 the second color to interpolate between
+     * @param fraction a double from 0.0 to 1.0, 0.0 means closer to color1 and 1.0 means closer to color2 (exactly 0.0 or 1.0 just returns color1 or color2)
+     * 
+     * @return A Color that is interpolated between 1 and 2
+     * */ 
     public static Color interpolate(Color color1, Color color2, double fraction) {
         double r1 = color1.red;
         double g1 = color1.green;
@@ -329,6 +351,7 @@ public class Led {
 
 
 
+    //Chasing lights, weird kinda crappy hard coded version
     private static void chasingLights(Color c) {
         if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
             if(chasingLightsTracker >= 6) {
@@ -348,6 +371,7 @@ public class Led {
         }
     }
 
+    //Chasing lights, still crappy but allows for more freedom
     private static void chasingLights(Color c, int offset) {
         if(chasingLightsTracker >= 6) {
             chasingLightsTracker = 0;
@@ -360,6 +384,7 @@ public class Led {
     }
 
     
+    //Set all LEDS to the same color
     private static void cmdUpdate(Color c) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
