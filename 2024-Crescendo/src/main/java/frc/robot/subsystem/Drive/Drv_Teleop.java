@@ -152,7 +152,7 @@ public class Drv_Teleop extends Drive {
         }
 
         if (btnGyroReset.isDown()) {
-            reset();
+            resetGyroDistPose();
         }
 
         if (headingHoldBtn.isDown()) {

@@ -219,7 +219,7 @@ public class Drive {
         PIDXController.setExt(pidHdg, 0.0, 1.0/30, 1.0, 0.05, 0.5, 2.0, true);
         pidHdg.enableContinuousInput(-180, 180);
 
-        reset(); //Reset NavX, motors, and Odometry
+        resetGyroDistPose(); //Reset NavX, motors, and Odometry
 
         //--------- Vision init -----------------
         try{
@@ -240,24 +240,55 @@ public class Drive {
         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
     }
 
-    public static void reset(){
-        pigeon.reset();
-        drvEncFL.reset();
-        drvEncBL.reset();
-        drvEncFR.reset();
-        drvEncBR.reset();
+    // public static void resetGyroDistPose(){
+    //     pigeon.reset();
+    //     drvEncFL.reset();
+    //     drvEncBL.reset();
+    //     drvEncFR.reset();
+    //     drvEncBR.reset();
         
+    //     poseEstimator = 
+    //     new MecanumDrivePoseEstimator(
+    //         IO.kinematics, 
+    //         pigeon.getInvRotation2d(),
+    //         // navX.getInvRotation2d(),
+    //         new MecanumDriveWheelPositions(
+    //             drvEncFL.meters(), drvEncBL.meters(),
+    //             drvEncFR.meters(), drvEncBR.meters()),
+    //         new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
+    //     );
+
+    //     cmdUpdate(0.0, 0.0, 0.0, true);
+    // }
+
+
+    /**Reset ALL robot positioning info, Gyro, distance & pose */
+    public static void resetGyroDistPose(){
+        resetGyro();
+        resetDist();
+        resetPose();
+    }
+
+    /**Reset the gyro to the present heading of the robot to 0 degrees, */
+    public static void resetGyro(){ pigeon.reset(); }
+
+    /**Reset the wheel encoders to 0. */
+    public static void resetDist(){
+        drvEncFL.reset();  drvEncBL.reset();
+        drvEncFR.reset();  drvEncBR.reset();
+    }
+
+    /**Reset the robot pose to the present pose of the robot */
+    public static void resetPose(){
         poseEstimator = 
         new MecanumDrivePoseEstimator(
             IO.kinematics, 
             pigeon.getInvRotation2d(),
-            // navX.getInvRotation2d(),
             new MecanumDriveWheelPositions(
                 drvEncFL.meters(), drvEncBL.meters(),
                 drvEncFR.meters(), drvEncBR.meters()),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot))
         );
-
         cmdUpdate(0.0, 0.0, 0.0, true);
     }
 
