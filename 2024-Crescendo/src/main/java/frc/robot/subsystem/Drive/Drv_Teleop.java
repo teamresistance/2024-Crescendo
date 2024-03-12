@@ -80,10 +80,15 @@ public class Drv_Teleop extends Drive {
 
     /**
      * Determine any state that needs to interupt the present state, usually by way
-     * of a JS button but
-     * can be caused by other events.
+     * of a JS button but can be caused by other events.
      * <p>
-     * Added sdb chooser to select. Can chg from btn or chooser.
+     * Check sdb chooser if changed and update. Can chg from btn or chooser.
+     * <p>
+     * Then set fwdSpd, rlSpd & rotSpd from JS's then apply scaling
+     * <p>Then apply autoalign stuff if any of the buttons are pressed.
+     * <p>Buttons for Right, Middle or Left Speaker shooting position or look for note.
+     * <p>Finally, buttons to reset robot gyro, encoders & pose.
+     * Also hold a robot heading of 0 degrees.
      */
     public static void update() {
         if (teleDrvChsr.getSelected() != null) {
@@ -136,13 +141,13 @@ public class Drv_Teleop extends Drive {
             }
         }
 
-        if (btnGyroReset.isDown()) {
-            reset();
-        }
-
         if (lookAtNote.isDown()) {
             goToNote(1.0);
             fwdSpd = -0.3;
+        }
+
+        if (btnGyroReset.isDown()) {
+            reset();
         }
 
         if (headingHoldBtn.isDown()) {
