@@ -17,9 +17,9 @@ public class Drv_Teleop extends Drive {
     private static Axis jsY = JS_IO.axLeftY;
     private static Axis jsRot = JS_IO.axRightX;
 
-    private static double fwdSpd;
-    private static double rlSpd;
-    private static double rotSpd;
+    // private static double fwdSpd;
+    // private static double rlSpd;
+    // private static double rotSpd;
 
     private static Button btnGyroReset = JS_IO.btnGyroReset;
     // public static Button autoBtn = new Button();
@@ -94,8 +94,8 @@ public class Drv_Teleop extends Drive {
                 teleDrvChoice = state;
             }
         }
-
-        if (!auto) {
+        //Set wheel commands from joysticks ...
+        // if (!auto) {
             if (Math.abs(jsX.getRaw()) > 0.15) {
                 rlSpd = PropMath.span2(jsX.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             } else
@@ -108,21 +108,20 @@ public class Drv_Teleop extends Drive {
                 rotSpd = PropMath.span2(jsRot.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
             } else
                 rotSpd = 0.0;
-        }
+        // }
         // driveCmd[0] = fwdSpd;
         // driveCmd[1] = rlSpd;
         // driveCmd[2] = rotSpd;
 
-        smUpdate();
+        smUpdate(); //apply of JS's scaling.
 
-        // Autoalign stuff
+        // ... then overwite fwdSpd, rlSpd and rotSpd if any button pressed, Autoalign stuff
         if (JS_IO.btnRightSP.isDown()) {
             // Calculate based on where setpoint is
             if (goTo(FieldInfo2.speakerRPose2d.getX(), FieldInfo2.speakerRPose2d.getY(),
                     FieldInfo2.speakerRPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
                 // Do something when done?
             }
-            ;
         }
         if (JS_IO.btnMiddleSP.isDown()) {
             // Calculate based on where setpoint is
@@ -130,7 +129,6 @@ public class Drv_Teleop extends Drive {
                     FieldInfo2.speakerMPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
                 // Do something when done?
             }
-            ;
         }
         if (JS_IO.btnLeftSP.isDown()) {
             // Calculate based on where setpoint is
@@ -138,7 +136,6 @@ public class Drv_Teleop extends Drive {
                     FieldInfo2.speakerLPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
                 // Do something when done?
             }
-            ;
         }
 
         if (btnGyroReset.isDown()) {
