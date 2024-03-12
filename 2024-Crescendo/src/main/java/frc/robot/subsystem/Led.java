@@ -22,7 +22,7 @@ public class Led {
 
     // Color definitions
     private static final Color COLOR_TRGREEN = new Color(0, 255, 0);
-    private static final Color COLOR_LIGHTERGREEN = new Color(135, 255, 10);
+    private static final Color COLOR_LIGHTERGREEN = new Color(105, 255, 10);
     private static final Color COLOR_SNORFLE = new Color(255, 45, 0);
     private static final Color COLOR_SNORFLEREJECT = new Color(255, 0, 0);
     private static final Color COLOR_AMPSHOT = new Color(0, 210, 255);
@@ -264,7 +264,7 @@ public class Led {
                     disabledInterpolateIncrease = !disabledInterpolateIncrease;
                 }
 
-                cmdUpdate(interpolate(COLOR_AMPSHOT, COLOR_SNORFLEREJECT, disabledInterpolateTracker));
+                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LIGHTERGREEN, disabledInterpolateTracker));
             } else {
                 if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
                     chasingLights(Color.kRed, 0);
