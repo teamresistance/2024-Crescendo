@@ -175,11 +175,14 @@ public class Drive {
     //Speaker setpoint
     public static Rotation2d angleFromSpeaker;
 
+    /**@return the heading normalized to -180 to 180 */
     public static double hdgFB() {return pigeon.getNormalizedTo180();}  //Only need hdg to Hold Angle 0 or 180
+    /**Reset gyro to present direction of robot as 0.0 degrees. */
     public static void hdgRst() { pigeon.reset(); }
-    public static double distFB() { return 0.0;}  //IO.coorXY.drvFeet(); }
-    
-    public static void distRst() { }//IO.coorXY.drvFeetRst(); }
+    /**@return feet robot has moved since last reset */
+    public static double distFB() { return IO.coorXY.drvFeet(); }
+    /**@return reset wheel encoders */
+    public static void distRst() { IO.coorXY.drvFeetRst(); }
 
     /**
      * Set the commands to be issues when Drive.update is called.
@@ -207,8 +210,7 @@ public class Drive {
         drvBrake(false);    //set motors to coast
 
         //                             name    SP,      P,       DB,     mn,      mx,     exp,    clamp
-        PIDXController.setExt(pidControllerX
-        , 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS X responce
+        PIDXController.setExt(pidControllerX, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS X responce
         PIDXController.setExt(pidControllerY, 0.0, 1.0/2,  5.5, 0.25, 1.0, 1.0, true); //JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
         PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0/120, 1.0, 0.1, 1.0, 1.0, true); //JS Z responce
