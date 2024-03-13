@@ -31,7 +31,7 @@ public abstract class ATrajFunction {
     public static double distFBX() {return IO.getmecDistX();}   //Mec fwd movement
     public static double distFBY() {return IO.getmecDistY();}   //Mec side movement
     public static double distFPS() {return 0.0;}  //IO.coorXY.drvFPS();}
-    public static void resetDist() {IO.coorXY.reset();}
+public static void resetDist() { /*IO.coorXY.reset(); */}
     public static void setHdgHold(Double hdg) {Drive.setHdgHold(hdg);}
 
     public static double[] trajCmd = new double[3];

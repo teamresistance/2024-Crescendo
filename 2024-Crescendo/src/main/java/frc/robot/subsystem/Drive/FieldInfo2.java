@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FieldInfo2 {
+        public static int negator = 1;
 
     // Red
 
@@ -17,7 +18,7 @@ public class FieldInfo2 {
     public static Translation2d kSpeakerOffset = new Translation2d(0, 0);
     public static Translation2d kAmp = new Translation2d(0, 0);
     public static Translation2d kLoadStation = new Translation2d(0, 0);
-    public static Pose2d ampSP = null;
+    public static Pose2d ampSP = new Pose2d(new Translation2d(0, 0), new Rotation2d(0.0));
 
     public static Pose2d speakerLPose2d = new Pose2d(new Translation2d(0, 0), new Rotation2d(0.0));
     public static Pose2d speakerMPose2d = new Pose2d(new Translation2d(0, 0), new Rotation2d(0.0));
@@ -45,32 +46,32 @@ public class FieldInfo2 {
 
     private static final Translation2d redSpeakerOffPos = new Translation2d(16.0, 5.7); // TODO: Fill in translation2d
                                                                                         // object with speaker coords
-    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.4, 5.7); // TODO: Fill in translation2d
+    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.4, 5.14); // TODO: Fill in translation2d
                                                                                        // object with speaker coor
 
-    private static Pose2d redAmpSP = new Pose2d(new Translation2d(Units.metersToFeet(14.25), Units.metersToFeet(4.29)),
+    private static Pose2d redAmpSP = new Pose2d(new Translation2d((16.0-1.9), (7.85)),
             new Rotation2d(0.0));
-    private static Pose2d blueAmpSP = new Pose2d(new Translation2d(Units.metersToFeet(14.76), Units.metersToFeet(7.60)),
+    private static Pose2d blueAmpSP = new Pose2d(new Translation2d((1.9), (7.85)),
             new Rotation2d(0.0));
 
     private static Pose2d redSpeakerLeftSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.79), Units.metersToFeet(4.19)),
+            new Translation2d((14.79), (4.19)),
             new Rotation2d(Math.toRadians(-45.3)));
     private static Pose2d redSpeakerMiddleSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.57), Units.metersToFeet(5.52)),
+            new Translation2d((14.57), (5.52)),
             new Rotation2d(Math.toRadians(1.77)));
     private static Pose2d redSpeakerRightSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.47), Units.metersToFeet(5.95)),
+            new Translation2d((14.47), (5.95)),
             new Rotation2d(Math.toRadians(21.25)));
     // TODO! Add blue speaker positions
     private static Pose2d blueSpeakerLeftSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.79), Units.metersToFeet(4.19)),
+            new Translation2d((14.79), (4.19)),
             new Rotation2d(Math.toRadians(-45.3)));
     private static Pose2d blueSpeakerMiddleSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.57), Units.metersToFeet(5.52)),
+            new Translation2d((14.57), (5.52)),
             new Rotation2d(Math.toRadians(1.77)));
     private static Pose2d blueSpeakerRightSP = new Pose2d(
-            new Translation2d(Units.metersToFeet(14.47), Units.metersToFeet(5.95)),
+            new Translation2d((14.47), (5.95)),
             new Rotation2d(Math.toRadians(21.25)));
 
     private static String[] fieldSide = { "Red", "Blue" };
@@ -94,6 +95,7 @@ public class FieldInfo2 {
         if (fieldSide[fieldSideChsr.getSelected()] != null)
             SmartDashboard.putString("FieldSide/Choosen", fieldSide[fieldSideChsr.getSelected()]); // Put selected on
         if (fieldSide[fieldSideChsr.getSelected()] == "Red") {
+            negator = -1;
             kSpeaker = kRSpkr;
             kAmp = kRAmp;
             kLoadStation = kRLdSt;
@@ -105,6 +107,8 @@ public class FieldInfo2 {
             speakerMPose2d = redSpeakerMiddleSP;
             speakerRPose2d = redSpeakerRightSP;
         } else {
+
+            negator = 1;
             kSpeaker = kBSpkr;
             kAmp = kBAmp;
             kLoadStation = kBLdSt;

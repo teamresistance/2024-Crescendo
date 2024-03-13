@@ -1,5 +1,8 @@
 package frc.robot.subsystem.Drive;
 
+import javax.print.attribute.standard.MediaSize.JIS;
+
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.joysticks.JS_IO;
@@ -123,7 +126,6 @@ public class Drv_Teleop extends Drive {
             // Calculate based on where setpoint is
             if (goTo(FieldInfo2.speakerRPose2d.getX(), FieldInfo2.speakerRPose2d.getY(),
                     FieldInfo2.speakerRPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
-                // Do something when done?
             }
         }
         if (JS_IO.btnMiddleSP.isDown()) {
@@ -131,14 +133,20 @@ public class Drv_Teleop extends Drive {
             if (goTo(FieldInfo2.speakerMPose2d.getX(), FieldInfo2.speakerMPose2d.getY(),
                     FieldInfo2.speakerMPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
                 // Do something when done?
+
             }
         }
         if (JS_IO.btnLeftSP.isDown()) {
             // Calculate based on where setpoint is
-            if (goTo(FieldInfo2.speakerLPose2d.getX(), FieldInfo2.speakerLPose2d.getY(),
-                    FieldInfo2.speakerLPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
-                // Do something when done?
-            }
+            // if (goTo(FieldInfo2.speakerLPose2d.getX(), FieldInfo2.speakerLPose2d.getY(),
+            //         FieldInfo2.speakerLPose2d.getRotation().getDegrees(), 1.0, 1.0)) {
+            //     // Do something when done?
+            // }
+            goTo(14.2, 4.9, 0.0, 0.4, 0.4);
+        }
+
+        if (JS_IO.btnAmpLineup.isDown()){
+            goToAmp(FieldInfo2.ampSP.getX(), -90.0 * FieldInfo2.negator, 1.0, 1.0);
         }
 
         if (lookAtNote.isDown()) {

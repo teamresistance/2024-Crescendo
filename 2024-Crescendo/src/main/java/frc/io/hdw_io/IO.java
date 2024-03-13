@@ -83,7 +83,7 @@ public class IO {
             frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation
     );
     
-    public static CoorSys coorXY = new CoorSys(pigeon, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
+    // public static CoorSys coorXY = new CoorSys(pigeon, kinematics, frontLeftEnc, backLeftEnc, frontRightEnc, backRightEnc);   //CoorXY & drvFeet
     
     //Snorfler
     public static CANSparkMax snorfMtr = new CANSparkMax(40, MotorType.kBrushless);
@@ -192,6 +192,11 @@ public class IO {
         SmartDashboard.putNumber("Cmpr/Pressure", pch.getPressure());
         SmartDashboard.putBoolean("Cmpr/Is Enabled", pch.isEnabled());
         SmartDashboard.putString("Cmpr/Relay cmd", compressorRelay.get().getPrettyValue());
+
+        SmartDashboard.putNumber("EncoderFL", frontLeftEnc.feet());
+        SmartDashboard.putNumber("EncoderFR", frontRightEnc.feet());
+        SmartDashboard.putNumber("EncoderBL", backLeftEnc.feet());
+        SmartDashboard.putNumber("EncoderBR", backRightEnc.feet());
     }
 
 

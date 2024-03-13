@@ -10,7 +10,7 @@ public class Trajectories {
     private static double dfltPwr = 0.4;
     private static SendableChooser<String> chsr = new SendableChooser<String>();
     private static String[] chsrDesc = {
-            "RedLeft", "RedMiddle", "Default", "Red 3 Note", "MOHFwd Test"
+            "RedLeft", "RedMiddle", "Default", "Red 3 Note", "MOHFwd Test", "Blue 3 Note"
     };
     //
     /** Optional position for 'some' Trajectories. */
@@ -70,6 +70,8 @@ public class Trajectories {
                 return nothing(pwr);
             case "Default":
                 return nothing(pwr);
+            case "Blue 3 Note":
+                return Blue3Note(pwr);
             // case "test":
             // return test(pwr);
             default:
@@ -314,7 +316,7 @@ public class Trajectories {
     public static ATrajFunction[] nothing(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-            new MoveOnHdgFwd(0.0, 5.0, 0.3)
+            new AimAtSpeaker(1.0),
         };
         return traj;
     }
@@ -331,19 +333,21 @@ public class Trajectories {
                 new MoveTimed(0.3, 0.3, 0.0, 0.0, true),
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new MoveOnHdgRot(-30.0, 0.2),
+                new MoveOnHdgRot(-35.0, 0.2),
                 new GoToNote(0.3, 1.0),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Go to middle note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new GoToNote(0.3, 1.0),
+                new GoToNote(0.2, 1.5),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
@@ -352,7 +356,50 @@ public class Trajectories {
                 new GoToNote(0.3, 1.0),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 1.0, 0.4, 2.0),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+        };
+        return traj;
+    }
+
+    public static ATrajFunction[] Blue3Note(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+                new Offset(0.85, 5.32, 0.0),
+                //Shoot
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Move Forward to not hit the back
+                new MoveTimed(0.3, 0.3, 0.0, 0.0, true),
+                //Rotate towards left note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveOnHdgRot(-35.0, 0.2),
+                new GoToNote(0.3, 1.0),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(1.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Go to middle note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new GoToNote(0.2, 1.5),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(1.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+
+                //Rotate towards left note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new MoveOnHdgRot(30.0, 0.2),
+                new GoToNote(0.3, 1.0),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(1.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
         };
         return traj;

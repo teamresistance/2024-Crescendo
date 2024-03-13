@@ -78,6 +78,7 @@ public class JS_IO {
     public static Button btnLeftSP = new Button();
     public static Button btnRightSP = new Button();
     public static Button btnMiddleSP = new Button();
+    public static Button btnAmpLineup = new Button();
 
     public static Button btnAuto = new Button(); //Testing auto trajectories in teleop
 
@@ -177,6 +178,8 @@ public class JS_IO {
         btnLeftSP.setButton(rightJoystick, 12);
         btnRightSP.setButton(rightJoystick, 8);
         btnMiddleSP.setButton(rightJoystick, 10);
+
+        btnAmpLineup.setButton(rightJoystick, 9);
 
         //Shooter / Arm buttons
         btnSpkrShot.setButton(coJoystick, 4);   // Prep to shoot to Speaker

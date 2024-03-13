@@ -44,7 +44,7 @@ public class GoToTarget extends ATrajFunction {
             break;
         case 1: // Wait for the timer
             if(Drive.goTo(x, y, hdg, 1.0, 1.0) || delayTimer.hasExpired(timeDelay, state)) state++; //Go to [x,y], holding hdg field oriented. returns all atSetpoint
-            sendDriveCmds(fwdSpd, rlSpd, rotSpd, true);  //fwdSpd, rlSpd & rotSpd set in goto()
+            // sendDriveCmds(fwdSpd, rlSpd, rotSpd, true);  //fwdSpd, rlSpd & rotSpd set in goto()
             
             System.out.println("Goto - 1: ---------- Going to [" + x + ", " + y + "] -----------");
             break;
