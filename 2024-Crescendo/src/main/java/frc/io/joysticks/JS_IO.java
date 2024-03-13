@@ -70,6 +70,8 @@ public class JS_IO {
     public static Button btnShtrToss = new Button();    // Note caught on Shooter, toss it.
     //Climber
     public static Button btnClimberEna = new Button();  // Climber to Vertical & raise hooks
+    
+    public static Button btnClimberEna2 = new Button();  // Climber to Vertical & raise hooks
 
     //Hold angle to look at speaker
     public static Button lookAtSpeaker = new Button();  // Align shooter to Speaker
@@ -81,6 +83,7 @@ public class JS_IO {
     public static Button btnAmpLineup = new Button();
 
     public static Button btnAuto = new Button(); //Testing auto trajectories in teleop
+    
 
     // Constructor not needed, bc
     public JS_IO() {
@@ -186,11 +189,11 @@ public class JS_IO {
         btnAmpShot.setButton(coJoystick, 6);    // Prep to unload into Amp
         btnShoot.setButton(coJoystick, 1);      // Shoots game piece into Speaker or Amp
         btnUnload.setButton(coJoystick, 2);     // Unloads back to Snorfler, Abort Amp shot
-        btnShtrToss.setButton(coJoystick, 12);  // Note caught, toss it.
+        btnShtrToss.setButton(coJoystick, 8);   // Note caught, toss it.
 
         //Climber Buttons
         btnClimberEna.setButton(coJoystick, 11); // climber to vertical, toggle hooks up/dn
-
+        btnClimberEna2.setButton(coJoystick,12);
         btnAuto.setButton(leftJoystick, 9);
     }
 

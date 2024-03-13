@@ -1,66 +1,43 @@
 package frc.robot.subsystem.Drive;
 
-import static frc.robot.subsystem.Drive.Drive.maxRPM;
-
 import java.io.IOException;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import java.time.LocalDateTime;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkMax;
 // import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.MecanumDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.MecanumDriveOdometry;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Flex;
-import frc.io.hdw_io.util.MotorPID;
 import frc.io.hdw_io.util.MotorPID_Flex;
-import frc.io.hdw_io.util.NavX;
 import frc.io.hdw_io.util.Pigeon2;
 import frc.io.joysticks.JS_IO;
-import frc.io.joysticks.util.Axis;
-import frc.io.joysticks.util.Button;
-import frc.robot.Robot;
 import frc.util.MecanumDriveCalculator;
 // import frc.util.Apriltags;
 import frc.util.PIDXController;
-import frc.util.PropMath;
 import frc.util.Timer;
 import edu.wpi.first.math.VecBuilder;
 
@@ -531,8 +508,6 @@ public class Drive {
      * Returned in rotSpd
      * 
      * @param _spd     - max rotational speed
-     * @param _spdCmds - double arrary of 3 doubles to return X, Y & Z speed
-     *                 commands
      * 
      * @return true if at setpoint, within deadband set in pid initialization.
      */
@@ -556,7 +531,6 @@ public class Drive {
      * @param y       - SP for desired left/right loc, + is left from blue
      * @param hdg     - SP for desired hdgHold(?), fieldOriented?, 0 degree is blue
      *                up field
-     * @param _rotSpd - ???
      * 
      * @return true if all, X/Y/Z, are at setpoint, within deadband.
      */
@@ -565,8 +539,8 @@ public class Drive {
         if (!(pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint()))
 
         {
-            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * speed * FieldInfo2.negator; 
-            rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y) * -speed * FieldInfo2.negator;
+            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * speed * FieldInfo2.negotiator;
+            rlSpd = pidControllerY.calculate(poseEstimator.getEstimatedPosition().getY(), y) * -speed * FieldInfo2.negotiator;
             rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * rotationSpeed;
         }
         else {
@@ -579,7 +553,7 @@ public class Drive {
     public static boolean goToAmp(double x, double hdg, double speed, double rotationSpeed) {
         if (!(pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint())){
             
-            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * -speed * FieldInfo2.negator;
+            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * -speed * FieldInfo2.negotiator;
             rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * rotationSpeed;
 
         }

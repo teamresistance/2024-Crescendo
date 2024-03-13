@@ -1,8 +1,5 @@
 package frc.robot.subsystem.Drive;
 
-import javax.print.attribute.standard.MediaSize.JIS;
-
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.joysticks.JS_IO;
@@ -146,7 +143,7 @@ public class Drv_Teleop extends Drive {
         }
 
         if (JS_IO.btnAmpLineup.isDown()){
-            goToAmp(FieldInfo2.ampSP.getX(), -90.0 * FieldInfo2.negator, 1.0, 1.0);
+            goToAmp(FieldInfo2.ampSP.getX(), -90.0 * FieldInfo2.negotiator, 1.0, 1.0);
         }
 
         if (lookAtNote.isDown()) {

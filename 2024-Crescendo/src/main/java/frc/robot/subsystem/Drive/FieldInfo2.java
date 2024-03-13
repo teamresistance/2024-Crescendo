@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FieldInfo2 {
-        public static int negator = 1;
+        public static int negotiator = 1;
 
     // Red
 
@@ -70,11 +70,11 @@ public class FieldInfo2 {
     private static Pose2d blueSpeakerMiddleSP = new Pose2d(
             new Translation2d((14.57), (5.52)),
             new Rotation2d(Math.toRadians(1.77)));
-    private static Pose2d blueSpeakerRightSP = new Pose2d(
+    private static final Pose2d blueSpeakerRightSP = new Pose2d(
             new Translation2d((14.47), (5.95)),
             new Rotation2d(Math.toRadians(21.25)));
 
-    private static String[] fieldSide = { "Red", "Blue" };
+    private static final String[] fieldSide = { "Red", "Blue" };
 
     // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
     private static SendableChooser<Integer> fieldSideChsr = new SendableChooser<>(); // sdb Chooser
@@ -95,7 +95,7 @@ public class FieldInfo2 {
         if (fieldSide[fieldSideChsr.getSelected()] != null)
             SmartDashboard.putString("FieldSide/Choosen", fieldSide[fieldSideChsr.getSelected()]); // Put selected on
         if (fieldSide[fieldSideChsr.getSelected()] == "Red") {
-            negator = -1;
+            negotiator = -1;
             kSpeaker = kRSpkr;
             kAmp = kRAmp;
             kLoadStation = kRLdSt;
@@ -108,7 +108,7 @@ public class FieldInfo2 {
             speakerRPose2d = redSpeakerRightSP;
         } else {
 
-            negator = 1;
+            negotiator = 1;
             kSpeaker = kBSpkr;
             kAmp = kBAmp;
             kLoadStation = kBLdSt;

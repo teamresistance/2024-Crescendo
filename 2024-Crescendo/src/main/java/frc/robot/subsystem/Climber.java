@@ -20,12 +20,13 @@ import frc.robot.subsystem.Shooter.RQShooter;
 import frc.util.Timer;
 import frc.util.timers.OnOffDly;
 
+
 /**
  * The Climber is used to raise the robot on a chain at the end game.
  * <p>
- * To Climb btnClimberTgl is pressed to raise the climber verticle
+ * To Climb btnClimberTgl is pressed to raise the climber vertical
  * then extend the climber (hooks) up.  
- * The button can be press again to lower the Climber but will remain verticle.  
+ * The button can be press again to lower the Climber but will remain vertical.
  * When the Climber is up, the driver moves to the chain and presses 
  * the button to toggle and retract the Climber, raising the robot.
  */
@@ -41,6 +42,7 @@ public class Climber {
 
     // joystick buttons:
     private static Button btnClimberEna = JS_IO.btnClimberEna;  // toggle hooks up & down
+    private static Button btnClimberEna2 = JS_IO.btnClimberEna2;
     
     // variables:
     private static int state;                   // state machine value
@@ -71,7 +73,7 @@ public class Climber {
      */
     public static void update() {
         //Add code here to start state machine or override the sm sequence
-        if(btnClimberEna.onButtonPressed()){    // Toggle climber enable
+        if(btnClimberEna.isDown() && btnClimberEna2.isDown()){    // Toggle climber enable
             climberEna = !climberEna;
         }
 
