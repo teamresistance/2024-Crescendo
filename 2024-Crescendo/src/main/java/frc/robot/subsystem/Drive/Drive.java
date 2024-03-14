@@ -115,11 +115,11 @@ public class Drive {
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
     //
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.2302, 0.5, 0.2837),
-            new Rotation3d(0.0, 0.43633, 3)); // Cam mounted facing forward, half a meter forward of center, half a
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.2502, 0.2587, 0.6937),
+            new Rotation3d(0.0, 0.43633, 3.04)); // Cam mounted facing forward, half a meter forward of center, half a
                                                   // meter up from center.
-    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(-0.3302, -0.4004, 0.6937),
-            new Rotation3d(0.0, 0.43633, -3.067));
+    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.2502, -0.2587, 0.6937),
+            new Rotation3d(0.0, 0.43633, -3.065));
 
     private static boolean followNote;
     private static boolean parkAtTarget;
@@ -200,21 +200,21 @@ public class Drive {
      */
     public static void init() {
 
-        // SmartDashboard.putNumber("Drive/robotToCam/X", robotToCam.getX());
-        // SmartDashboard.putNumber("Drive/robotToCam/Y", robotToCam.getY());
-        // SmartDashboard.putNumber("Drive/robotToCam/Z", robotToCam.getZ());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/Y", robotToCam.getY());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/Z", robotToCam.getZ());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/X", robotToCam.getX());
 
-        // SmartDashboard.putNumber("Drive/robotToCam/roll", robotToCam.getRotation().getX());
-        // SmartDashboard.putNumber("Drive/robotToCam/pitch", robotToCam.getRotation().getY());
-        // SmartDashboard.putNumber("Drive/robotToCam/yaw", robotToCam.getRotation().getZ());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/roll", robotToCam.getRotation().getX());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/pitch", robotToCam.getRotation().getY());
+         SmartDashboard.putNumber("Drive/cams/robotToCam/yaw", robotToCam.getRotation().getZ());
 
-        // SmartDashboard.putNumber("Drive/robotToCam2/X", robotToCam2.getX());
-        // SmartDashboard.putNumber("Drive/robotToCam2/Y", robotToCam2.getY());
-        // SmartDashboard.putNumber("Drive/robotToCam2/Z", robotToCam2.getZ());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/X", robotToCam2.getX());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/Y", robotToCam2.getY());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/Z", robotToCam2.getZ());
 
-        // SmartDashboard.putNumber("Drive/robotToCam2/roll", robotToCam2.getRotation().getX());
-        // SmartDashboard.putNumber("Drive/robotToCam2/pitch", robotToCam2.getRotation().getY());
-        // SmartDashboard.putNumber("Drive/robotToCam2/yaw", robotToCam2.getRotation().getZ());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/roll", robotToCam2.getRotation().getX());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/pitch", robotToCam2.getRotation().getY());
+         SmartDashboard.putNumber("Drive/cams/robotToCam2/yaw", robotToCam2.getRotation().getZ());
 
         sdbInit();
         hdgHold_SP = null; // deflt to no hdg hold
@@ -222,10 +222,10 @@ public class Drive {
         drvBrake(false); // set motors to coast
 
         // name SP, P, DB, mn, mx, exp, clamp
-        PIDXController.setExt(pidControllerX, 0.0, 1.0 / 0.6, 0.2, 0.25, 0.6, 1.0, true); // JS X responce
-        PIDXController.setExt(pidControllerY, 0.0, 1.0 / 0.6, 0.2, 0.25, 0.6, 1.0, true); // JS Y responce
-        PIDXController.setExt(pidControllerZ, 0.0, 1.0 / 120, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
-        PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0 / 120, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
+        PIDXController.setExt(pidControllerX, 0.0, 1.0 / 1.5, 0.1, 0.25, 0.6, 1.0, true); // JS X responce
+        PIDXController.setExt(pidControllerY, 0.0, 1.0 / 1.5, 0.1, 0.25, 0.6, 1.0, true); // JS Y responce
+        PIDXController.setExt(pidControllerZ, 0.0, 1.0 / 240, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
+        PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0 / 300, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
 
         // name SP, P, DB, mn, mx, exp, clamp
         PIDXController.setExt(pidHdg, 0.0, 1.0 / 30, 1.0, 0.05, 0.5, 2.0, true);
@@ -312,33 +312,33 @@ public class Drive {
      * of a JS button but can be caused by other events.
      */
     public static void update() {
-        ///////
-        // robotToCam = new Transform3d(SmartDashboard.getNumber("Drive/robotToCam/X", 0),
-        //         SmartDashboard.getNumber("Drive/robotToCam/Y", 0), SmartDashboard.getNumber("Drive/robotToCam/Z", 0),
-        //         new Rotation3d(
-        //                 SmartDashboard.getNumber("Drive/robotToCam/roll", 0),
-        //                 SmartDashboard.getNumber("Drive/robotToCam/pitch", 0),
-        //                 SmartDashboard.getNumber("Drive/robotToCam/yaw", 0)));
-        // robotToCam2 = new Transform3d(SmartDashboard.getNumber("Drive/robotToCam2/X", 0),
-        //         SmartDashboard.getNumber("Drive/robotToCam2/Y", 0), SmartDashboard.getNumber("Drive/robotToCam2/Z", 0),
-        //         new Rotation3d(
-        //                 SmartDashboard.getNumber("Drive/robotToCam2/roll", 0),
-        //                 SmartDashboard.getNumber("Drive/robotToCam2/pitch", 0),
-        //                 SmartDashboard.getNumber("Drive/robotToCam2/yaw", 0)));
+        /////
+         robotToCam = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam/X", 0),
+                 SmartDashboard.getNumber("Drive/cams/robotToCam/Y", 0), SmartDashboard.getNumber("Drive/robotToCam/Z", 0),
+                 new Rotation3d(
+                         SmartDashboard.getNumber("Drive/cams/robotToCam/roll", 0),
+                         SmartDashboard.getNumber("Drive/cams/robotToCam/pitch", 0),
+                         SmartDashboard.getNumber("Drive/cams/robotToCam/yaw", 0)));
+         robotToCam2 = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam2/X", 0),
+                 SmartDashboard.getNumber("Drive/cams/robotToCam2/Y", 0), SmartDashboard.getNumber("Drive/robotToCam2/Z", 0),
+                 new Rotation3d(
+                         SmartDashboard.getNumber("Drive/cams/robotToCam2/roll", 0),
+                         SmartDashboard.getNumber("Drive/cams/robotToCam2/pitch", 0),
+                         SmartDashboard.getNumber("Drive/cams/robotToCam2/yaw", 0)));
 
-        
-        // photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        //         cam, robotToCam);
-        // photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        //         cam2, robotToCam2);
 
-        // // Create a vector with 3 elements, all initialized to zero
-        // var visionMeasurementStdDevs = VecBuilder.fill(0.05, 0.05, 0.05);
-        // // Sets how much the drivetrain pose estimator trusts the vision pose estimates
-        // poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
-        // photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
-        // photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
-        ////
+         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                 cam, robotToCam);
+         photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                 cam2, robotToCam2);
+
+         // Create a vector with 3 elements, all initialized to zero
+         var visionMeasurementStdDevs = VecBuilder.fill(0.05, 0.05, 0.05);
+         // Sets how much the drivetrain pose estimator trusts the vision pose estimates
+         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
+         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
+        //
 
 
         // Update DriveTrain Pose Estimation
@@ -349,12 +349,12 @@ public class Drive {
         Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
         Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
 
-        // SmartDashboard.putString("Drive/pose1", pose1.toString());
-        // SmartDashboard.putString("Drive/pose2", pose2.toString());
-        // SmartDashboard.putString("Drive/posething", poseEstimator.getEstimatedPosition().toString());
+         SmartDashboard.putString("Drive/pose1", pose1.toString());
+         SmartDashboard.putString("Drive/pose2", pose2.toString());
+         SmartDashboard.putString("Drive/posething", poseEstimator.getEstimatedPosition().toString());
 
-        // SmartDashboard.putNumber("Drive/Difference in translation", pose1.getTranslation().getDistance(pose2.getTranslation()));
-        // SmartDashboard.putString("Drive/Difference in rotation", pose1.getRotation().minus(pose2.getRotation()).toString());
+         SmartDashboard.putNumber("Drive/Difference in translation", pose1.getTranslation().getDistance(pose2.getTranslation()));
+         SmartDashboard.putString("Drive/Difference in rotation", pose1.getRotation().minus(pose2.getRotation()).toString());
         
         angleFromSpeaker = getAngleFromSpeaker(FieldInfo2.kSpeakerOffset);
 
@@ -363,7 +363,7 @@ public class Drive {
             aimAtSpeaker(1.0); // Aim at full speed
         }
 
-        // System.out.println(poseEstimator.getEstimatedPosition());
+//         System.out.println(poseEstimator.getEstimatedPosition());
 
         // Main Command Update Loop
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
@@ -553,7 +553,7 @@ public class Drive {
     public static boolean goToAmp(double x, double hdg, double speed, double rotationSpeed) {
         if (!(pidControllerX.atSetpoint() && pidControllerY.atSetpoint() && pidControllerZ.atSetpoint())){
             
-            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * -speed * FieldInfo2.negotiator;
+            fwdSpd = pidControllerX.calculate(poseEstimator.getEstimatedPosition().getX(), x) * speed * FieldInfo2.negotiator;
             rotSpd = pidHdg.calculateX(pigeon.getNormalizedTo180(), hdg) * rotationSpeed;
 
         }

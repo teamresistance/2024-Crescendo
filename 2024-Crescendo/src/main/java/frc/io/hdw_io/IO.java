@@ -137,7 +137,7 @@ public class IO {
         for(CANSparkFlex motor : driveMotors){
             motor.restoreFactoryDefaults();
             motor.setIdleMode(IdleMode.kCoast);
-            motor.setSmartCurrentLimit(60);
+            motor.setSmartCurrentLimit(75);
             // motor.clearFaults();
         }
         motorFrontLeft.setInverted(false);

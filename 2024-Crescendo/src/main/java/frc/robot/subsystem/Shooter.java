@@ -129,9 +129,9 @@ public class Shooter {
     public static void init() {
         hdwInit();
         
-        clsDistToFPS = new double[][] {{  2.05,   2.35,   2.70,   3.00, 3.32},
+        clsDistToFPS = new double[][] {{  2.05+1.,   2.35+1.6,   2.70+2.0,   3.00+2.1, 3.32+2.391},
                                        {fpsMax, fpsMax, fpsMax, fpsMax, 35.0}};  //Segmented Line close
-        farDistToFPS = new double[][] {{  3.30, 5.80, 9.99, 10.0},
+        farDistToFPS = new double[][] {{  3.30+2.391, 5.80+2.391, 9.99+2.391, 10.0},
                                        {fpsMax, 50.5,  50.5, fpsMax}};  //Segmented Line far
         farDistDB = 0.2;   //if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
         //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true

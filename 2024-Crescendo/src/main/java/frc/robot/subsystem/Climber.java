@@ -73,7 +73,7 @@ public class Climber {
      */
     public static void update() {
         //Add code here to start state machine or override the sm sequence
-        if(btnClimberEna.isDown() && btnClimberEna2.isDown()){    // Toggle climber enable
+        if(btnClimberEna.onButtonPressed() && btnClimberEna2.isDown()){    // Toggle climber enable
             climberEna = !climberEna;
         }
 
@@ -108,7 +108,7 @@ public class Climber {
                 break;
             case 2: // Raise Climber to vertical and wait
                 cmdUpdate(false, true);
-                if(stateTmr.hasExpired(2.0, state)) state++;
+                if(stateTmr.hasExpired(0.5, state)) state++;
                 break;
             case 3: // Extends the dual solenoids vertically
                 cmdUpdate(true, false);

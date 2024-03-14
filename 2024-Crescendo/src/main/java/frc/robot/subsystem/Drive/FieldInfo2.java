@@ -37,19 +37,19 @@ public class FieldInfo2 {
     public static Translation2d kCN5 = new Translation2d(Units.feetToMeters(27.0), Units.feetToMeters(2.5));
 
     private static Translation2d kBSpkr = new Translation2d(Units.feetToMeters(0.0), Units.feetToMeters(18.0));
-    private static Translation2d kBAmp = new Translation2d(Units.feetToMeters(6.0), Units.feetToMeters(27.0));
+    private static Translation2d kBAmp = new Translation2d(8.08, 7.07);
     private static Translation2d kBLdSt = new Translation2d(Units.feetToMeters(3.0), Units.feetToMeters(3.0));
 
     private static Translation2d kRSpkr = new Translation2d(Units.feetToMeters(54.0), Units.feetToMeters(18.0));
-    private static Translation2d kRAmp = new Translation2d(Units.feetToMeters(48.0), Units.feetToMeters(27.0));
+    private static Translation2d kRAmp = new Translation2d(8.0, 7.07);
     private static Translation2d kRLdSt = new Translation2d(Units.feetToMeters(51.0), Units.feetToMeters(3.0));
 
     private static final Translation2d redSpeakerOffPos = new Translation2d(16.0, 5.7); // TODO: Fill in translation2d
                                                                                         // object with speaker coords
-    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.4, 5.14); // TODO: Fill in translation2d
+    private static final Translation2d bluSpeakerOffPos = new Translation2d(0.0, 5.14); // TODO: Fill in translation2d
                                                                                        // object with speaker coor
 
-    private static Pose2d redAmpSP = new Pose2d(new Translation2d((16.0-1.9), (7.85)),
+    private static Pose2d redAmpSP = new Pose2d(new Translation2d((16.0-1.4), (7.85)),
             new Rotation2d(0.0));
     private static Pose2d blueAmpSP = new Pose2d(new Translation2d((1.9), (7.85)),
             new Rotation2d(0.0));

@@ -1,6 +1,5 @@
 package frc.robot.subsystem.Drive.trajFunk;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystem.Drive.Drive;
 import frc.util.Timer;
 
@@ -15,16 +14,19 @@ public class Offset extends ATrajFunction {
     private double x;
     private double y;
     private double hdg;
+    private double heading_offset;
     private double spd;
     private double rotSpd;
 
     /**
      * Constructor to go to target
      * Coordinates, and heading are coordinates on field in meters
-     * @param spd and @param rotSpd are percentage speed multipliers from 0 to 1
+     *
+     * @param spd          and @param rotSpd are percentage speed multipliers from 0 to 1
+     * @param _heading_offset
      */
-    public Offset(double _x, double _y, double _hdg) {
-        x = _x; y = _y; hdg = _hdg;
+    public Offset(double _x, double _y, double _hdg, double _heading_offset) {
+        x = _x; y = _y; hdg = _hdg; heading_offset = _heading_offset;
     }
 
     public void execute() {
@@ -35,6 +37,8 @@ public class Offset extends ATrajFunction {
             Drive.offSetX = x;
             Drive.offSetY = y;
             Drive.offSetRot = hdg;
+            Drive.pigeon.setYaw(heading_offset);
+            
             state++;
             // System.out.println("Delay - 0: ---------- Init -----------");
             break;

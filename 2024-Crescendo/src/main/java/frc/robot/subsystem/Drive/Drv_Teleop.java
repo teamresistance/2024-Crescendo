@@ -143,13 +143,13 @@ public class Drv_Teleop extends Drive {
         }
 
         if (JS_IO.btnAmpLineup.isDown()){
-            goToAmp(FieldInfo2.ampSP.getX(), -90.0 * FieldInfo2.negotiator, 1.0, 1.0);
+            goToAmp(FieldInfo2.ampSP.getX(), 90.0 * FieldInfo2.negotiator, 1.0, 1.0);
         }
 
         if (lookAtNote.isDown()) {
             isFieldOriented = false;
             goToNote(1.0);
-            fwdSpd = 0.3;
+            fwdSpd = 0.2;
         }
 
         if (lookAtNote.isUp()){
