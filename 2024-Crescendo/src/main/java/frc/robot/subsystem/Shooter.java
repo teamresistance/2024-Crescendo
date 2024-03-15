@@ -85,7 +85,7 @@ public class Shooter {
     private static double shtrAFPS_SP;
     private static double shtrBFPS_SP;
     private static double shtrAmpLd_FPS = 26.0;     //FPS for Amp load
-    private static double shtrAmpLd_Tm = 0.12;      //Sec for Amp load
+    private static double shtrAmpLd_Tm = 0.15;      //Sec for Amp load
     private static double shtrAmpUnld_FPS = 22.0;   //FPS for Amp unload
     private static double shtrAmpUnld_Tm = 0.12;    //Sec for Amp unload
     private static double[] shtrPIDParms;       // Used to initialize motor PID in init()
@@ -246,18 +246,23 @@ public class Shooter {
                 break;
             case 13: // wait to raise Arm on 2nd btn press (visual) or auto
                 cmdUpdate(0.0, 0.0, false, false);
+                
                 state++; //2nd press raise arm
-                if(shtrRequest == RQShooter.kDblClutchSnorf){
+                if(shtrRequest == RQShooter.kDblClutchSnorf) {
                     shtrRequest = RQShooter.kNoReq;
                     state = 0;
                 }
                 break;
             case 14: // raise arm, wait for request to shoot or on another button press lower arm
                 cmdUpdate(0.0, 0.0, false, true);
+                shtrMtrA.setIdleMode(IdleMode.kBrake);
+                shtrMtrB.setIdleMode(IdleMode.kBrake);
                 if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
                 if(btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; //SHOOT!
                 break;
             case 15: // check for arm raised
+                shtrMtrA.setIdleMode(IdleMode.kCoast);
+                shtrMtrB.setIdleMode(IdleMode.kCoast);
                 cmdUpdate(0.0, 0.0, false, true);
                 shtrRequest = RQShooter.kNoReq;    // cancel auto shoot
                 if (armUp_FB) state++;           //SHOOT!

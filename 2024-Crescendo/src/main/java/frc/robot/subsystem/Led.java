@@ -250,43 +250,7 @@ public class Led {
      */
     public static void disabledUpdate() {
         //Play the rainbow animation until loop is complete, then when done start timer
-        if(disabledUpdateTimer.hasExpired(10.0, prevRainbowIncreaseState)) {
-            rainbowUpdate();
-            if(prevRainbowIncreaseState != rainbowIncreaseState) {
-                disabledAnimationTracker = !disabledAnimationTracker;
-            }
-            prevRainbowIncreaseState = rainbowIncreaseState;
-        } else {
-            //Every other time the 10s timer starts, swap between these two animations
-            if(disabledAnimationTracker) {
-                //Interpolates between two colors (currenntly green and also green)
-                if(disabledInterpolateIncrease) {
-                    disabledInterpolateTracker += 0.045;
-                } else {
-                    disabledInterpolateTracker -= 0.045;
-                }
-
-                if(disabledInterpolateTracker > 1.0 || disabledInterpolateTracker < 0.0) {
-                    disabledInterpolateIncrease = !disabledInterpolateIncrease;
-                }
-
-                cmdUpdate(interpolate(COLOR_TRGREEN, COLOR_LIGHTERGREEN, disabledInterpolateTracker));
-            } else {
-                //Chasing lights animation, it's super ugly and I have no idea how to explain it
-                if(chasingLightsTimer.hasExpired(0.02, chasingLightsTracker)) {
-                    chasingLights(Color.kRed, 0);
-                    chasingLights(COLOR_TRGREEN, 2);
-                    chasingLights(Color.kBlue, 4);
-
-                    chasingLights(COLOR_LEDOFF, 1);
-                    chasingLights(COLOR_LEDOFF, 3);
-                    chasingLights(COLOR_LEDOFF, 5);
-
-                    ledStrip.setData(ledBuffer);
-                    chasingLightsTracker++;
-                }
-            }
-        }
+        rainbowUpdate();
     }
 
     /**
