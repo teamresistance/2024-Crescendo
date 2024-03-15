@@ -99,16 +99,16 @@ public class Drv_Teleop extends Drive {
         }
         //Set wheel commands from joysticks ...
         // if (!auto) {
-            if (Math.abs(jsX.getRaw()) > 0.15) {
-                rlSpd = PropMath.span2(jsX.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
+            if (Math.abs(jsX.getRaw()) > 0.1) {
+                rlSpd = PropMath.span2(jsX.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
             } else
                 rlSpd = 0.0;
-            if (Math.abs(jsY.getRaw()) > 0.15) {
-                fwdSpd = -1.0 * PropMath.span2(jsY.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
+            if (Math.abs(jsY.getRaw()) > 0.1) {
+                fwdSpd = -1.0 * PropMath.span2(jsY.getRaw(), 0.1, 1.0, 0.0, 1.0, true, 0);
             } else
                 fwdSpd = 0.0;
-            if (Math.abs(jsRot.getRaw()) > 0.15) {
-                rotSpd = PropMath.span2(jsRot.getRaw(), 0.15, 1.0, 0.0, 1.0, true, 0);
+            if (Math.abs(jsRot.getRaw()) > 0.07) {
+                rotSpd = PropMath.span2(jsRot.getRaw(), 0.07, 1.0, 0.0, 1.0, true, 0);
             } else
                 rotSpd = 0.0;
         // }

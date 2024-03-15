@@ -115,7 +115,7 @@ public class Drive {
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
     //
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.2502, 0.2587, 0.6937),
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.2902, 0.3887, 0.6937),
             new Rotation3d(0.0, 0.43633, 3.04)); // Cam mounted facing forward, half a meter forward of center, half a
                                                   // meter up from center.
     private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.2502, -0.2587, 0.6937),
@@ -313,31 +313,31 @@ public class Drive {
      */
     public static void update() {
         /////
-         robotToCam = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam/X", 0),
-                 SmartDashboard.getNumber("Drive/cams/robotToCam/Y", 0), SmartDashboard.getNumber("Drive/robotToCam/Z", 0),
-                 new Rotation3d(
-                         SmartDashboard.getNumber("Drive/cams/robotToCam/roll", 0),
-                         SmartDashboard.getNumber("Drive/cams/robotToCam/pitch", 0),
-                         SmartDashboard.getNumber("Drive/cams/robotToCam/yaw", 0)));
-         robotToCam2 = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam2/X", 0),
-                 SmartDashboard.getNumber("Drive/cams/robotToCam2/Y", 0), SmartDashboard.getNumber("Drive/robotToCam2/Z", 0),
-                 new Rotation3d(
-                         SmartDashboard.getNumber("Drive/cams/robotToCam2/roll", 0),
-                         SmartDashboard.getNumber("Drive/cams/robotToCam2/pitch", 0),
-                         SmartDashboard.getNumber("Drive/cams/robotToCam2/yaw", 0)));
-
-
-         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                 cam, robotToCam);
-         photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                 cam2, robotToCam2);
-
-         // Create a vector with 3 elements, all initialized to zero
-         var visionMeasurementStdDevs = VecBuilder.fill(0.05, 0.05, 0.05);
-         // Sets how much the drivetrain pose estimator trusts the vision pose estimates
-         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
-         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
-         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
+//         robotToCam = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam/X", 0),
+//                 SmartDashboard.getNumber("Drive/cams/robotToCam/Y", 0), SmartDashboard.getNumber("Drive/robotToCam/Z", 0),
+//                 new Rotation3d(
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam/roll", 0),
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam/pitch", 0),
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam/yaw", 0)));
+//         robotToCam2 = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam2/X", 0),
+//                 SmartDashboard.getNumber("Drive/cams/robotToCam2/Y", 0), SmartDashboard.getNumber("Drive/robotToCam2/Z", 0),
+//                 new Rotation3d(
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam2/roll", 0),
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam2/pitch", 0),
+//                         SmartDashboard.getNumber("Drive/cams/robotToCam2/yaw", 0)));
+//
+//
+//         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+//                 cam, robotToCam);
+//         photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+//                 cam2, robotToCam2);
+//
+//         // Create a vector with 3 elements, all initialized to zero
+//         var visionMeasurementStdDevs = VecBuilder.fill(0.05, 0.05, 0.05);
+//         // Sets how much the drivetrain pose estimator trusts the vision pose estimates
+//         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
+//         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
+//         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
         //
 
 
@@ -348,13 +348,13 @@ public class Drive {
 
         Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
         Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
-
-         SmartDashboard.putString("Drive/pose1", pose1.toString());
-         SmartDashboard.putString("Drive/pose2", pose2.toString());
-         SmartDashboard.putString("Drive/posething", poseEstimator.getEstimatedPosition().toString());
-
-         SmartDashboard.putNumber("Drive/Difference in translation", pose1.getTranslation().getDistance(pose2.getTranslation()));
-         SmartDashboard.putString("Drive/Difference in rotation", pose1.getRotation().minus(pose2.getRotation()).toString());
+//
+//         SmartDashboard.putString("Drive/pose1", pose1.toString());
+//         SmartDashboard.putString("Drive/pose2", pose2.toString());
+//         SmartDashboard.putString("Drive/posething", poseEstimator.getEstimatedPosition().toString());
+//
+//         SmartDashboard.putNumber("Drive/Difference in translation", pose1.getTranslation().getDistance(pose2.getTranslation()));
+//         SmartDashboard.putString("Drive/Difference in rotation", pose1.getRotation().minus(pose2.getRotation()).toString());
         
         angleFromSpeaker = getAngleFromSpeaker(FieldInfo2.kSpeakerOffset);
 
@@ -363,7 +363,8 @@ public class Drive {
             aimAtSpeaker(1.0); // Aim at full speed
         }
 
-//         System.out.println(poseEstimator.getEstimatedPosition());
+         System.out.println(poseEstimator.getEstimatedPosition());
+        
 
         // Main Command Update Loop
         cmdUpdate(fwdSpd, rlSpd, rotSpd, isFieldOriented);
@@ -396,7 +397,7 @@ public class Drive {
     public static double getDistanceFromSpeaker() {
         double feetAway = Units.metersToFeet(
                 FieldInfo2.kSpeaker.getDistance(poseEstimator.getEstimatedPosition().getTranslation()));//
-        System.out.println(feetAway);
+//        System.out.println(feetAway);
         // System.out.println(poseEstimator.getEstimatedPosition());
         return feetAway;
     }

@@ -485,12 +485,29 @@ public class Trajectories {
     public static ATrajFunction[] OutsideFieldNoteBlue(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-          new Offset(0.85, 4.5, 45.0, 45.0),
           new ShooterRQ(RQShooter.kSpkrShot),
           new ShooterRQ(RQShooter.kShoot),
-          new GoToTarget(7.0, 6.0, 0.0, 1.0, 1.0, 6.0),
+          new GoToTarget(3.97, 1.22, 0.0, 1.0, 1.0, 3.0), //Waypoint,
+          new GoToTarget(7.67,  0.73, 0.0, 1.0, 1.0, 3.0), //Note Point
           new GoToNote(0.2, 1.0),
-          new GoToTarget(0.85, 4.5, 45.0, 1.0, 0.5, 6.0),
+          new GoToTarget(3.97, 1.22, 0.0, 1.0, 1.0, 3.0), //Waypoint,
+          new GoToTarget(0.85, 4.5, 45.0, 1.0, 0.5, 3.0),
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new AimAtSpeaker(1.0),
+          new ShooterRQ(RQShooter.kShoot),
+        };
+        return traj;
+    }
+    public static ATrajFunction[] OutsideFieldNoteRed(double pwr) {
+        pwr = 0.3;
+        ATrajFunction traj[] = {
+          new ShooterRQ(RQShooter.kSpkrShot),
+          new ShooterRQ(RQShooter.kShoot),
+          new GoToTarget(16.5-3.97, 8.2-1.22, 0.0, 1.0, 1.0, 3.0), //Waypoint,
+          new GoToTarget(16.5-7.67,  8.2-0.73, 0.0, 1.0, 1.0, 3.0), //Note Point
+          new GoToNote(0.2, 1.0),
+          new GoToTarget(16.5-3.97, 8.2-1.22, 0.0, 1.0, 1.0, 3.0), //Waypoint,
+          new GoToTarget(16.5-0.85, 8.2-4.5, 45.0, 1.0, 0.5, 3.0),
           new ShooterRQ(RQShooter.kSpkrShot),
           new AimAtSpeaker(1.0),
           new ShooterRQ(RQShooter.kShoot),
