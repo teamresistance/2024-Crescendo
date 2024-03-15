@@ -222,8 +222,8 @@ public class Drive {
         drvBrake(false); // set motors to coast
 
         // name SP, P, DB, mn, mx, exp, clamp
-        PIDXController.setExt(pidControllerX, 0.0, 1.0 / 1.5, 0.1, 0.25, 0.6, 1.0, true); // JS X responce
-        PIDXController.setExt(pidControllerY, 0.0, 1.0 / 1.5, 0.1, 0.25, 0.6, 1.0, true); // JS Y responce
+        PIDXController.setExt(pidControllerX, 0.0, 1.0 / 1.2, 0.1, 0.3, 0.65, 1.0, true); // JS X responce
+        PIDXController.setExt(pidControllerY, 0.0, 1.0 / 1.2, 0.1, 0.3, 0.65, 1.0, true); // JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0 / 240, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
         PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0 / 300, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
 

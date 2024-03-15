@@ -246,7 +246,7 @@ public class Shooter {
                 break;
             case 13: // wait to raise Arm on 2nd btn press (visual) or auto
                 cmdUpdate(0.0, 0.0, false, false);
-                if(btnAmpShot.onButtonPressed() || shtrRequest == RQShooter.kAmpShot) state++; //2nd press raise arm
+                state++; //2nd press raise arm
                 if(shtrRequest == RQShooter.kDblClutchSnorf){
                     shtrRequest = RQShooter.kNoReq;
                     state = 0;
