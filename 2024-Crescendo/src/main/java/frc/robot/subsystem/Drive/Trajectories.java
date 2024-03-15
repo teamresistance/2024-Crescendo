@@ -400,39 +400,37 @@ public class Trajectories {
     public static ATrajFunction[] FourNoteRed(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-                new Offset(15.15, 5.32, -180.0, 0.0),
                 //Shoot
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new ShooterRQ(RQShooter.kShoot),
-
-                //Move Forward to not hit the back
-                new MoveTimed(0.3, 0.3, 0.0, 0.0, true),
+          
+          
+                //Go to middle note
+                new SnorflerRQ(RQSnorf.kAutoSnorf),
+                new GoToNote(0.2, 1.2),
+                //Drive back
+                new ShooterRQ(RQShooter.kSpkrShot),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
+                new AimAtSpeaker(1.0),
+                new ShooterRQ(RQShooter.kShoot),
+          
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(-40.0, 0.2),
-                new GoToNote(0.3, 1.0),
+                new GoToNote(0.2, 1.1),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
-                new AimAtSpeaker(1.0),
-                new ShooterRQ(RQShooter.kShoot),
-
-                //Go to middle note
-                new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new GoToNote(0.2, 1.5),
-                //Drive back
-                new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(30.0, 0.2),
-                new GoToNote(0.3, 1.0),
+                new GoToNote(0.2, 1.1),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
         };
@@ -442,39 +440,36 @@ public class Trajectories {
     public static ATrajFunction[] FourNoteBlue(double pwr) {
         pwr = 0.3;
         ATrajFunction traj[] = {
-                new Offset(0.85, 5.32, 0.0, 0.0),
                 //Shoot
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new ShooterRQ(RQShooter.kShoot),
-
-                //Move Forward to not hit the back
-                new MoveTimed(0.3, 0.3, 0.0, 0.0, true),
-                //Rotate towards left note
+          
+                //Go to middle note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new MoveOnHdgRot(-40.0, 0.2),
-                new GoToNote(0.3, 0.7),
+                new GoToNote(0.2, 1.2),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(1.5, 5.32, 0.0, 1.0, 0.4, 2.5),
+                new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 1.5),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
-                //Go to middle note
+                //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
-                new GoToNote(0.2, 1.0),
+                new MoveOnHdgRot(-40.0, 0.2),
+                new GoToNote(0.2, 1.1),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new GoToTarget(1.5, 5.32, 0.0, 1.0, 0.4, 1.5),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(30.0, 0.2),
-                new GoToNote(0.3, 0.7),
+                new GoToNote(0.2, 1.1),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
-                new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 2.5),
+                new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 1.5),
                 new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
         };

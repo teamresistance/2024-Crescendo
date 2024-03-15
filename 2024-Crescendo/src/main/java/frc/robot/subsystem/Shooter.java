@@ -154,8 +154,8 @@ public class Shooter {
      */
     public static void update() {
         //Add code here to start state machine or override the sm sequence
-
-
+        
+        
         /*
          * All buttons are handled in smUpdate
          * btnLoadForSpeaker - 1st press ramp up motors for speaker shot

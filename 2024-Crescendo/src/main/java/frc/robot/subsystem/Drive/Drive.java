@@ -115,10 +115,10 @@ public class Drive {
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
     //
-    private static Transform3d robotToCam = new Transform3d(new Translation3d(0.2902, 0.3887, 0.6937),
+    private static Transform3d robotToCam = new Transform3d(new Translation3d(-0.2902, 0.3887, 0.6937),
             new Rotation3d(0.0, 0.43633, 3.04)); // Cam mounted facing forward, half a meter forward of center, half a
                                                   // meter up from center.
-    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(0.2502, -0.2587, 0.6937),
+    private static Transform3d robotToCam2 = new Transform3d(new Translation3d(-0.2502, -0.2587, 0.6937),
             new Rotation3d(0.0, 0.43633, -3.065));
 
     private static boolean followNote;

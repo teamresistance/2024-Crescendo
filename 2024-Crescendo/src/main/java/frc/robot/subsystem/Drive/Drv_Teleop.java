@@ -149,7 +149,7 @@ public class Drv_Teleop extends Drive {
         if (lookAtNote.isDown()) {
             isFieldOriented = false;
             goToNote(1.0);
-            fwdSpd = 0.2;
+            fwdSpd = 0.3;
         }
 
         if (lookAtNote.isUp()){
