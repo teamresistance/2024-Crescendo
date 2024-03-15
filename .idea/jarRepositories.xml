@@ -61,5 +61,15 @@
       <option name="name" value="WPIe995de00-2c64-4df5-8831-c1441420ff19_0Release" />
       <option name="url" value="https://maven.ctr-electronics.com/release/" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="MavenLocal" />
+      <option name="name" value="MavenLocal" />
+      <option name="url" value="file:/$MAVEN_REPOSITORY$/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="maven" />
+      <option name="name" value="maven" />
+      <option name="url" value="https://maven.pkg.github.com/Mechanical-Advantage/AdvantageKit" />
+    </remote-repository>
   </component>
 </project>
