@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="2024-Crescendo.2024-Crescendo.main" target="17" />
+      <module name="2024-Crescendo.2024-Crescendo.main~1" target="17" />
+      <module name="2024-Crescendo.2024-Crescendo.main~2" target="17" />
+      <module name="2024-Crescendo.2024-Crescendo.test" target="17" />
+      <module name="2024-Crescendo.2024-Crescendo.test~1" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
