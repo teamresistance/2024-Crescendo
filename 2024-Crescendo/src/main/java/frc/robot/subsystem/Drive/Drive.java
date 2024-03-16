@@ -1,27 +1,12 @@
 package frc.robot.subsystem.Drive;
 
-import java.io.IOException;
-
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
-
-import com.revrobotics.CANSparkFlex;
-// import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
-
+import com.revrobotics.CANSparkFlex;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.MecanumDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.math.kinematics.MecanumDriveWheelSpeeds;
@@ -29,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.Encoder_Flex;
@@ -36,10 +22,14 @@ import frc.io.hdw_io.util.MotorPID_Flex;
 import frc.io.hdw_io.util.Pigeon2;
 import frc.io.joysticks.JS_IO;
 import frc.util.MecanumDriveCalculator;
-// import frc.util.Apriltags;
 import frc.util.PIDXController;
 import frc.util.Timer;
-import edu.wpi.first.math.VecBuilder;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
+
+import java.io.IOException;
 
 /**
  * Super class for Drv_Auto & Drv_Teleop. Has basic control to move the robot.
@@ -346,8 +336,8 @@ public class Drive {
                 drvEncFL.meters(), drvEncBL.meters(),
                 drvEncFR.meters(), drvEncBR.meters()));
 
-        Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
-        Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
+//        Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
+//        Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
 //
 //         SmartDashboard.putString("Drive/pose1", pose1.toString());
 //         SmartDashboard.putString("Drive/pose2", pose2.toString());
@@ -363,7 +353,7 @@ public class Drive {
             aimAtSpeaker(1.0); // Aim at full speed
         }
 
-         System.out.println(poseEstimator.getEstimatedPosition());
+//         System.out.println(poseEstimator.getEstimatedPosition());
         
 
         // Main Command Update Loop
