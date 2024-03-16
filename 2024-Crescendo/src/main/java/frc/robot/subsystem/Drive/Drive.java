@@ -215,7 +215,7 @@ public class Drive {
         PIDXController.setExt(pidControllerX, 0.0, 1.0 / 1.2, 0.1, 0.3, 0.65, 1.0, true); // JS X responce
         PIDXController.setExt(pidControllerY, 0.0, 1.0 / 1.2, 0.1, 0.3, 0.65, 1.0, true); // JS Y responce
         PIDXController.setExt(pidControllerZ, 0.0, 1.0 / 240, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
-        PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0 / 300, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
+        PIDXController.setExt(pidControllerSpeaker, 0.0, 1.0 / 235, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
 
         // name SP, P, DB, mn, mx, exp, clamp
         PIDXController.setExt(pidHdg, 0.0, 1.0 / 30, 1.0, 0.05, 0.5, 2.0, true);
@@ -351,8 +351,8 @@ public class Drive {
         if (JS_IO.lookAtSpeaker.isDown()) {
             aimAtSpeaker(1.0); // Aim at full speed
         }
-        
-        System.out.println(poseEstimator.getEstimatedPosition());
+
+//        System.out.println(poseEstimator.getEstimatedPosition());
         
 
         // Main Command Update Loop
