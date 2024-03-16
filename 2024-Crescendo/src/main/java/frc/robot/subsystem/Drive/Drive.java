@@ -24,6 +24,7 @@ import frc.io.joysticks.JS_IO;
 import frc.util.MecanumDriveCalculator;
 import frc.util.PIDXController;
 import frc.util.Timer;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -795,7 +796,37 @@ public class Drive {
         SmartDashboard.putNumber("PID-Rot/Mn", pidHdg.getOutMn());
 
         SmartDashboard.putBoolean("PID-Rot/AtSP", pidHdg.atSetpoint());
-
+        
+        Logger.recordOutput("Drv/fwdSpd", fwdSpd);
+        Logger.recordOutput("Drv/rlSpd", rlSpd);
+        Logger.recordOutput("Drv/rotSpd", rotSpd);
+        Logger.recordOutput("Drv/hdgHold_SP", hdgHold_SP == null ? 999 : hdgHold_SP);
+        Logger.recordOutput("Drv/botHold_SP", botHold_SP == null ? 999 : botHold_SP);
+        Logger.recordOutput("Gyro", pigeon.getNormalizedAngle());
+        Logger.recordOutput("robot", isFieldOriented);
+        Logger.recordOutput("SP/FrontLeft SP", inputs[0] * maxRPM);
+        Logger.recordOutput("SP/FrontRight SP", inputs[1] * maxRPM);
+        Logger.recordOutput("SP/BackLeft SP", inputs[2] * maxRPM);
+        Logger.recordOutput("SP/BackRight SP", inputs[3] * maxRPM);
+        Logger.recordOutput("SP/FrontLeft RPM", drvEncFL.getSpeed());
+        Logger.recordOutput("SP/FrontRight RPM", drvEncBL.getSpeed());
+        Logger.recordOutput("SP/BackLeft RPM", drvEncFR.getSpeed());
+        Logger.recordOutput("SP/BackRight RPM", drvEncBR.getSpeed());
+        Logger.recordOutput("SP/heading", pigeon.getNormalizedTo180());
+        Logger.recordOutput("PID-X/PB", pidControllerX.getP());
+        Logger.recordOutput("PID-X/DB", pidControllerX.getInDB());
+        Logger.recordOutput("PID-X/Mn", pidControllerX.getOutMn());
+        Logger.recordOutput("PID-X/AtSP", pidControllerX.atSetpoint());
+        Logger.recordOutput("PID-Y/PB", pidControllerY.getP());
+        Logger.recordOutput("PID-Y/DB", pidControllerY.getInDB());
+        Logger.recordOutput("PID-Y/Mn", pidControllerY.getOutMn());
+        Logger.recordOutput("PID-Y/AtSP", pidControllerY.atSetpoint());
+        Logger.recordOutput("PID-Rot/PB", pidHdg.getP());
+        Logger.recordOutput("PID-Rot/DB", pidHdg.getInDB());
+        Logger.recordOutput("PID-Rot/Mn", pidHdg.getOutMn());
+        Logger.recordOutput("PID-Rot/AtSP", pidHdg.atSetpoint());
+        
+        
         maxRPM = SmartDashboard.getNumber("SP/maxRPM", maxRPM);
         m_field.setRobotPose(poseEstimator.getEstimatedPosition());
 
