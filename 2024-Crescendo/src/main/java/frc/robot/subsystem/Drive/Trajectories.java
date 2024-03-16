@@ -411,23 +411,21 @@ public class Trajectories {
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
-                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
           
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(-40.0, 0.2),
-                new GoToNote(0.2, 1.1),
+          new GoToNote(0.2, 1.4),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
-                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(40.0, 0.2),
-                new GoToNote(0.2, 1.1),
+          new GoToNote(0.2, 1.4),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
@@ -450,23 +448,21 @@ public class Trajectories {
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 1.5),
-                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(-40.0, 0.2),
-                new GoToNote(0.2, 1.1),
+          new GoToNote(0.2, 1.4),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(1.5, 5.32, 0.0, 1.0, 0.4, 1.5),
-                new AimAtSpeaker(1.0),
                 new ShooterRQ(RQShooter.kShoot),
 
                 //Rotate towards left note
                 new SnorflerRQ(RQSnorf.kAutoSnorf),
                 new MoveOnHdgRot(40.0, 0.2),
-                new GoToNote(0.2, 1.1),
+          new GoToNote(0.2, 1.4),
                 //Drive back
                 new ShooterRQ(RQShooter.kSpkrShot),
                 new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 1.5),
