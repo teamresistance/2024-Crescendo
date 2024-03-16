@@ -13,7 +13,7 @@ exist for some combinations) then in buttonID pass 100 (even) for true, 101 (odd
 
 import edu.wpi.first.wpilibj.Joystick;
 
-public class Button{
+public class Button {
 	
 	private Joystick joystick;
 	public int buttonID;
@@ -26,56 +26,56 @@ public class Button{
 		joystick = injoystick;
 		buttonID = inbuttonID;
 		exists = joystick != null;
-		existDflt = buttonID != -1 ? false : true;	// default to false, if -1 default to true
+		existDflt = buttonID != -1 ? false : true; // default to false, if -1 default to true
 	}
-
+	
 	// Constructor, defaults set to does not exist & false
 	public Button() {
 		exists = false;
 		existDflt = false;
 	}
-
+	
 	// Constructor, defaults set to does not exist & passed value
 	public Button(boolean exDefault) {
 		exists = false;
 		existDflt = exDefault;
 	}
-
+	
 	// assign a new joystick & button
-	public void setButton(Joystick injoystick, int inbuttonID){
+	public void setButton(Joystick injoystick, int inbuttonID) {
 		joystick = injoystick;
 		buttonID = inbuttonID;
 		exists = joystick != null;
-		existDflt = buttonID != -1 ? false : true;	// default to false, if -1 default to true
+		existDflt = buttonID != -1 ? false : true; // default to false, if -1 default to true
 	}
-
+	
 	// Clear assignment.  Joystick = null & buttonID = 0.
-	public void setButton(){
+	public void setButton() {
 		setButton(null, 0);
 	}
-
+	
 	// get current value
 	public boolean isDown() {
 		return exists ? joystick.getRawButton(buttonID) : existDflt;
 	}
-
+	
 	// inverse of the current value
 	public boolean isUp() {
 		return exists ? !joystick.getRawButton(buttonID) : !existDflt;
 	}
-
+	
 	// returns true once when button pressed
 	public boolean onButtonPressed() {
 		return exists ? joystick.getRawButtonPressed(buttonID) : existDflt;
 	}
-
+	
 	// returns true once when button is released
 	public boolean onButtonReleased() {
 		return exists ? joystick.getRawButtonReleased(buttonID) : existDflt;
 	}
-
-	public void clearOnPrsRel(){
-		if(exists){
+	
+	public void clearOnPrsRel() {
+		if (exists) {
 			joystick.getRawButtonPressed(buttonID);
 			joystick.getRawButtonReleased(buttonID);
 		}
