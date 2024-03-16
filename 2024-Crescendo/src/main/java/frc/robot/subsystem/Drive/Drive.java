@@ -190,22 +190,22 @@ public class Drive {
      */
     public static void init() {
 
-         SmartDashboard.putNumber("Drive/cams/robotToCam/Y", robotToCam.getY());
-         SmartDashboard.putNumber("Drive/cams/robotToCam/Z", robotToCam.getZ());
-         SmartDashboard.putNumber("Drive/cams/robotToCam/X", robotToCam.getX());
-
-         SmartDashboard.putNumber("Drive/cams/robotToCam/roll", robotToCam.getRotation().getX());
-         SmartDashboard.putNumber("Drive/cams/robotToCam/pitch", robotToCam.getRotation().getY());
-         SmartDashboard.putNumber("Drive/cams/robotToCam/yaw", robotToCam.getRotation().getZ());
-
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/X", robotToCam2.getX());
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/Y", robotToCam2.getY());
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/Z", robotToCam2.getZ());
-
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/roll", robotToCam2.getRotation().getX());
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/pitch", robotToCam2.getRotation().getY());
-         SmartDashboard.putNumber("Drive/cams/robotToCam2/yaw", robotToCam2.getRotation().getZ());
-
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/Y", robotToCam.getY());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/Z", robotToCam.getZ());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/X", robotToCam.getX());
+//
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/roll", robotToCam.getRotation().getX());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/pitch", robotToCam.getRotation().getY());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam/yaw", robotToCam.getRotation().getZ());
+//
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/X", robotToCam2.getX());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/Y", robotToCam2.getY());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/Z", robotToCam2.getZ());
+//
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/roll", robotToCam2.getRotation().getX());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/pitch", robotToCam2.getRotation().getY());
+//         SmartDashboard.putNumber("Drive/cams/robotToCam2/yaw", robotToCam2.getRotation().getZ());
+ 
         sdbInit();
         hdgHold_SP = null; // deflt to no hdg hold
         botHold_SP = null; // deflt to no bot hold
@@ -302,7 +302,14 @@ public class Drive {
      * of a JS button but can be caused by other events.
      */
     public static void update() {
-        /////
+        poseEstimator.update(pigeon.getInvRotation2d(), new MecanumDriveWheelPositions(
+          drvEncFL.meters(), drvEncBL.meters(),
+          drvEncFR.meters(), drvEncBR.meters()));
+        
+        Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
+        Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
+
+//        /// Calibration
 //         robotToCam = new Transform3d(SmartDashboard.getNumber("Drive/cams/robotToCam/X", 0),
 //                 SmartDashboard.getNumber("Drive/cams/robotToCam/Y", 0), SmartDashboard.getNumber("Drive/robotToCam/Z", 0),
 //                 new Rotation3d(
@@ -315,8 +322,6 @@ public class Drive {
 //                         SmartDashboard.getNumber("Drive/cams/robotToCam2/roll", 0),
 //                         SmartDashboard.getNumber("Drive/cams/robotToCam2/pitch", 0),
 //                         SmartDashboard.getNumber("Drive/cams/robotToCam2/yaw", 0)));
-//
-//
 //         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
 //                 cam, robotToCam);
 //         photonPoseEstimator2 = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
@@ -328,16 +333,10 @@ public class Drive {
 //         poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
 //         photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
 //         photonPoseEstimator2.setReferencePose(poseEstimator.getEstimatedPosition());
-        //
 
 
         // Update DriveTrain Pose Estimation
-        poseEstimator.update(pigeon.getInvRotation2d(), new MecanumDriveWheelPositions(
-                drvEncFL.meters(), drvEncBL.meters(),
-                drvEncFR.meters(), drvEncBR.meters()));
 
-//        Pose2d pose1 = updatePoseWithVision(cam, photonPoseEstimator, poseEstimator);
-//        Pose2d pose2 = updatePoseWithVision(cam2, photonPoseEstimator2, poseEstimator);
 //
 //         SmartDashboard.putString("Drive/pose1", pose1.toString());
 //         SmartDashboard.putString("Drive/pose2", pose2.toString());
@@ -345,15 +344,15 @@ public class Drive {
 //
 //         SmartDashboard.putNumber("Drive/Difference in translation", pose1.getTranslation().getDistance(pose2.getTranslation()));
 //         SmartDashboard.putString("Drive/Difference in rotation", pose1.getRotation().minus(pose2.getRotation()).toString());
-        
+//       ///
         angleFromSpeaker = getAngleFromSpeaker(FieldInfo2.kSpeakerOffset);
 
         // Look at speaker
         if (JS_IO.lookAtSpeaker.isDown()) {
             aimAtSpeaker(1.0); // Aim at full speed
         }
-
-//         System.out.println(poseEstimator.getEstimatedPosition());
+        
+        System.out.println(poseEstimator.getEstimatedPosition());
         
 
         // Main Command Update Loop
