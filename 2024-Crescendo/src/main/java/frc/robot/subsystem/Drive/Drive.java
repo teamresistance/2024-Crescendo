@@ -36,73 +36,66 @@ import java.io.IOException;
  * Super class for Drv_Auto & Drv_Teleop. Has basic control to move the robot.
  */
 public class Drive {
-    /** Constructor */
-    public Drive() { // Mecanum Drive
-        // Nothing at this time.
-    }
-
+    // private static final double tpf = 3.82; //ticks per foot gut really rev / ft
+    private static final Field2d m_field = new Field2d();
+    private static final double timeAhead = 0.0002; // Projected note time of flight, used for accounting for movement
     // hdw defintions:
     // private static MecanumDrive mecDrv = IO.drvMec;
     // public static NavX navX = IO.navX;
     public static Pigeon2 pigeon = IO.pigeon;
+    // Velocity Controlled Mecanum
+    public static double maxRPM = 20000; // should be 5700
+    public static boolean isFieldOriented = true; // Mecanum drive is using fieldOriented else robotOriented
+    public static Double hdgHold_SP = null; // Hold heading, if not null, for auto/btn hold
+    public static Double fwdHold_SP = null; // Hold heading, if not null, for auto/btn hold
+    public static Double rlHold_SP = null; // Hold heading, if not null, for auto/btn hold
+    // Global vars, modified in multiple places. HMMmmm, bad form?
+    public static double fwdSpd;
+    public static double rlSpd;
+    public static double rotSpd;
+    // Legacy shtuff
+    public static PIDXController pidDist = new PIDXController(1.0 / 2, 0.0, 0.0); // adj fwdSpd for auto
+    public static PIDXController pidHdg = new PIDXController(1.0 / 60, 0.0, 0.0); // adj rotSpd for heading
+    public static boolean auto;
+    public static double offSetX = 15.0;
+    public static double offSetY = 5.0;
+    public static double offSetRot = 180.0;
+    public static Translation2d robotToSpeaker;
+    // Speaker setpoint
+    public static Rotation2d angleFromSpeaker;
     private static CANSparkFlex drvMtrFL = IO.motorFrontLeft;
+    public static MotorPID_Flex drvPidFL = new MotorPID_Flex(drvMtrFL, "Drive");
     private static CANSparkFlex drvMtrBL = IO.motorBackLeft;
+    public static MotorPID_Flex drvPidBL = new MotorPID_Flex(drvMtrBL, "Drive");
     private static CANSparkFlex drvMtrFR = IO.motorFrontRight;
+    public static MotorPID_Flex drvPidFR = new MotorPID_Flex(drvMtrFR, "Drive");
     private static CANSparkFlex drvMtrBR = IO.motorBackRight;
-
+    public static MotorPID_Flex drvPidBR = new MotorPID_Flex(drvMtrBR, "Drive");
     private static Encoder_Flex drvEncFL = IO.frontLeftEnc;
     private static Encoder_Flex drvEncBL = IO.backLeftEnc;
     private static Encoder_Flex drvEncFR = IO.frontRightEnc;
     private static Encoder_Flex drvEncBR = IO.backRightEnc;
-
-    // Velocity Controlled Mecanum
-    public static double maxRPM = 20000; // should be 5700
-
-    public static MotorPID_Flex drvPidFL = new MotorPID_Flex(drvMtrFL, "Drive");
-    public static MotorPID_Flex drvPidBL = new MotorPID_Flex(drvMtrBL, "Drive");
-    public static MotorPID_Flex drvPidFR = new MotorPID_Flex(drvMtrFR, "Drive");
-    public static MotorPID_Flex drvPidBR = new MotorPID_Flex(drvMtrBR, "Drive");
-
     // variables:
     // private static int state; // DriveMec state machine. 0=robotOriented,
     // 1=fieldOriented
     // private static Rotation2d heading; //used with fieldOriented
     private static Timer stateTmr = new Timer(.05); // Timer for state machine
-
-    public static boolean isFieldOriented = true; // Mecanum drive is using fieldOriented else robotOriented
-    public static Double hdgHold_SP = null; // Hold heading, if not null, for auto/btn hold
-    public static Double fwdHold_SP = null; // Hold heading, if not null, for auto/btn hold
-    public static Double rlHold_SP = null; // Hold heading, if not null, for auto/btn hold
     private static Double botHold_SP = null; // Hold heading, if not null, for robotOriented
     private static double wkgScale = 0.0; // Limit mecDrv max output if greater then 0.0.
-
-    // Global vars, modified in multiple places. HMMmmm, bad form?
-    public static double fwdSpd;
-    public static double rlSpd;
-    public static double rotSpd;
-
     // PIDS
     private static PIDXController pidControllerX = new PIDXController(1.0 / 2.0, 0.0, 0.0); // JS X responce
     private static PIDXController pidControllerY = new PIDXController(1.0 / 2.0, 0.0, 0.0); // JS Y responce
     private static PIDXController pidControllerZ = new PIDXController(1.0 / 1000.0, 0.0, 0.0);// JS Z responce
     private static PIDXController pidControllerSpeaker = new PIDXController(1.0 / 2000.0, 0.0, 0.0);// JS Z responce
-
-    // Legacy shtuff
-    public static PIDXController pidDist = new PIDXController(1.0 / 2, 0.0, 0.0); // adj fwdSpd for auto
-    public static PIDXController pidHdg = new PIDXController(1.0 / 60, 0.0, 0.0); // adj rotSpd for heading
-
     private static double[] inputs; // ??
-
     // Limelight
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     private static NetworkTableEntry tx = table.getEntry("tx");
     private static NetworkTableEntry ty = table.getEntry("ty");
     private static NetworkTableEntry ta = table.getEntry("ta");
     private static NetworkTableEntry tv = table.getEntry("tv");
-
     // Photonvision
     private static AprilTagFieldLayout aprilTagFieldLayout;
-
     private static PhotonCamera cam = new PhotonCamera("Cam 1");
     private static PhotonCamera cam2 = new PhotonCamera("Cam 2");
     //
@@ -111,24 +104,11 @@ public class Drive {
                                                   // meter up from center.
     private static Transform3d robotToCam2 = new Transform3d(new Translation3d(-0.2502, -0.2587, 0.6937),
             new Rotation3d(0.0, 0.43633, -3.065));
-
     private static boolean followNote;
     private static boolean parkAtTarget;
-    public static boolean auto;
-
-    public static double offSetX = 15.0;
-    public static double offSetY = 5.0;
-    public static double offSetRot = 180.0;
-
-    public static Translation2d robotToSpeaker;
-
     // Construct PhotonPoseEstimator
     private static PhotonPoseEstimator photonPoseEstimator;
     private static PhotonPoseEstimator photonPoseEstimator2;
-
-    // private static final double tpf = 3.82; //ticks per foot gut really rev / ft
-    private static final Field2d m_field = new Field2d();
-
     private static MecanumDrivePoseEstimator poseEstimator = new MecanumDrivePoseEstimator(
             IO.kinematics,
             // navX.getInvRotation2d(),
@@ -139,12 +119,14 @@ public class Drive {
                     drvEncFR.meters(),
                     drvEncBR.meters()),
             new Pose2d(offSetX, offSetY, new Rotation2d(offSetRot)));
-
-    private static final double timeAhead = 0.0002; // Projected note time of flight, used for accounting for movement
     private static Pose2d projectedPosition;
-
-    // Speaker setpoint
-    public static Rotation2d angleFromSpeaker;
+    
+    /**
+     * Constructor
+     */
+    public Drive() { // Mecanum Drive
+        // Nothing at this time.
+    }
 
     /** @return the heading normalized to -180 to 180 */
     public static double hdgFB() {
@@ -361,11 +343,6 @@ public class Drive {
         sdbUpdate();
     }
 
-    /** Set. If wkgScale is greater then 0.0, limit mecDrv max output else 1.0. */
-    public static void setWkgScale(double wScale) {
-        wkgScale = Math.min(1.0, wScale);
-    }
-
     /**
      * Release. If wkgScale is greater then 0.0, limit mecDrv max output else 1.0.
      */
@@ -376,6 +353,13 @@ public class Drive {
     /** Get. If wkgScale is greater then 0.0, limit mecDrv max output else 1.0. */
     public static double getWkgScale() {
         return wkgScale;
+    }
+    
+    /**
+     * Set. If wkgScale is greater then 0.0, limit mecDrv max output else 1.0.
+     */
+    public static void setWkgScale(double wScale) {
+        wkgScale = Math.min(1.0, wScale);
     }
 
     /** @return true wkgScale is greater then 0.0, limit mecDrv max output. */
@@ -417,16 +401,18 @@ public class Drive {
     public static void relHdgHold() {
         hdgHold_SP = null;
     }
+    
+    /**
+     * @return true if robot is field oriented.
+     */
+    public static boolean getFieldOriented() {
+        return isFieldOriented;
+    }
 
     /** @param fldOrnt true robot is running field oriented else robot oriented. */
     public static void setFieldOriented(boolean fldOrnt) {
         isFieldOriented = fldOrnt;
         System.out.println("Here1 " + fldOrnt);
-    }
-
-    /** @return true if robot is field oriented. */
-    public static boolean getFieldOriented() {
-        return isFieldOriented;
     }
 
     // Update drivetrain pose estimator with the camera pose estimator
