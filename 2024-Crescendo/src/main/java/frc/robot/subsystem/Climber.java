@@ -44,15 +44,17 @@ public class Climber {
   // variables:
   private static int state; // state machine value
   private static boolean climberEna =
-      false; // Boolean to determine whether the climber is activated  or not
+	  false; // Boolean to determine whether the climber is activated  or not
   private static Timer stateTmr = new Timer(0.05); // State Timer
   // private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber
   // status
   private static boolean climberUp_FB =
-      false; // time delayed feedback for if the hooks are up or dn
+	  false; // time delayed feedback for if the hooks are up or dn
   private static boolean climberVert_FB = false; // feedback for if the arm has been cmd vert.
-
-  /** Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java */
+	
+	/**
+	 * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
+	 */
   public static void init() {
     climberEna = false;
     cmdUpdate(false, false); // Climber is retracted, down
@@ -144,22 +146,22 @@ public class Climber {
     // Put stuff here on the sdb to be retrieved from the sdb later
     // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
   }
-
-  /** Update the Smartdashboard. */
+	
+	/** Update the Smartdashboard. */
   private static void sdbUpdate() {
     // Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
     // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
 
     // Put other stuff to be displayed here
-    //    SmartDashboard.putNumber("Climber/state", state);
-    //    SmartDashboard.putBoolean("Climber/Enable", climberEna);
-    //    SmartDashboard.putBoolean("Climber/Hooks Up FB", climberUp_FB);
-    //    SmartDashboard.putBoolean("Climber/Arm Vert FB", climberVert_FB);
-    //    SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
-    //    SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
-    //    SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
-    //    SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
-    //    SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
+	  //    SmartDashboard.putNumber("Climber/state", state);
+	  //    SmartDashboard.putBoolean("Climber/Enable", climberEna);
+	  //    SmartDashboard.putBoolean("Climber/Hooks Up FB", climberUp_FB);
+	  //    SmartDashboard.putBoolean("Climber/Arm Vert FB", climberVert_FB);
+	  //    SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
+	  //    SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
 
     Logger.recordOutput("Climber/state", state);
     Logger.recordOutput("Climber/Enable", climberEna);

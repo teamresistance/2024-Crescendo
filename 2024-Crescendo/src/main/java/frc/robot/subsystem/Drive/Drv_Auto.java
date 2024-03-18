@@ -12,7 +12,8 @@ public class Drv_Auto extends Drive {
   private static boolean allDone = false; // All legs done, path is done
 
   // Constructor.  Called with the path array
-  public Drv_Auto() {}
+  public Drv_Auto() {
+  }
 
   /**
    * Get the choosen Trajectories and initialize indexes.
@@ -31,15 +32,15 @@ public class Drv_Auto extends Drive {
     setDriveCmds(0.0, 0.0, 0.0, true); // Set to Field oriented.
     setHdgHold(null);
     drvBrake(true);
-
+    
     //                      PIDX,   SP,      PB,     DB,   Mn,  Mx, Exp, Clamp
     PIDXController.setExt(pidDist, 0.0, (-1.0 / 0.5), 0.3, 0.35, 1.0, 2.0, true);
     PIDXController.setExt(pidHdg, 0.0, (1.0 / 70), 3.0, 0.05, 0.5, 2.0, true);
     pidHdg.enableContinuousInput(-180.0, 180.0); // All angles are converted to -180 to 180 (opps)
-
+    
     System.out.println("Auto - Init");
   }
-
+  
   /**
    * Called from Robot AutonomusPeriodic.
    *
@@ -61,7 +62,7 @@ public class Drv_Auto extends Drive {
         System.out.print("DONE Auto: ");
         // System.out.println("\tCoorX: " + IO.coorXY.getX() + "\tCoorY " + IO.coorXY.getY() +
         //                     "\tHdg " + hdgFB() + "\tDist: " + IO.coorXY.drvFeet());
-
+        
         // cmdUpdate();        //Stop motors --added to stop after each leg
         setDriveCmds(0.0, 0.0, 0.0, true); // Stop motors --added to stop after each leg
         idx++;
@@ -83,20 +84,21 @@ public class Drv_Auto extends Drive {
         break;
     }
   }
-
+  
   private static void setAllDone() {
     allDone = true;
   }
-
+  
   public static boolean getAllDone() {
     return allDone;
   }
-
+  
   public static void disable() {
     setDriveCmds(0.0, 0.0, 0.0, false);
   }
-
-  public static void sdbInit() {}
+  
+  public static void sdbInit() {
+  }
 
   public static void sdbUpdate() {
     SmartDashboard.putNumber("Drv/Auto/Auto Step", autoStep);

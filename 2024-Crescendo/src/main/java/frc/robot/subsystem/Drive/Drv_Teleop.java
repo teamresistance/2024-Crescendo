@@ -8,30 +8,24 @@ import frc.io.joysticks.util.Button;
 import frc.util.PropMath;
 import org.littletonrobotics.junction.Logger;
 
-/** Extends the Drive class to manually control the robot in teleop mode. */
+/**
+ * Extends the Drive class to manually control the robot in teleop mode.
+ */
 public class Drv_Teleop extends Drive {
 
-  // public static Button autoBtn = new Button();
-  public static Button headingHoldBtn = JS_IO.headingHoldBtn;
-  public static Button lookAtNote = JS_IO.lookAtNote;
-  public static double teleopScale = 100.0; // scale to use when active in telop
-
-  // private static double fwdSpd;
-  // private static double rlSpd;
-  // private static double rotSpd;
   // joystick:
   private static Axis jsX = JS_IO.axLeftX;
   private static Axis jsY = JS_IO.axLeftY;
   private static Axis jsRot = JS_IO.axRightX;
-  private static Button btnGyroReset = JS_IO.btnGyroReset;
-  private static int state = 1; // Can be set by btn or sdb chooser
-  private static String[] teleDrvType = {"Off", "Robot", "Field"}; // All drive type choices
-  // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
-  private static SendableChooser<Integer> teleDrvChsr = new SendableChooser<>(); // sdb Chooser
 
-  // public static double[] driveCmd = new double[3];
-  private static int teleDrvChoice =
-      state; // Save teleDrvChooser for comparison cov then update state
+  // private static double fwdSpd;
+  // private static double rlSpd;
+  // private static double rotSpd;
+
+  private static Button btnGyroReset = JS_IO.btnGyroReset;
+  // public static Button autoBtn = new Button();
+  public static Button headingHoldBtn = JS_IO.headingHoldBtn;
+  public static Button lookAtNote = JS_IO.lookAtNote;
 
   private static double jsFwd() {
     return JS_IO.axLeftY.get();
@@ -45,6 +39,18 @@ public class Drv_Teleop extends Drive {
     return JS_IO.axRightX.get();
   } // Curvature direction, left.right
 
+  public static double teleopScale = 100.0; // scale to use when active in telop
+
+  // public static double[] driveCmd = new double[3];
+
+  private static int state = 1; // Can be set by btn or sdb chooser
+  private static String[] teleDrvType = {"Off", "Robot", "Field"}; // All drive type choices
+
+  // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
+  private static SendableChooser<Integer> teleDrvChsr = new SendableChooser<>(); // sdb Chooser
+  private static int teleDrvChoice =
+    state; // Save teleDrvChooser for comparison cov then update state
+  
   /** Initial items for teleop driving chooser. Called from robotInit in Robot. */
   public static void chsrInit() {
     teleDrvChsr = new SendableChooser<Integer>();
@@ -60,9 +66,9 @@ public class Drv_Teleop extends Drive {
     SmartDashboard.putData("Drv/Tele/Choice", teleDrvChsr); // Put Chsr on sdb
     if (teleDrvType[teleDrvChsr.getSelected()] != null)
       SmartDashboard.putString(
-          "Drv/Tele/Choosen", teleDrvType[teleDrvChsr.getSelected()]); // Put selected on sdb
+        "Drv/Tele/Choosen", teleDrvType[teleDrvChsr.getSelected()]); // Put selected on sdb
   }
-
+  
   /** Initial items to teleop driving */
   public static void init() {
     sdbInit();
@@ -119,20 +125,20 @@ public class Drv_Teleop extends Drive {
     if (JS_IO.btnRightSP.isDown()) {
       // Calculate based on where setpoint is
       if (goTo(
-          FieldInfo2.speakerRPose2d.getX(),
-          FieldInfo2.speakerRPose2d.getY(),
-          FieldInfo2.speakerRPose2d.getRotation().getDegrees(),
-          1.0,
-          1.0)) {}
+        FieldInfo2.speakerRPose2d.getX(),
+        FieldInfo2.speakerRPose2d.getY(),
+        FieldInfo2.speakerRPose2d.getRotation().getDegrees(),
+        1.0,
+        1.0)) {}
     }
     if (JS_IO.btnMiddleSP.isDown()) {
       // Calculate based on where setpoint is
       if (goTo(
-          FieldInfo2.speakerMPose2d.getX(),
-          FieldInfo2.speakerMPose2d.getY(),
-          FieldInfo2.speakerMPose2d.getRotation().getDegrees(),
-          1.0,
-          1.0)) {
+        FieldInfo2.speakerMPose2d.getX(),
+        FieldInfo2.speakerMPose2d.getY(),
+        FieldInfo2.speakerMPose2d.getRotation().getDegrees(),
+        1.0,
+        1.0)) {
         // Do something when done?
 
       }
@@ -169,7 +175,7 @@ public class Drv_Teleop extends Drive {
     }
     // sdbUpdate();
   }
-
+  
   /** Called from Robot telopPerodic every 20mS to Update the drive sub system. */
   private static void smUpdate() {
     // Drive.update();
@@ -179,10 +185,11 @@ public class Drv_Teleop extends Drive {
         break;
       case 1: // robot mode.
         setDriveCmds(
-            fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 0.7, false);
+          fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 1.00, false);
         break;
       case 2: // Field relative mode.
-        setDriveCmds(fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 0.7, true);
+        setDriveCmds(
+          fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 1.00, true);
         break;
       default:
         // cmdUpdate();
@@ -191,7 +198,7 @@ public class Drv_Teleop extends Drive {
         break;
     }
   }
-
+  
   /** Initialize sdb */
   private static void sdbInit() {
     // PIDXController.initSDBPid(pidHdgHold, "Tele/pidHdgHold");
@@ -199,7 +206,7 @@ public class Drv_Teleop extends Drive {
     // SmartDashboard.putNumber("Drv/Tele/Drv Enc TPF L", IO.drvLeadTPF_L);
     // SmartDashboard.putNumber("Drv/Tele/Drv Enc TPF R", IO.drvFollowerTPF_R);
   }
-
+  
   /** Update sdb stuff. Called every 20mS from update. */
   public static void sdbUpdate() {
     //    SmartDashboard.putNumber("Drv/Tele/state", state);

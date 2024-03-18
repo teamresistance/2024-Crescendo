@@ -15,7 +15,9 @@ import frc.robot.subsystem.Drive.Drive;
 import frc.util.PIDXController;
 import frc.util.Timer;
 
-/** This is a collection of classes to control driving (and robot) during Autonomous. */
+/**
+ * This is a collection of classes to control driving (and robot) during Autonomous.
+ */
 public abstract class ATrajFunction {
 
   public static int state = 0;
@@ -65,9 +67,11 @@ public abstract class ATrajFunction {
     done = false;
     System.out.println("ATraj - Init");
   }
-
-  /** Execute this trajectory */
-  public void execute() {}
+	
+	/**
+	 * Execute this trajectory
+	 */
+	public void execute() {}
 
   /**
    * issue commands to the Drive system.
@@ -169,8 +173,8 @@ public abstract class ATrajFunction {
    */
   public static double wpCalcDistSP(double _wpX, double _wpY) {
     return Math.hypot(
-        _wpX, // - IO.coorXY.getX(),    //Adjacent
-        /*              */ _wpY); // - IO.coorXY.getY());   //Opposite
+	    _wpX, // - IO.coorXY.getX(),    //Adjacent
+	    /*              */ _wpY); // - IO.coorXY.getY());   //Opposite
   }
 
   /**
@@ -182,11 +186,11 @@ public abstract class ATrajFunction {
    */
   public static double radiusFB(double _ctrX, double _ctrY) {
     return Math.hypot(
-        _ctrX, // - IO.coorXY.getX(),    //Adjacent
-        /*              */ _ctrY); // - IO.coorXY.getY());   //Opposite
+	    _ctrX, // - IO.coorXY.getX(),    //Adjacent
+	    /*              */ _ctrY); // - IO.coorXY.getY());   //Opposite
   }
-
-  /** Trajectory SDB initialize */
+	
+	/** Trajectory SDB initialize */
   public static void initSDB() {
     // PIDXController.initSDBPid(pidHdg, "Auto/pidHdg");
     // PIDXController.initSDBPid(pidDist, "Auto/pidDist");
@@ -199,8 +203,8 @@ public abstract class ATrajFunction {
     // SmartDashboard.putNumber("Drv/Auto/pidTst/B_DistAdj", pidDist.getAdj());
     // SmartDashboard.putBoolean("Drv/Auto/pidTst/C_atSP", pidDist.atSetpoint());
   }
-
-  /** Trajectory SDB update */
+	
+	/** Trajectory SDB update */
   public static void updSDB() {
     // PIDXController.updSDBPid(pidHdg, "Auto/pidHdg");
     // PIDXController.updSDBPid(pidDist, "Auto/pidDist");
@@ -226,19 +230,19 @@ public abstract class ATrajFunction {
   public static void prtShtuff(String traj) {
     System.out.println(traj + " - " + state + ": Feet\t"); // + IO.coorXY.drvFeet());
     System.out.println(
-        "\t\tdist   SP: "
-            + pidDist.getSetpoint()
-            + "\tFB: "
-            + pidDist.getInFB()
-            + "\tcmd: "
-            + pidDist.getAdj());
+	    "\t\tdist   SP: "
+		    + pidDist.getSetpoint()
+		    + "\tFB: "
+		    + pidDist.getInFB()
+		    + "\tcmd: "
+		    + pidDist.getAdj());
     System.out.println(
-        "\t\thdg\tSP: "
-            + pidHdg.getSetpoint()
-            + "\tFB: "
-            + pidHdg.getInFB()
-            + "\tcmd: "
-            + pidHdg.getAdj());
+	    "\t\thdg\tSP: "
+		    + pidHdg.getSetpoint()
+		    + "\tFB: "
+		    + pidHdg.getInFB()
+		    + "\tcmd: "
+		    + pidHdg.getAdj());
     // System.out.println("\tCoor\tX: " + IO.coorXY.getX() + "\tY " + IO.coorXY.getY() + "\tHdg " +
     // pidHdg.getInFB());
   }

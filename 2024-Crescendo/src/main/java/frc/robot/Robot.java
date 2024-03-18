@@ -33,7 +33,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private static Pigeon2 testpig = new Pigeon2(0);
   private static KTests prvTest;
-
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -57,7 +57,7 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("GitDirty", "Unknown");
         break;
     }
-
+    
     // Set up data receivers & replay source
     switch (Constants.currentMode) {
       case REAL:
@@ -65,12 +65,12 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
         break;
-
+      
       case SIM:
         // Running a physics simulator, log to NT
         Logger.addDataReceiver(new NT4Publisher());
         break;
-
+      
       case REPLAY:
         // Replaying a log, set up replay source
         setUseTiming(false); // Run as fast as possible
@@ -79,7 +79,7 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
         break;
     }
-
+    
     Led.init();
     FieldInfo2.chsrInit();
     Tests.chsrInit();
@@ -87,10 +87,10 @@ public class Robot extends LoggedRobot {
     IO.init();
     Drive.init();
     Trajectories.chsrInit();
-
+    
     Logger.start();
   }
-
+  
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
@@ -107,8 +107,10 @@ public class Robot extends LoggedRobot {
     Drive.update();
     Trajectories.chsrUpdate();
   }
-
-  /** This function is called once when autonomous is enabled. */
+  
+  /**
+   * This function is called once when autonomous is enabled.
+   */
   @Override
   public void autonomousInit() {
     // IO.pigeon.reset();
@@ -116,8 +118,10 @@ public class Robot extends LoggedRobot {
     Snorfler.init();
     Shooter.init();
   }
-
-  /** This function is called periodically during autonomous. */
+  
+  /**
+   * This function is called periodically during autonomous.
+   */
   @Override
   public void autonomousPeriodic() {
     Drv_Auto.update();
@@ -125,8 +129,10 @@ public class Robot extends LoggedRobot {
     Shooter.update();
     Led.update();
   }
-
-  /** This function is called once when teleop is enabled. */
+  
+  /**
+   * This function is called once when teleop is enabled.
+   */
   @Override
   public void teleopInit() {
     Climber.init();
@@ -135,29 +141,38 @@ public class Robot extends LoggedRobot {
     Snorfler.init();
     Shooter.init();
   }
-
-  /** This function is called periodically during operator control. */
+  
+  /**
+   * This function is called periodically during operator control.
+   */
   @Override
   public void teleopPeriodic() {
     Drv_Teleop.update();
-
+    
     Snorfler.update();
     Shooter.update();
     Climber.update();
     Led.update();
   }
-
-  /** This function is called once when the robot is disabled. */
+  
+  /**
+   * This function is called once when the robot is disabled.
+   */
   @Override
-  public void disabledInit() {}
-
-  /** This function is called periodically when disabled. */
+  public void disabledInit() {
+  }
+  
+  /**
+   * This function is called periodically when disabled.
+   */
   @Override
   public void disabledPeriodic() {
     Led.disabledUpdate();
   }
-
-  /** This function is called once when test mode is enabled. */
+  
+  /**
+   * This function is called once when test mode is enabled.
+   */
   @Override
   public void testInit() {
     // Led.setState(1);
@@ -165,8 +180,10 @@ public class Robot extends LoggedRobot {
     TestMtrPct.init();
     TestMtrFPS.init();
   }
-
-  /** This function is called periodically during test mode. */
+  
+  /**
+   * This function is called periodically during test mode.
+   */
   @Override
   public void testPeriodic() {
     //    System.out.println(testpig.getAngle());
@@ -194,12 +211,17 @@ public class Robot extends LoggedRobot {
         break;
     }
   }
-
-  /** This function is called once when the robot is first started up. */
+  
+  /**
+   * This function is called once when the robot is first started up.
+   */
   @Override
-  public void simulationInit() {}
-
-  /** This function is called periodically whilst in simulation. */
+  public void simulationInit() {
+  }
+  
+  /**
+   * This function is called periodically whilst in simulation.
+   */
   @Override
   public void simulationPeriodic() {}
 }

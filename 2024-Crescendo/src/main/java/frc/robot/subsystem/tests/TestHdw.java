@@ -24,51 +24,51 @@ import frc.io.hdw_io.util.Pigeon2;
 public class TestHdw {
   // navX
   private static Pigeon2 navX = IO.pigeon;
-
+  
   // PDH Power
   private static PowerDistribution pdh = IO.pdh;
-
+  
   // PCH Air
   public static Compressor pch = IO.pch;
-
+  
   // Drive Motors
   // There is only 4 motors controlling wheels this year, not 2 per
   private static CANSparkFlex motorFrontLeft = IO.motorFrontLeft;
   private static CANSparkFlex motorBackLeft = IO.motorBackLeft;
   private static CANSparkFlex motorFrontRight = IO.motorFrontRight;
   private static CANSparkFlex motorBackRight = IO.motorBackRight;
-
+  
   // Encoders
   static Encoder_Flex frontLeftEnc = IO.frontLeftEnc;
   static Encoder_Flex backLeftEnc = IO.backLeftEnc;
   static Encoder_Flex frontRightEnc = IO.frontRightEnc;
   static Encoder_Flex backRightEnc = IO.backRightEnc;
-
+  
   // Snorfler
   private static CANSparkMax snorfMtr = IO.snorfMtr;
   private static DigitalInput snorHasGP = IO.snorHasGP;
-
+  
   // Shooter
   private static CANSparkMax shooterMtrA = IO.shooterMtrA;
   private static CANSparkMax shooterMtrB = IO.shooterMtrB;
   private static Solenoid shooterArmUpSV = IO.shooterArmUpSV;
   private static Solenoid shooterPitchLoSV = IO.shooterPitchLoSV;
-
+  
   // Shooter Encoders
   // 1024 ticks/rev, (0.183' * 3.14) = 0.576 ft/rev, 1:1 gr = 1.0, calibrated (1024/0.576)*1.0  =
   // 1777.91 ticks/ft
   private static Encoder_Neo shtrMtrAEnc;
   private static Encoder_Neo shtrMtrBEnc;
-
+  
   // Climber
   private static Solenoid climberVertSV = IO.climberVertSV;
   private static Solenoid climberExt1SV = IO.climberExt1SV;
   private static Solenoid climberRet1SV = IO.climberRet1SV;
   private static Solenoid climberRet2SV = IO.climberRet2SV;
-
+  
   // joystick buttons:
   // none at this time
-
+  
   // variables:
   // Drive
   private static double drvMtr_FL_Spd = 0.0;
@@ -85,22 +85,23 @@ public class TestHdw {
   // Climber
   private static boolean climberVert = false;
   private static boolean climberUp = false;
-
+  
   public static void init() {
     shtrMtrAEnc = new Encoder_Neo(shooterMtrA, 1777.41);
     shtrMtrBEnc = new Encoder_Neo(shooterMtrB, 1777.41);
-
+    
     hdwInit();
     sdbInit();
   }
-
+  
   public static void update() {
     sdbUpdate();
     cmdUpdate();
   }
-
-  private static void smUpdate() {}
-
+  
+  private static void smUpdate() {
+  }
+  
   private static void cmdUpdate() {
     // Drive
     motorFrontLeft.set(drvMtr_FL_Spd);
@@ -121,7 +122,7 @@ public class TestHdw {
       climberRet2SV.set(climberUp);
     }
   }
-
+  
   private static void sdbInit() {
     // Drive
     SmartDashboard.putNumber("TestHdw/Drv/Cmd/Mtr FL Spd", 0.0);
@@ -139,7 +140,7 @@ public class TestHdw {
     SmartDashboard.putBoolean("TestHdw/Climber/Extend Up", false);
     SmartDashboard.putBoolean("TestHdw/Climber/Raise Vertical", false);
   }
-
+  
   private static void sdbUpdate() {
     // Drive
     drvMtr_FL_Spd = SmartDashboard.getNumber("TestHdw/Drv/Cmd/Mtr FL Spd", drvMtr_FL_Spd);
@@ -177,15 +178,19 @@ public class TestHdw {
     SmartDashboard.putBoolean("TestHdw/Climber/Retract 1 SV", climberRet1SV.get());
     SmartDashboard.putBoolean("TestHdw/Climber/Retract 2 SV", climberRet2SV.get());
   }
-
-  /** Initialize motor configuration setup. */
+  
+  /**
+   * Initialize motor configuration setup.
+   */
   public static void hdwInit() {
     snorfInit();
     shtrAInit();
     shtrBInit();
   }
-
-  /** Initialize motor configuration setup. */
+  
+  /**
+   * Initialize motor configuration setup.
+   */
   public static void snorfInit() {
     // Shooter
     snorfMtr.restoreFactoryDefaults();
@@ -193,8 +198,10 @@ public class TestHdw {
     snorfMtr.clearFaults();
     snorfMtr.setInverted(false);
   }
-
-  /** Initialize motor configuration setup. */
+  
+  /**
+   * Initialize motor configuration setup.
+   */
   public static void shtrAInit() {
     // Shooter
     shooterMtrA.restoreFactoryDefaults();
@@ -202,8 +209,10 @@ public class TestHdw {
     shooterMtrA.clearFaults();
     shooterMtrA.setInverted(false);
   }
-
-  /** Initialize motor configuration setup. */
+  
+  /**
+   * Initialize motor configuration setup.
+   */
   public static void shtrBInit() {
     // Shooter
     shooterMtrB.restoreFactoryDefaults();
