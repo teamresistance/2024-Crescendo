@@ -11,6 +11,8 @@ package frc.robot.subsystem;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
+
+import edu.wpi.first.hal.RelayJNI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
@@ -305,6 +307,8 @@ public class Shooter {
         clearOnPresses();
     }
 
+    private static boolean runMtrs;
+    private static boolean prvRunMtrs;
     /**
      * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
      * 
@@ -317,21 +321,29 @@ public class Shooter {
     private static void cmdUpdate(double mtrAFPS, double mtrBFPS, boolean pitchLoCmd, boolean armUpCmd) {
         //Check any safeties, mod passed cmds if needed.
         //Send commands to hardware
-        if(Math.abs(mtrAFPS) > 1.0){
-                shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        runMtrs = Math.abs(mtrAFPS) > 1.0;
+
+        if(runMtrs){
+            if(runMtrs != prvRunMtrs) shtrMtrB.follow(shtrMtrA);
+            shtrMtrAPid.setSetpoint(mtrAFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+            // shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
         }else{
+            if(runMtrs != prvRunMtrs) shtrMtrBInit();
             shtrMtrAPid.setSetpoint(0.0);
             shtrMtrA.disable();
-        }
-        shtrMtrAPid.update();   //Update the PID reference
-
-        if(Math.abs(mtrBFPS) > 1.0){
-                shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
-        }else{
             shtrMtrBPid.setSetpoint(0.0);
             shtrMtrB.disable();
         }
-        shtrMtrBPid.update();   //Update the PID reference
+        prvRunMtrs = runMtrs;
+        shtrMtrAPid.update();   //Update the PID reference
+
+        // if(Math.abs(mtrBFPS) > 1.0){
+        //         shtrMtrBPid.setSetpoint(mtrBFPS * 5700/fpsMax ); // F/S * 60/1 * 1/0.576 = FPS * 104.17
+        // }else{
+        //     shtrMtrBPid.setSetpoint(0.0);
+        //     shtrMtrB.disable();
+        // }
+        // shtrMtrBPid.update();   //Update the PID reference
 
         shtrPitchLo.set(pitchLoCmd);
         //Safety, if climber is not down then DO NOT raise arm
@@ -371,6 +383,7 @@ public class Shooter {
         SmartDashboard.putBoolean("Shooter/Arm Up FB Dly", armUp_FB);
         SmartDashboard.putBoolean("Shooter/Is Climber Vert", Climber.isClimberVert());
         SmartDashboard.putBoolean("Shooter/Pitch Lo Cmd", shtrPitchLo.get());
+        SmartDashboard.putBoolean("Shooter/Run Mtrs > 1.0", runMtrs);
 
         SmartDashboard.putBoolean("Shooter/Dist/Shot is far", shotIsFar);
         SmartDashboard.putNumber("Shooter/Dist/dist to target", distToTarget);
@@ -385,21 +398,30 @@ public class Shooter {
     // ----------------- Shooter statuses and misc.----------------
     /** Initialize any hardware */
     private static void hdwInit(){
+        // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
+        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
+
+        shtrMtrAInit();
+        shtrMtrBInit();
+    }
+
+    private static void shtrMtrAInit(){
         shtrMtrA.restoreFactoryDefaults();
         shtrMtrA.setIdleMode(IdleMode.kCoast);
         shtrMtrA.clearFaults();
         shtrMtrA.setInverted(true);
 
+        shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
+        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1556.67);  //Modded for GR 16:14
+    }
+
+    private static void shtrMtrBInit(){
         shtrMtrB.restoreFactoryDefaults();
         shtrMtrB.setIdleMode(IdleMode.kCoast);
         shtrMtrB.clearFaults();
         shtrMtrB.setInverted(true);
 
-        // PID parms in order: P, I, D, Iz, FF, min, max.  Used to initialize motor PID in init()
-        shtrPIDParms = new double[] {0.000025, 0.0000005, 0.00005, 0.0, 0.000017};
-        shtrMtrAPid = new MotorPID_NEO(shtrMtrA, "Shooter", shtrPIDParms);
         shtrMtrBPid = new MotorPID_NEO(shtrMtrB, "Shooter", shtrPIDParms);
-        shtrAEncoder = new Encoder_Neo(shtrMtrA, 1556.67);  //Modded for GR 16:14
         shtrBEncoder = new Encoder_Neo(shtrMtrB, 1556.67);
     }
     
