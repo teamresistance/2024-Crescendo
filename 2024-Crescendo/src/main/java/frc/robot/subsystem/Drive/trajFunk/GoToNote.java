@@ -8,16 +8,16 @@ import frc.util.Timer;
  * This TrajFunction delays execution of the trajectory.
  */
 public class GoToNote extends ATrajFunction {
-  
+
   private static Timer delayTimer;
   private double timeDelay;
-  
+
   private double x;
   private double y;
   private double hdg;
   private double spd;
   private double rotSpd;
-  
+
   /**
    * Constructor to go to target Coordinates, and heading are coordinates on field in meters
    *
@@ -28,7 +28,7 @@ public class GoToNote extends ATrajFunction {
     timeDelay = _timeDelay;
     delayTimer = new Timer(timeDelay);
   }
-  
+
   public void execute() {
     // Drive.cmdUpdate();   //By defualt issues 0, 0 cmds.
     switch (state) {

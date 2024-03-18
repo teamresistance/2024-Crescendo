@@ -7,10 +7,10 @@ import frc.util.Timer;
  * This TrajFunction delays execution of the trajectory.
  */
 public class TrajDelay extends ATrajFunction {
-  
+
   private static Timer delayTimer;
   private double timeDelay;
-  
+
   /**
    * Constructor to delay execution of the autonomous trajectory.
    *
@@ -20,7 +20,7 @@ public class TrajDelay extends ATrajFunction {
     timeDelay = secDelay;
     delayTimer = new Timer(timeDelay);
   }
-  
+
   public void execute() {
     // Drive.cmdUpdate();   //By defualt issues 0, 0 cmds.
     switch (state) {

@@ -1,20 +1,20 @@
 package frc.robot.subsystem.Drive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystem.Drive.trajFunk.*;
+import frc.robot.subsystem.Drive.trajFunk.ATrajFunction;
 import frc.util.PIDXController;
 
 public class Drv_Auto extends Drive {
-  
+
   private static int autoStep = 0; // State for Drv_Auto
   private static ATrajFunction[] traj; // Choosen array of trajectories, legs.
   private static int idx = 0; // Index to choosen traj
   private static boolean allDone = false; // All legs done, path is done
-  
+
   // Constructor.  Called with the path array
   public Drv_Auto() {
   }
-  
+
   /**
    * Get the choosen Trajectories and initialize indexes.
    *
@@ -99,7 +99,7 @@ public class Drv_Auto extends Drive {
   
   public static void sdbInit() {
   }
-  
+
   public static void sdbUpdate() {
     SmartDashboard.putNumber("Drv/Auto/Auto Step", autoStep);
     SmartDashboard.putNumber("Drv/Auto/Current Traj Idx", idx);

@@ -76,6 +76,6 @@ public class InvertibleDigitalInput {
 			return true;
 		} else {
 			return false;
-		}
+    }
   }
 }

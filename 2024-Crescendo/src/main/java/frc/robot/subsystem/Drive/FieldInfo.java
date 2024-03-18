@@ -13,33 +13,33 @@ public class FieldInfo {
     kBN1(9.5, 23.5, "kBN1", "Blue Note 1"),
     kBN2(9.5, 18.0, "kBN2", "Blue Note 2"),
     kBN3(9.5, 13.4, "kBN3", "Blue Note 3"),
-    
+
     kRSpkr(54.0, 18.0, "kRSpkr", "Red Speaker"),
     kRAmp(48.0, 27.0, "kRAmp", "Red Amp"),
     kRLdSt(51.0, 3.0, "kRLdSt", "Red Load Station"),
     kRN1(44.5, 23.5, "kRN1", "Red Note 1"),
     kRN2(44.5, 18.0, "kRN2", "Red Note 2"),
     kRN3(44.5, 13.5, "kRN3", "Red Note 3"),
-    
+
     kCN1(27.0, 24.5, "kCN1", "Centr Note 1"),
     kCN2(27.0, 19.0, "kCN2", "Centr Note 2"),
     kCN3(27.0, 13.5, "kCN3", "Centr Note 3"),
     kCN4(27.0, 8.0, "kCN4", "Centr Note 4"),
     kCN5(27.0, 2.5, "kCN5", "Centr Note 5");
-    
-    private final double X;
+	  
+	  private final double X;
     private final double Y;
     private final String tag;
     private final String desc;
-    
-    FLoc(double x, double y, String tag, String desc) {
+	  
+	  FLoc(double x, double y, String tag, String desc) {
       this.X = x;
       this.Y = y;
       this.tag = tag;
       this.desc = desc;
     }
-    
-    /**
+	  
+	  /**
      * @param tag string to search for
      * @return associated FLoc tag enum item
      */
@@ -50,17 +50,17 @@ public class FieldInfo {
       return FLoc.kNone;
     }
   }
-  
-  ;
-  
+	
+	;
+
   private static FLoc locSel;
-  
-  // Declare the Test Selection Chooser
+	
+	// Declare the Test Selection Chooser
   private static SendableChooser<FLoc> locChsr = new SendableChooser<FLoc>();
-  
-  /**
-   * Initialize the Test Selection Chooser
-   */
+	
+	/**
+	 * Initialize the Test Selection Chooser
+	 */
   public static void chsrInit() {
     for (FLoc m : FLoc.values()) {
       locChsr.addOption(m.desc, m);
@@ -70,36 +70,36 @@ public class FieldInfo {
     locSel = dfltTest;
     SmartDashboard.putData("Location/Choice", locChsr); // Put it on the dashboard
     chsrUpdate();
-    
+
     sdbInit();
   }
-  
+
   public static void chsrUpdate() {
     SmartDashboard.putString("Location/Chosen", locChsr.getSelected().desc); // Put selected on sdb
     SmartDashboard.putNumber("Location/X", locChsr.getSelected().X);
     SmartDashboard.putNumber("Location/Y", locChsr.getSelected().Y);
-    
+
     sdbUpdate();
   }
-  
+
   // ------------------------ Testing ----------------------------
   private static FLoc targetLoc = FLoc.kNone;
   private static boolean isColorRed = false;
   private static boolean gotoCancel = false;
-  
+
   private static boolean gotoSpkr = false;
   private static boolean gotoAmp = false;
   private static boolean gotoLdSt = false;
   private static boolean gotoCN3 = false;
-  
+
   private static boolean prvGotoSpkr = false;
   private static boolean prvGotoAmp = false;
   private static boolean prvGotoLdSt = false;
   private static boolean prvGotoCN3 = false;
-  
+
   private static double targetX = 0.0;
   private static double targetY = 0.0;
-  
+
   private static void sdbInit() {
     SmartDashboard.putBoolean("Location/Go To Speaker", gotoSpkr);
     SmartDashboard.putBoolean("Location/Go To Amp", gotoAmp);
@@ -107,21 +107,21 @@ public class FieldInfo {
     SmartDashboard.putBoolean("Location/Go To Center Note 3", gotoCN3);
     SmartDashboard.putBoolean("Location/Go To Cancel", gotoCancel);
   }
-  
+
   private static void sdbUpdate() {
     gotoSpkr = SmartDashboard.getBoolean("Location/Go To Speaker", gotoSpkr);
     gotoAmp = SmartDashboard.getBoolean("Location/Go To Amp", gotoAmp);
     gotoLdSt = SmartDashboard.getBoolean("Location/Go To Load Stat", gotoLdSt);
     gotoCN3 = SmartDashboard.getBoolean("Location/Go To Center Note 3", gotoCN3);
     gotoCancel = SmartDashboard.getBoolean("Location/Go To Cancel", gotoCancel);
-    
+
     SmartDashboard.putNumber("Location/Go To X", targetLoc.X);
     SmartDashboard.putNumber("Location/Go To Y", targetLoc.Y);
     SmartDashboard.putString("Location/Go To Desc", targetLoc.desc);
-    
+
     chkLocButtons();
   }
-  
+
   private static void chkLocButtons() {
     if (gotoSpkr ^ prvGotoSpkr) {
       prvGotoSpkr = gotoSpkr;

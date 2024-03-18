@@ -8,10 +8,10 @@ import frc.util.Timer;
  * This TrajFunction delays execution of the trajectory.
  */
 public class AimAtSpeaker extends ATrajFunction {
-  
+
   double speed;
   private static Timer delayTimer;
-  
+
   /**
    * Constructor to go to target Coordinates, and heading are coordinates on field in meters
    *
@@ -21,7 +21,7 @@ public class AimAtSpeaker extends ATrajFunction {
     speed = _spd;
     delayTimer = new Timer(0.6);
   }
-  
+
   public void execute() {
     // Drive.cmdUpdate();   //By defualt issues 0, 0 cmds.
     switch (state) {
@@ -35,7 +35,7 @@ public class AimAtSpeaker extends ATrajFunction {
         if (delayTimer.hasExpired(0.6, state))
           state++; // Go to [x,y], holding hdg field oriented. returns all atSetpoint
         sendDriveCmds(0.0, 0.0, Drive.rotSpd, false); // fwdSpd, rlSpd & rotSpd set in goto()
-        
+
         System.out.println("Aim - 1: -------------Working-------------");
         break;
       case 2:

@@ -276,19 +276,18 @@ public class Snorfler {
 		pullBackPct = SmartDashboard.getNumber("Snorf/Pull back Pct", pullBackPct);
 		pullbackTm = SmartDashboard.getNumber("Snorf/Pull back Time", pullbackTm);
 		
-		SmartDashboard.putNumber("Snorf/state", state);
-		SmartDashboard.putNumber("Snorf/Mtr Cmd", snorflerMtr.get());
-		SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
-		SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
-		SmartDashboard.putBoolean("Snorf/Has GP", hasGP_FB);
-		SmartDashboard.putString("Snorf/FwdRq", snorfRequest.DESC);
+		//    SmartDashboard.putNumber("Snorf/state", state);
+		//    SmartDashboard.putNumber("Snorf/Mtr Cmd", snorflerMtr.get());
+		//    SmartDashboard.putBoolean("Snorf/Enabled", (getStatus()));
+		//    SmartDashboard.putBoolean("Snorf/Snorf has GP", snorfhasGP.get());
+		//    SmartDashboard.putBoolean("Snorf/Has GP", hasGP_FB);
+		//    SmartDashboard.putString("Snorf/FwdRq", snorfRequest.DESC);
 		Logger.recordOutput("Snorf/state", state);
 		Logger.recordOutput("Snorf/Mtr Cmd", snorflerMtr.get());
 		Logger.recordOutput("Snorf/Enabled", getStatus());
 		Logger.recordOutput("Snorf/Snorf has GP", snorfhasGP.get());
 		Logger.recordOutput("Snorf/Has GP", hasGP_FB);
 		Logger.recordOutput("Snorf/FwdRq", snorfRequest.DESC);
-		
 	}
 	
 	// ----------------- Snorfler statuses and misc.-----------------

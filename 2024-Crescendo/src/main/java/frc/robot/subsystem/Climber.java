@@ -11,7 +11,6 @@ Desc: Controls lifting the climbing arm/hook.
 package frc.robot.subsystem;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.io.hdw_io.IO;
 import frc.io.hdw_io.util.DigitalInput;
 import frc.io.joysticks.JS_IO;
@@ -37,25 +36,25 @@ public class Climber {
   private static Solenoid climberRet2SV = IO.climberRet2SV; // hi pressure to retract hooks
   private static Solenoid climberVertSV = IO.climberVertSV; // trip to raise arm to vertical
   private static DigitalInput climberIsHorzSw = IO.climberIsHorzSw; // Switch FB true when horizonal
-  
+
   // joystick buttons:
   private static Button btnClimberEna = JS_IO.btnClimberEna; // toggle hooks up & down
   private static Button btnClimberEna2 = JS_IO.btnClimberEna2;
-  
+
   // variables:
   private static int state; // state machine value
   private static boolean climberEna =
-    false; // Boolean to determine whether the climber is activated  or not
+	  false; // Boolean to determine whether the climber is activated  or not
   private static Timer stateTmr = new Timer(0.05); // State Timer
   // private static OnOffDly climberUpTmr = new OnOffDly(500, 500);  //On/Off timer for climber
   // status
   private static boolean climberUp_FB =
-    false; // time delayed feedback for if the hooks are up or dn
+	  false; // time delayed feedback for if the hooks are up or dn
   private static boolean climberVert_FB = false; // feedback for if the arm has been cmd vert.
-  
-  /**
-   * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
-   */
+	
+	/**
+	 * Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java
+	 */
   public static void init() {
     climberEna = false;
     cmdUpdate(false, false); // Climber is retracted, down
@@ -65,7 +64,7 @@ public class Climber {
     clearOnPresses(); // Clear all button onpress signals
     sdbInit();
   }
-  
+
   /**
    * Update Climber Called from auto/teleopPeriodic in robot.java.
    *
@@ -77,23 +76,23 @@ public class Climber {
     if (btnClimberEna.onButtonPressed() && btnClimberEna2.isDown()) { // Toggle climber enable
       climberEna = !climberEna;
     }
-    
+
     // climberUp_FB = climberUpTmr.get(climberExt1SV.get());    // Update up feedback
     if (climberVertSV.get() || !climberIsHorzSw.get())
       climberVert_FB = true; // Once vertical MUST remain vertical.
-    
+
     if (climberVert_FB) Shooter.shtrRequest = RQShooter.kClimbLock;
-    
+
     smUpdate();
     sdbUpdate();
   }
-  
+
   /**
    * State machine update. Called from update 0 - SV retracted, down & horzital 1 - Shooter arm
    * down, check & request 2 - hooks retracted, dn & climber arm vertical 3 - hooks extended, up
    */
   private static void smUpdate() { // State Machine Update
-    
+
     switch (state) {
       case 0: // Everything is off
         cmdUpdate(false, false);
@@ -124,48 +123,46 @@ public class Climber {
     }
     clearOnPresses(); // Clear all button onpress signals
   }
-  
+
   /**
    * Issue climber SV cmd.
    *
-   * @param climbExt  extend/retract climber actuators to extend hooks
+   * @param climbExt extend/retract climber actuators to extend hooks
    * @param climbVert extend climber actuator to go vertical
    */
   private static void cmdUpdate(boolean climbExt, boolean climbVert) {
     // Check any safeties, mod passed cmds if needed.
     // Send commands to hardware
     if (climbVert) climberVertSV.set(true); // Once vertical MUST remain vertical.
-    
+
     climberExt1SV.set(climbExt);
     climberRet1SV.set(climbExt);
     climberRet2SV.set(climbExt);
   }
-  
+
   /*-------------------------  SDB Stuff --------------------------------------
   /**Initialize sdb */
   private static void sdbInit() {
     // Put stuff here on the sdb to be retrieved from the sdb later
     // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
   }
-  
-  /**
-   * Update the Smartdashboard.
-   */
+	
+	/** Update the Smartdashboard. */
   private static void sdbUpdate() {
     // Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
     // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
-    
+
     // Put other stuff to be displayed here
-    SmartDashboard.putNumber("Climber/state", state);
-    SmartDashboard.putBoolean("Climber/Enable", climberEna);
-    SmartDashboard.putBoolean("Climber/Hooks Up FB", climberUp_FB);
-    SmartDashboard.putBoolean("Climber/Arm Vert FB", climberVert_FB);
-    SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
-    SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
-    SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
-    SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
-    SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
-    
+	  //    SmartDashboard.putNumber("Climber/state", state);
+	  //    SmartDashboard.putBoolean("Climber/Enable", climberEna);
+	  //    SmartDashboard.putBoolean("Climber/Hooks Up FB", climberUp_FB);
+	  //    SmartDashboard.putBoolean("Climber/Arm Vert FB", climberVert_FB);
+	  //    SmartDashboard.putBoolean("Climber/Ext 1 SV", climberExt1SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Ret 1 SV", climberRet1SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Ret 2 SV", climberRet2SV.get());
+	  //    SmartDashboard.putBoolean("Climber/Is Horz Sw", climberIsHorzSw.get());
+	  //    SmartDashboard.putBoolean("Climber/Vert SV", climberVertSV.get());
+
     Logger.recordOutput("Climber/state", state);
     Logger.recordOutput("Climber/Enable", climberEna);
     Logger.recordOutput("Climber/Hooks Up FB", climberUp_FB);
@@ -175,25 +172,24 @@ public class Climber {
     Logger.recordOutput("Climber/Ret 2 SV", climberRet2SV.get());
     Logger.recordOutput("Climber/Is Horz Sw", climberIsHorzSw.get());
     Logger.recordOutput("Climber/Vert SV", climberVertSV.get());
-    
   }
-  
+
   // ----------------- Shooter statuses and misc.-----------------
-  
+
   /**
    * @return true if the climber has been command to raise vertical
    */
   public static boolean isClimberVert() {
     return climberVert_FB;
   }
-  
+
   /**
    * @return true if the climber has been command to raise vertical
    */
   public static boolean climberIsUp() {
     return climberUp_FB;
   }
-  
+
   /**
    * A onPress is held by the hardware until read. If pressed before needed code executes
    * immediately. Clear the onPress until expected onPress.
@@ -201,7 +197,7 @@ public class Climber {
   private static void clearOnPresses() {
     btnClimberEna.clearOnPrsRel();
   }
-  
+
   /**
    * Probably shouldn't use this bc the states can change. Use statuses.
    *
@@ -210,7 +206,7 @@ public class Climber {
   public static int getState() {
     return state;
   }
-  
+
   /**
    * @return If the state machine is running, not idle.
    */
