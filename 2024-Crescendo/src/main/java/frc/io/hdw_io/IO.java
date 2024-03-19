@@ -19,14 +19,12 @@ import frc.io.joysticks.JS_IO;
 public class IO {
 
   // navX
-	/**
-	 * Object that talks to the navX module on the roboRIO
-	 */
+  /** Object that talks to the navX module on the roboRIO */
   // public static NavX navX = new NavX(SPI.Port.kMXP);
   public static Pigeon2 pigeon = new Pigeon2(0);
 
   // PDH Power
-	/** Object that talks to the Power Distribution Hub */
+  /** Object that talks to the Power Distribution Hub */
   public static PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
   public static Relay compressorRelay = new Relay(0);
@@ -36,13 +34,13 @@ public class IO {
   public static CANSparkFlex motorBackLeft = new CANSparkFlex(12, MotorType.kBrushless);
   public static CANSparkFlex motorFrontRight = new CANSparkFlex(13, MotorType.kBrushless);
   public static CANSparkFlex motorBackRight = new CANSparkFlex(14, MotorType.kBrushless);
-	/** Array that contains all the drive motors for certain logic */
+  /** Array that contains all the drive motors for certain logic */
   public static CANSparkFlex[] driveMotors =
-		new CANSparkFlex[]{motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
+      new CANSparkFlex[] {motorFrontLeft, motorBackLeft, motorFrontRight, motorBackRight};
   // Ticks Per Foot??
   public static double tpfAll = 3911.4; // 12.7;?? //37 rot for 10' = 3.7'/rot * 1024 ticks = 3789.
   public static double frontLeftTPF =
-	  tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+      tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
   // Encoders
   public static Encoder_Flex frontLeftEnc = new Encoder_Flex(motorFrontLeft, frontLeftTPF);
 
@@ -52,13 +50,13 @@ public class IO {
   // Temp allocation to stop Drive.java from breaking, get rid of this later
   // public static MecanumDriveKinematics kinematics = null;
   public static double backLeftTPF =
-	  tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+      tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
   public static Encoder_Flex backLeftEnc = new Encoder_Flex(motorBackLeft, backLeftTPF);
   public static double frontRightTPF =
-	  tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+      tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
   public static Encoder_Flex frontRightEnc = new Encoder_Flex(motorFrontRight, frontRightTPF);
   public static double backRightTPF =
-	  tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
+      tpfAll; // 1024 t/r (0.5' * 3.14)/r 9:60 gr = 385.4  calibrated= 364.63
   public static Encoder_Flex backRightEnc = new Encoder_Flex(motorBackRight, backRightTPF);
   public static boolean resetEnc = false;
   // Snorfler
@@ -69,14 +67,14 @@ public class IO {
   public static CANSparkMax shooterMtrB = new CANSparkMax(42, MotorType.kBrushless);
   public static DigitalInput shooterArmDnSw = new DigitalInput(1, true); // Door switch Arm is Up
   public static DigitalInput climberIsHorzSw =
-	  new DigitalInput(2, true); // Door switch climber is vertical
+      new DigitalInput(2, true); // Door switch climber is vertical
   // PCH Air
   private static PneumaticsModuleType modType = PneumaticsModuleType.REVPH;
   private static int modID = 2; // CAN adr, ID, of PDH
 
   // public static CoorSys coorXY = new CoorSys(pigeon, kinematics, frontLeftEnc, backLeftEnc,
   // frontRightEnc, backRightEnc);   //CoorXY & drvFeet
-	/** Object tat talks to the Pneumatic Control Hub */
+  /** Object tat talks to the Pneumatic Control Hub */
   public static Compressor pch = new Compressor(modID, modType);
 
   public static Solenoid shooterArmUpSV = new Solenoid(modID, modType, 15);
@@ -91,21 +89,21 @@ public class IO {
   // Kinematics for Drive Train.
   // Locations of the wheels relative to the robot center.
   private static Translation2d frontLeftLocation =
-	  new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
+      new Translation2d(Units.inchesToMeters(12), Units.inchesToMeters(12));
   private static Translation2d frontRightLocation =
-	  new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
+      new Translation2d(Units.inchesToMeters(12), -Units.inchesToMeters(12));
   private static Translation2d backLeftLocation =
-	  new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
+      new Translation2d(-Units.inchesToMeters(12), Units.inchesToMeters(12));
   private static Translation2d backRightLocation =
-	  new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
+      new Translation2d(-Units.inchesToMeters(12), -Units.inchesToMeters(12));
   // Creating kinematics object using the wheel locations.
   public static MecanumDriveKinematics kinematics =
-	  new MecanumDriveKinematics(
-		  frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
+      new MecanumDriveKinematics(
+          frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   private static double mecDistX = 0.0;
   private static double mecDistY = 0.0;
-	
-	/** Initialize any hardware */
+
+  /** Initialize any hardware */
 
   // /**
   //  * Initialize drive configuration setup.
@@ -125,8 +123,8 @@ public class IO {
     // drvsInit();
     motorsInit();
   }
-	
-	/** Update items not handled elsewhere */
+
+  /** Update items not handled elsewhere */
   public static void update() {
     compressorRelay.set(pch.isEnabled() ? Value.kForward : Value.kOff);
 
@@ -137,8 +135,8 @@ public class IO {
     sdbUpdate();
     // sdbUpdPDH(); //Enable when troubleshooting power
   }
-	
-	/** Initialize drive configuration setup. */
+
+  /** Initialize drive configuration setup. */
   public static void motorsInit() {
     // -------- Configure Lead drive motors ---------
     // Drive
@@ -170,25 +168,25 @@ public class IO {
    */
   private static void calcXY() {
     mecDistX =
-	    -(-frontLeftEnc.feet()
-		    + backLeftEnc.feet()
-		    +
-		    /*          */ frontRightEnc.feet()
-		    + -backRightEnc.feet() / 4);
+        -(-frontLeftEnc.feet()
+            + backLeftEnc.feet()
+            +
+            /*          */ frontRightEnc.feet()
+            + -backRightEnc.feet() / 4);
     mecDistY =
-	    frontLeftEnc.feet()
-		    + backLeftEnc.feet()
-		    +
-		    /*          */ frontRightEnc.feet()
-		    + backRightEnc.feet() / 4;
+        frontLeftEnc.feet()
+            + backLeftEnc.feet()
+            +
+            /*          */ frontRightEnc.feet()
+            + backRightEnc.feet() / 4;
   }
-	
-	/** Get the sideways movement on a mec Drive. Right is positive. */
+
+  /** Get the sideways movement on a mec Drive. Right is positive. */
   public static double getmecDistX() {
     return mecDistX;
   }
-	
-	/** Get the fwd movement on a mec Drive. Fwd is positive. */
+
+  /** Get the fwd movement on a mec Drive. Fwd is positive. */
   public static double getmecDistY() {
     return mecDistY;
   }
@@ -203,8 +201,8 @@ public class IO {
     SmartDashboard.putNumber("EncoderBL", backLeftEnc.feet());
     SmartDashboard.putNumber("EncoderBR", backRightEnc.feet());
   }
-	
-	/** Place all PDH channels on sdb and display amps for checkout. Called from update() */
+
+  /** Place all PDH channels on sdb and display amps for checkout. Called from update() */
   public static void sdbUpdPDH() {
     SmartDashboard.putNumber("PDH/0 - VRM", pdh.getCurrent(0));
     SmartDashboard.putNumber("PDH/1 - PCH", pdh.getCurrent(1));

@@ -3,27 +3,23 @@ package frc.robot.subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.util.Timer;
 
-/**
- * Enter a description of this subsystem.
- */
+/** Enter a description of this subsystem. */
 public class ZZ_Template {
   // hdw defintions:
-  
+
   // joystick buttons:
-  
+
   // variables:
   private static int state; // ???? state machine. 0=Off by pct, 1=On by velocity, RPM
   private static Timer stateTmr = new Timer(.05); // Timer for state machine
-  
-  /**
-   * Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in Robot.java
-   */
+
+  /** Initialize ???? stuff. Called from telopInit (maybe robotInit(?)) in Robot.java */
   public static void init() {
     sdbInit();
     cmdUpdate(0.0, false, false); // Make sure all is off
     state = 0; // Start at state 0
   }
-  
+
   /**
    * Update ????. Called from teleopPeriodic in robot.java.
    *
@@ -35,7 +31,7 @@ public class ZZ_Template {
     smUpdate();
     sdbUpdate();
   }
-  
+
   /**
    * Update ????. Called from teleopPeriodic in robot.java.
    *
@@ -43,7 +39,7 @@ public class ZZ_Template {
    * but can be caused by other events.
    */
   private static void smUpdate() { // State Machine Update
-    
+
     switch (state) {
       case 0: // Everything is off
         cmdUpdate(0.0, false, false);
@@ -63,39 +59,37 @@ public class ZZ_Template {
         break;
     }
   }
-  
+
   /**
    * Issue spd setting as rpmSP if isVelCmd true else as percent cmd.
    *
-   * @param select_low    - select the low goal, other wise the high goal
-   * @param left_trigger  - triggers the left catapult
+   * @param select_low - select the low goal, other wise the high goal
+   * @param left_trigger - triggers the left catapult
    * @param right_trigger - triggers the right catapult
    */
   private static void cmdUpdate(double dblSig, boolean trigger1, boolean trigger2) {
     // Check any safeties, mod passed cmds if needed.
     // Send commands to hardware
   }
-  
+
   /*-------------------------  SDB Stuff --------------------------------------
   /**Initialize sdb */
   private static void sdbInit() {
     // Put stuff here on the sdb to be retrieved from the sdb later
     // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
   }
-  
-  /**
-   * Update the Smartdashboard.
-   */
+
+  /** Update the Smartdashboard. */
   private static void sdbUpdate() {
     // Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
     // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
-    
+
     // Put other stuff to be displayed here
     SmartDashboard.putNumber("ZZ_Template/state", state);
   }
-  
+
   // ----------------- Shooter statuses and misc.-----------------
-  
+
   /**
    * Probably shouldn't use this bc the states can change. Use statuses.
    *
@@ -104,7 +98,7 @@ public class ZZ_Template {
   public static int getState() {
     return state;
   }
-  
+
   /**
    * @return If the state machine is running, not idle.
    */

@@ -3,9 +3,7 @@ package frc.robot.subsystem.Drive.trajFunk;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.util.Timer;
 
-/**
- * This TrajFunction delays execution of the trajectory.
- */
+/** This TrajFunction delays execution of the trajectory. */
 public class TrajDelay extends ATrajFunction {
 
   private static Timer delayTimer;

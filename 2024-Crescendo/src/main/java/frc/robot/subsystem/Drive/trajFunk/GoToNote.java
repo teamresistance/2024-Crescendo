@@ -4,9 +4,7 @@ package frc.robot.subsystem.Drive.trajFunk;
 import frc.robot.subsystem.Drive.Drive;
 import frc.util.Timer;
 
-/**
- * This TrajFunction delays execution of the trajectory.
- */
+/** This TrajFunction delays execution of the trajectory. */
 public class GoToNote extends ATrajFunction {
 
   private static Timer delayTimer;

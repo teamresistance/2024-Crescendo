@@ -81,36 +81,34 @@ public class JS_IO {
   public static Button btnAmpLineup = new Button();
 
   public static Button btnAuto = new Button(); // Testing auto trajectories in teleop
-	
-	// Constructor not needed, bc
+
+  // Constructor not needed, bc
   public JS_IO() {
     init();
   }
-	
-	public static void init() {
+
+  public static void init() {
     axRightX.setInDB(0.1);
     axLeftX.setInDB(0.1);
     axLeftY.setInDB(0.1);
-		
-		chsrInit(); // Setup JS chooser and set JS assignments to default.
+
+    chsrInit(); // Setup JS chooser and set JS assignments to default.
   }
-	
-	// ---- Joystick controller chooser ----
+
+  // ---- Joystick controller chooser ----
   private static SendableChooser<String> chsr = new SendableChooser<String>();
   private static final String[] chsrDesc = {
     "3-Joysticks", "2-Joysticks", "Gamepad", "Nintendo", "ps4"
   };
-	
-	/**
-	 * Setup the JS Chooser
-	 */
+
+  /** Setup the JS Chooser */
   public static void chsrInit() {
     for (int i = 0; i < chsrDesc.length; i++) {
       chsr.addOption(chsrDesc[i], chsrDesc[i]);
     }
     int dfltJS = 0;
     chsr.setDefaultOption(
-	    chsrDesc[dfltJS], chsrDesc[dfltJS]); // Chg index to select chsrDesc[] for default
+        chsrDesc[dfltJS], chsrDesc[dfltJS]); // Chg index to select chsrDesc[] for default
     SmartDashboard.putData("JS/Choice", chsr);
     update(); // Update the JS assignments
   }
@@ -131,8 +129,8 @@ public class JS_IO {
 
     // checkJSValid(); //Testing JS's
   }
-	
-	/** Configure a new JS assignment */
+
+  /** Configure a new JS assignment */
   public static void configJS() { // Configure JS controller assignments
     caseDefault(); // Clear exisitng jsConfig
 
@@ -218,17 +216,17 @@ public class JS_IO {
     // Snofler
     btnSnorflerEnaTgl.setButton(gamePad, 2); // Y - Enables the Snorfler
     btnSnorfleReject.setButton(
-	    gamePad, 1); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
+        gamePad, 1); // LB (Button on Right Front Edge)- Rejects game piece from Snorfler
 
     // Shooter / Arm buttons
     btnSpkrShot.setButton(
-	    gamePad, 4); // A - Activates necessary subsystems to prepare to shoot to Speaker
+        gamePad, 4); // A - Activates necessary subsystems to prepare to shoot to Speaker
     btnAmpShot.setButton(
-	    gamePad, 3); // B - Activates necessary subsystems to prepare to unload into Amp
+        gamePad, 3); // B - Activates necessary subsystems to prepare to unload into Amp
     btnShoot.setButton(
-	    gamePad, 5); // RB (Button on Left Front Edge) - Shoots game piece into Speaker
+        gamePad, 5); // RB (Button on Left Front Edge) - Shoots game piece into Speaker
     btnUnload.setButton(
-	    gamePad, 6); // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
+        gamePad, 6); // Back (Top Left Small Ovalish Button) - Unloads game piece into Amp
 
     // Climber Buttons
     btnClimberEna.setButton(gamePad, 7); // X - Toggles climber, what else did you expect, blud?

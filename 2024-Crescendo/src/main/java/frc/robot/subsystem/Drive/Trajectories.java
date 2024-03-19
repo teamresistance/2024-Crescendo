@@ -21,16 +21,12 @@ public class Trajectories {
     "Outside Field Note Blue"
   };
   //
-  /**
-   * Optional position for 'some' Trajectories.
-   */
+  /** Optional position for 'some' Trajectories. */
   private static SendableChooser<Integer> chsrAutoPos = new SendableChooser<Integer>();
   // private static SendableChooser<Boolean> isRed = new
   // SendableChooser<Boolean>();
-  
-  /**
-   * Initialize Traj chooser
-   */
+
+  /** Initialize Traj chooser */
   public static void chsrInit() {
     // Initialize Auto Trajectory to run
     for (int i = 0; i < chsrDesc.length; i++) {
@@ -38,36 +34,34 @@ public class Trajectories {
     }
     int dflt = 1; // default - rightRun
     chsr.setDefaultOption(
-      chsrDesc[dflt] + " (Default)", chsrDesc[dflt]); // Default MUST have a different name
+        chsrDesc[dflt] + " (Default)", chsrDesc[dflt]); // Default MUST have a different name
     SmartDashboard.putData("Drv/Traj/Traj Choice", chsr);
     // SmartDashboard.putData("Drv/Traj/IsRed", isRed);
-    
+
     // IF USED: Initialize position trajectory to start at. --- Testing ---
     for (int i = 0; i <= 7; i++) {
       chsrAutoPos.addOption("P" + i, i);
     }
     chsrAutoPos.setDefaultOption("P0 - not used", 0);
     SmartDashboard.putData("Drv/Traj/Position Choice", chsrAutoPos);
-    
+
     // IF USED: Initialize position trajectory to start at. --- Testing ---
     SmartDashboard.putNumber(
-      "Drv/Traj/Position Number", 0); // Set default to 0 (which defaults to 2)
-    
+        "Drv/Traj/Position Number", 0); // Set default to 0 (which defaults to 2)
+
     // isRed.addOption("Red", true);
     // isRed.addOption("Blue", false);
     // isRed.setDefaultOption("Red", true);
   }
-  
-  /**
-   * Show on sdb traj chooser info. Called from robotPeriodic
-   */
+
+  /** Show on sdb traj chooser info. Called from robotPeriodic */
   public static void chsrUpdate() {
     SmartDashboard.putString("Drv/Traj/Traj Chosen", chsr.getSelected());
     SmartDashboard.putNumber("Drv/Traj/Position Chosen", chsrAutoPos.getSelected());
     // SmartDashboard.putBoolean("Drv/Traj/IsRed", isRed.getSelected());
-    
+
   }
-  
+
   /**
    * Get the trajectory array that is selected in the chooser Traj/Choice.
    *
@@ -94,16 +88,16 @@ public class Trajectories {
         return FourNoteRed(pwr);
       case "Outside Field Note Blue":
         return OutsideFieldNoteBlue(pwr);
-      //            case "Outside Field Note Red":
-      //                return OutsideFieldNoteRed(pwr);
-      // case "test":
-      // return test(pwr);
+        //            case "Outside Field Note Red":
+        //                return OutsideFieldNoteRed(pwr);
+        // case "test":
+        // return test(pwr);
       default:
         System.out.println("Traj/Bad Traj Desc - " + chsr.getSelected());
         return nothing(pwr);
     }
   }
-  
+
   /**
    * Get the trajectory array that is selected in the chooser Traj/Choice.
    *
@@ -114,15 +108,15 @@ public class Trajectories {
   public static ATrajFunction[] getTraj() {
     return getTraj(dfltPwr);
   }
-  
+
   public static String getChsrDesc() {
     return chsr.getSelected();
   }
-  
+
   // ------------------ Trajectories -------------------------------
   // each trajectory/path/automode is stored in each method
   // name each method by the path its doing
-  
+
   /**
    * Test, move robot in a 5' square using separte MoveOnHdgFwd/RL.
    *
@@ -178,7 +172,7 @@ public class Trajectories {
   //        };
   //        return traj;
   //    }
-  
+
   //    public static ATrajFunction[] RedMiddle(double pwr) {
   //        pwr = 0.3;
   //        ATrajFunction traj[] = {
@@ -233,7 +227,7 @@ public class Trajectories {
   //    private static double mirror_angle(double angle) {
   //        return (angle + 180.0) % 360.0;
   //    }
-  
+
   //    public static ATrajFunction[] BlueLeft(double pwr) {
   //        pwr = 0.3;
   //        ATrajFunction traj[] = {
@@ -283,7 +277,7 @@ public class Trajectories {
   //        };
   //        return traj;
   //    }
-  
+
   //    public static ATrajFunction[] BlueMiddle(double pwr) {
   //        pwr = 0.3;
   //        ATrajFunction traj[] = {
@@ -337,10 +331,10 @@ public class Trajectories {
   public static ATrajFunction[] nothing(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {};
-    
+
     return traj;
   }
-  
+
   public static ATrajFunction[] OneNote(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -348,7 +342,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] OneNoteTaxi(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -360,7 +354,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] TwoNote(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -376,7 +370,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] TwoNoteBlueReturn(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -393,7 +387,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] TwonoteRedReturn(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -410,14 +404,14 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] FourNoteRed(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
       // Shoot
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Go to middle note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new GoToNote(0.2, 1.2),
@@ -425,7 +419,7 @@ public class Trajectories {
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new MoveOnHdgRot(-40.0, 0.2),
@@ -434,7 +428,7 @@ public class Trajectories {
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new MoveOnHdgRot(40.0, 0.2),
@@ -447,14 +441,14 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] FourNoteBlue(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
       // Shoot
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Go to middle note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new GoToNote(0.2, 1.2),
@@ -462,7 +456,7 @@ public class Trajectories {
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(1.5, 5.32, 0.0, 0.6, 0.4, 1.5),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new MoveOnHdgRot(-40.0, 0.2),
@@ -471,7 +465,7 @@ public class Trajectories {
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(1.5, 5.32, 0.0, 1.0, 0.4, 1.5),
       new ShooterRQ(RQShooter.kShoot),
-      
+
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
       new MoveOnHdgRot(40.0, 0.2),
@@ -484,7 +478,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] OutsideFieldNoteBlue(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
@@ -501,7 +495,7 @@ public class Trajectories {
     };
     return traj;
   }
-  
+
   public static ATrajFunction[] OutsideFieldNoteRed(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {

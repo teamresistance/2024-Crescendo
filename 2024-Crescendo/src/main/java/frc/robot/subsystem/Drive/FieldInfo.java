@@ -26,20 +26,20 @@ public class FieldInfo {
     kCN3(27.0, 13.5, "kCN3", "Centr Note 3"),
     kCN4(27.0, 8.0, "kCN4", "Centr Note 4"),
     kCN5(27.0, 2.5, "kCN5", "Centr Note 5");
-	  
-	  private final double X;
+
+    private final double X;
     private final double Y;
     private final String tag;
     private final String desc;
-	  
-	  FLoc(double x, double y, String tag, String desc) {
+
+    FLoc(double x, double y, String tag, String desc) {
       this.X = x;
       this.Y = y;
       this.tag = tag;
       this.desc = desc;
     }
-	  
-	  /**
+
+    /**
      * @param tag string to search for
      * @return associated FLoc tag enum item
      */
@@ -49,18 +49,14 @@ public class FieldInfo {
       }
       return FLoc.kNone;
     }
-  }
-	
-	;
+  };
 
   private static FLoc locSel;
-	
-	// Declare the Test Selection Chooser
+
+  // Declare the Test Selection Chooser
   private static SendableChooser<FLoc> locChsr = new SendableChooser<FLoc>();
-	
-	/**
-	 * Initialize the Test Selection Chooser
-	 */
+
+  /** Initialize the Test Selection Chooser */
   public static void chsrInit() {
     for (FLoc m : FLoc.values()) {
       locChsr.addOption(m.desc, m);
