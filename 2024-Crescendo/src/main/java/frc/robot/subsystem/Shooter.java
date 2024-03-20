@@ -73,20 +73,20 @@ public class Shooter {
   private static int state; // state machine
   private static Timer stateTmr = new Timer(.05); // Timer for state machine
   /* Presently - 2 shooting pitchs, 40 or 55.  55 is close 5' to 7'.  Farther then 7'
-   * pitch drops to 40 for 6' to 8'.  Both start high to low FPS to use the arc.
-   * FPS setpoint is interpolated between 2 feet points to the associated 2 FPS points. */
-  private static boolean shotIsFar = false; // Used to ajust shooter lo or hi, 40 or 53 degrees
-  private static double distToTarget = 4.8; // Used to interpoltae FPS from arrays below
-  private static double[][] clsDistToFPS; // Array for Segmented Line close
-  private static double[][] farDistToFPS; // Array for Segmented Line far
-  private static double farDistDB; // Deadband, dist > fardistDiff[0] far shot else close shot
+     * pitch drops to 40 for 6' to 8'.  Both start high to low FPS to use the arc.
+     * FPS setpoint is interpolated between 2 feet points to the associated 2 FPS points. */
+    private static boolean shotIsFar = false;   //Used to ajust shooter lo or hi, 40 or 53 degrees
+    private static double distToTarget = 4.8;   //Used to interpoltae FPS from arrays below
+    private static double[][] clsDistToFPS;     //Array for Segmented Line close
+    private static double[][] farDistToFPS;     //Array for Segmented Line far
+    private static double farDistDB;            //Deadband, dist > fardistDiff[0] far shot else close shot
   private static double fpsMax = 57.0;
   private static double shtrAFPS_SP;
   private static double shtrBFPS_SP;
-  private static double shtrAmpLd_FPS = 26.0; // FPS for Amp load
-  private static double shtrAmpLd_Tm = 0.12; // Sec for Amp load
-  private static double shtrAmpUnld_FPS = 22.0; // FPS for Amp unload
-  private static double shtrAmpUnld_Tm = 0.12; // Sec for Amp unload
+    private static double shtrAmpLd_FPS = 26.0;     //FPS for Amp load
+    private static double shtrAmpLd_Tm = 0.15;      //Sec for Amp load
+    private static double shtrAmpUnld_FPS = 22.0;   //FPS for Amp unload
+    private static double shtrAmpUnld_Tm = 0.12;    //Sec for Amp unload
   private static double[] shtrPIDParms; // Used to initialize motor PID in init()
 
   private static boolean shtrTestActive = false; // Testing values when true
@@ -215,8 +215,7 @@ public class Shooter {
         stateTmr.clearTimer(); // Initialize timer for covTrgr. Do nothing.
         if (btnSpkrShot.onButtonPressed()) state = 1; // 1st press, Speaker prep
         if (btnAmpShot.onButtonPressed()) state = 10; // 1st press, Amp prep
-        if (shtrRequest != RQShooter.kNoReq)
-          state = shtrRequest == RQShooter.kSpkrShot ? 1 : 10; // Autonomous
+                if(shtrRequest != RQShooter.kNoReq) state = shtrRequest == RQShooter.kSpkrShot ? 1 : 10; //Autonomous
         if (btnTossIt.onButtonPressed()) state = 50;
         break;
         // ---------- Shoot at Speaker  ---------------
@@ -230,8 +229,8 @@ public class Shooter {
         break;
       case 2: // Wait for shot or cancel
         cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
-        if (btnSpkrShot.onButtonPressed()) state = 0; // 2nd Press, Cancel Speaker shot
-        if (btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; // Goto shot
+                if(btnSpkrShot.onButtonPressed()) state = 0;    //2nd Press, Cancel Speaker shot
+                if(btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; //Goto shot
         break;
       case 3: // Confirm if arm dn
         cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
@@ -242,14 +241,14 @@ public class Shooter {
         Snorfler.snorfRequest = RQSnorf.kForward; // Trigger once. Self cancels after 200 mS
         shtrRequest = RQShooter.kNoReq; // cancel auto shoot if active
         state++;
-      case 5: // Wait for shot then go to turn off and signal no GP
+            case 5: // Wait for shot then go to turn off and signal no GP
         cmdUpdate(shtrAFPS_SP, shtrBFPS_SP, shotIsFar, false);
         if (stateTmr.hasExpired(0.5, state)) {
-          Snorfler.resetHasGP(); // dom't have GP anymore
+                    Snorfler.resetHasGP();              //dom't have GP anymore
           state = 0;
         }
         break;
-        // ----------- Shoot for Amp --------------
+            //----------- Shoot for Amp --------------
       case 10: // Get shooters up to low speed for Amp preload
         cmdUpdate(shtrAmpLd_FPS, shtrAmpLd_FPS, false, false);
         if (stateTmr.hasExpired(0.02, state)) state++;
@@ -264,8 +263,7 @@ public class Shooter {
         break;
       case 13: // wait to raise Arm on 2nd btn press (visual) or auto
         cmdUpdate(0.0, 0.0, false, false);
-        if (btnAmpShot.onButtonPressed() || shtrRequest == RQShooter.kAmpShot)
-          state++; // 2nd press raise arm
+                state++; //2nd press raise arm
         if (shtrRequest == RQShooter.kDblClutchSnorf) {
           shtrRequest = RQShooter.kNoReq;
           state = 0;
@@ -273,25 +271,29 @@ public class Shooter {
         break;
       case 14: // raise arm, wait for request to shoot or on another button press lower arm
         cmdUpdate(0.0, 0.0, false, true);
-        if (btnAmpShot.onButtonPressed()) state--; // 3rd press, Lower arm
-        if (btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; // SHOOT!
+                shtrMtrA.setIdleMode(IdleMode.kBrake);
+                shtrMtrB.setIdleMode(IdleMode.kBrake);
+                if(btnAmpShot.onButtonPressed()) state--;    //3rd press, Lower arm
+                if(btnShoot.onButtonPressed() || shtrRequest == RQShooter.kShoot) state++; //SHOOT!
         break;
       case 15: // check for arm raised
+                shtrMtrA.setIdleMode(IdleMode.kCoast);
+                shtrMtrB.setIdleMode(IdleMode.kCoast);
         cmdUpdate(0.0, 0.0, false, true);
         shtrRequest = RQShooter.kNoReq; // cancel auto shoot
-        if (armUp_FB) state++; // SHOOT!
+                if (armUp_FB) state++;           //SHOOT!
         break;
       case 16: // shoot and all off and signal no GP
         cmdUpdate(fpsMax, fpsMax, false, true);
         if (stateTmr.hasExpired(0.25, state)) {
-          Snorfler.resetHasGP(); // dom't have GP anymore
+                    Snorfler.resetHasGP();              //dom't have GP anymore
           state = 0;
         }
         break;
-        // ----------- Unload from aborted Amp shot ---------------
+            //----------- Unload from aborted Amp shot ---------------
       case 20: // Check Arm is down
         cmdUpdate(0.0, 0.0, false, false);
-        if (!armUp_FB) state++; // wait for arm to lower FB
+                if (!armUp_FB) state++;   //wait for arm to lower FB
         shtrRequest = RQShooter.kNoReq;
         break;
       case 21: // unload from amp shot, request snorfler to unload
@@ -300,18 +302,18 @@ public class Shooter {
         state++;
       case 22: // unload from amp shot, request snorfler to unload
         cmdUpdate(-shtrAmpUnld_FPS, -shtrAmpUnld_FPS, false, false);
-        if (stateTmr.hasExpired(shtrAmpUnld_Tm, state)) state = 0; // wait for release, Stop
+                if (stateTmr.hasExpired(shtrAmpUnld_Tm, state)) state = 0;   //wait for release, Stop
         break;
-        // ------------- Climbing Arm MUST be down -----------------
+            //------------- Climbing Arm MUST be down -----------------
       case 30: // Climbing.  Arm MUST be down.
         cmdUpdate(0.0, 0.0, false, false);
         if (shtrRequest == RQShooter.kNoReq && !Climber.isClimberVert()) state++;
         break;
-        // ----------- snorfling need to rotate top motor slowly ----------
+            //----------- snorfling need to rotate top motor slowly ----------
       case 40: // Snorfling in state 2.  Run top motor slowly forward
         cmdUpdate(2.5, 0.0, false, false);
         break;
-        // ----------- Note caught on shooter, toss it ----------
+            //----------- Note caught on shooter, toss it ----------
       case 50: // Raise arm and Run bottom motor slowly forward
         cmdUpdate(0.0, -10.0, false, true);
         if (stateTmr.hasExpired(1.5, state)) state = 0;

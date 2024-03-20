@@ -9,7 +9,10 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Drv/Traj/Position Choice": "String Chooser",
+      "/SmartDashboard/Drv/Traj/Traj Choice": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/FieldSide/Choice": "String Chooser",
       "/SmartDashboard/JS/Choice": "String Chooser",
       "/SmartDashboard/Location/Choice": "String Chooser",
       "/SmartDashboard/Test/Choice": "String Chooser"
