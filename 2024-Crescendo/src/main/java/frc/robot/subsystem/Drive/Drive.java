@@ -220,7 +220,7 @@ public class Drive {
     PIDXController.setExt(
         pidControllerZ, 0.0, 1.0 / 240, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
     PIDXController.setExt(
-        pidControllerSpeaker, 0.0, 1.0 / 235, 1.0, 0.1, 1.0, 1.0, true); // JS Z responce
+        pidControllerSpeaker, 0.0, 1.0 / 100, 0.25, 0.15, 1.0, 1.0, true); // JS Z responce
 
     // name SP, P, DB, mn, mx, exp, clamp
     PIDXController.setExt(pidHdg, 0.0, 1.0 / 30, 1.0, 0.05, 0.5, 2.0, true);
@@ -243,7 +243,7 @@ public class Drive {
             aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam2, robotToCam2);
 
     // Create a vector with 3 elements, all initialized to zero
-    var visionMeasurementStdDevs = VecBuilder.fill(1.0, 1.0, 1.0);
+    var visionMeasurementStdDevs = VecBuilder.fill(2.0, 2.0, 2.0);
     // Sets how much the drivetrain pose estimator trusts the vision pose estimates
     poseEstimator.setVisionMeasurementStdDevs(visionMeasurementStdDevs);
     photonPoseEstimator.setReferencePose(poseEstimator.getEstimatedPosition());
@@ -407,7 +407,7 @@ public class Drive {
         Units.metersToFeet(
             FieldInfo2.kSpeaker.getDistance(
                 poseEstimator.getEstimatedPosition().getTranslation())); //
-    //        System.out.println(feetAway);
+    System.out.println(feetAway);
     // System.out.println(poseEstimator.getEstimatedPosition());
     return feetAway;
   }
@@ -526,7 +526,7 @@ public class Drive {
      * between the two objects
      * We then use this to calculate the angle from the speaker
      */
-    robotToSpeaker = projectedPosition.getTranslation().minus(FieldInfo2.kSpeaker);
+    robotToSpeaker = projectedPosition.getTranslation().minus(FieldInfo2.kSpeakerOffset);
     // System.out.println(robotToSpeaker);
     Rotation2d angleFromX = robotToSpeaker.getAngle(); // Angle between robot and X axis
     return angleFromX.minus(

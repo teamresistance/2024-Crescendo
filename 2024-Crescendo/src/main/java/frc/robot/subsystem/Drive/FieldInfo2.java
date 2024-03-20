@@ -57,7 +57,7 @@ public class FieldInfo2 {
       new Translation2d(Units.feetToMeters(51.0), Units.feetToMeters(3.0));
 
   private static final Translation2d redSpeakerOffPos =
-      new Translation2d(16.0, 5.7); // TODO: Fill in translation2d
+      new Translation2d(16.5, 5.7); // TODO: Fill in translation2d
   // object with speaker coords
   private static final Translation2d bluSpeakerOffPos =
       new Translation2d(0.0, 5.14); // TODO: Fill in translation2d

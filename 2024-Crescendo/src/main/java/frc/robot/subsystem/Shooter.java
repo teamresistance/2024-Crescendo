@@ -134,15 +134,14 @@ public class Shooter {
     hdwInit();
 
     clsDistToFPS =
-        new double[][] {
-          {2.05, 2.35, 2.70, 3.00, 3.32}, {fpsMax, fpsMax, fpsMax, fpsMax, 35.0}
-        }; // Segmented Line close
+        new double[][] {{4.0, 4.3, 4.6, 4.7}, {57.0, 55.0, 44.0, 43.0}}; // Segmented Line close
     farDistToFPS =
         new double[][] {
-          {3.30, 5.80, 9.99, 10.0}, {fpsMax, 50.5, 50.5, fpsMax}
+          {4.7, 5.0, 5.75, 5.85, 6.25, 6.5, 6.9, 7.5, 7.9, 9.99, 10.0},
+          {fpsMax, fpsMax, 57.0, 53.0, 48.0, 50.0, 48.0, 48.0, 48.0, fpsMax, fpsMax}
         }; // Segmented Line far
     farDistDB =
-        0.2; // if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
+        0.5; // if isFarShot, fardistToFPS[0][0] -  DB < distToTarget, isFarShot = false else
     //                  //if !isFarShot, fardistToFPS[0][0] +  DB > distToTarget, isFarShot = true
 
     shtrAFPS_SP = 0.0;
