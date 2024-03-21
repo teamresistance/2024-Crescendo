@@ -3,11 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/2024-Crescendo.iml" filepath="$PROJECT_DIR$/.idea/2024-Crescendo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.iml" filepath="$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main.iml" filepath="$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main~1.iml" filepath="$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main~1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main~3.iml" filepath="$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.main~3.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.test~1.iml" filepath="$PROJECT_DIR$/.idea/modules/2024-Crescendo.2024-Crescendo.test~1.iml" />
     </modules>
   </component>
 </project>

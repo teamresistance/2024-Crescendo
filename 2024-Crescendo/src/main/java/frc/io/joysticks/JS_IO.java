@@ -64,6 +64,7 @@ public class JS_IO {
   public static Button btnSpkrShot = new Button(); // Prep for Speaker shot, motors to speed
   public static Button btnAmpShot = new Button(); // Prep for Amp shot, Note to shooter
   public static Button btnShoot = new Button(); // Shoot Note, Amp or Speaker
+  public static Button btnShootMax = new Button(); // Shoot Note, Amp or Speaker (Max speed)
   public static Button btnUnload = new Button(); // Unload Note back to Snorfler, Abort Amp Shot
   public static Button btnShtrToss = new Button(); // Note caught on Shooter, toss it.
   // Climber
@@ -188,6 +189,7 @@ public class JS_IO {
     btnSpkrShot.setButton(coJoystick, 4); // Prep to shoot to Speaker
     btnAmpShot.setButton(coJoystick, 6); // Prep to unload into Amp
     btnShoot.setButton(coJoystick, 1); // Shoots game piece into Speaker or Amp
+    btnShootMax.setButton(coJoystick, 7); // Shoots game piece into Speaker or Amp (Max speed)
     btnUnload.setButton(coJoystick, 2); // Unloads back to Snorfler, Abort Amp shot
     btnShtrToss.setButton(coJoystick, 8); // Note caught, toss it.
 

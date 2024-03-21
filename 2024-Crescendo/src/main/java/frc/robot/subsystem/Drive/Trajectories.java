@@ -431,7 +431,7 @@ public class Trajectories {
 
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
-      new MoveOnHdgRot(40.0, 0.2),
+      new MoveOnHdgRot(36.0, 0.2),
       new GoToNote(0.2, 1.4),
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),
@@ -468,7 +468,7 @@ public class Trajectories {
 
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
-      new MoveOnHdgRot(40.0, 0.2),
+      new MoveOnHdgRot(36.0, 0.2),
       new GoToNote(0.2, 1.4),
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),

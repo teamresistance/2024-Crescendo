@@ -11,19 +11,27 @@ import org.littletonrobotics.junction.Logger;
 /** Extends the Drive class to manually control the robot in teleop mode. */
 public class Drv_Teleop extends Drive {
 
-  // joystick:
-  private static Axis jsX = JS_IO.axLeftX;
-  private static Axis jsY = JS_IO.axLeftY;
-  private static Axis jsRot = JS_IO.axRightX;
+  // public static Button autoBtn = new Button();
+  public static Button headingHoldBtn = JS_IO.headingHoldBtn;
+  public static Button lookAtNote = JS_IO.lookAtNote;
+  public static double teleopScale = 100.0; // scale to use when active in telop
 
   // private static double fwdSpd;
   // private static double rlSpd;
   // private static double rotSpd;
-
+  // joystick:
+  private static Axis jsX = JS_IO.axLeftX;
+  private static Axis jsY = JS_IO.axLeftY;
+  private static Axis jsRot = JS_IO.axRightX;
   private static Button btnGyroReset = JS_IO.btnGyroReset;
-  // public static Button autoBtn = new Button();
-  public static Button headingHoldBtn = JS_IO.headingHoldBtn;
-  public static Button lookAtNote = JS_IO.lookAtNote;
+  private static int state = 1; // Can be set by btn or sdb chooser
+  private static String[] teleDrvType = {"Off", "Robot", "Field"}; // All drive type choices
+  // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
+  private static SendableChooser<Integer> teleDrvChsr = new SendableChooser<>(); // sdb Chooser
+
+  // public static double[] driveCmd = new double[3];
+  private static int teleDrvChoice =
+      state; // Save teleDrvChooser for comparison cov then update state
 
   private static double jsFwd() {
     return JS_IO.axLeftY.get();
@@ -36,18 +44,6 @@ public class Drv_Teleop extends Drive {
   private static double jsRot() {
     return JS_IO.axRightX.get();
   } // Curvature direction, left.right
-
-  public static double teleopScale = 100.0; // scale to use when active in telop
-
-  // public static double[] driveCmd = new double[3];
-
-  private static int state = 1; // Can be set by btn or sdb chooser
-  private static String[] teleDrvType = {"Off", "Robot", "Field"}; // All drive type choices
-
-  // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
-  private static SendableChooser<Integer> teleDrvChsr = new SendableChooser<>(); // sdb Chooser
-  private static int teleDrvChoice =
-      state; // Save teleDrvChooser for comparison cov then update state
 
   /** Initial items for teleop driving chooser. Called from robotInit in Robot. */
   public static void chsrInit() {
@@ -183,11 +179,10 @@ public class Drv_Teleop extends Drive {
         break;
       case 1: // robot mode.
         setDriveCmds(
-            fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 1.00, false);
+            fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 0.7, false);
         break;
       case 2: // Field relative mode.
-        setDriveCmds(
-            fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 1.00, true);
+        setDriveCmds(fwdSpd * teleopScale / 100.0, rlSpd * teleopScale / 100.0, rotSpd * 0.7, true);
         break;
       default:
         // cmdUpdate();

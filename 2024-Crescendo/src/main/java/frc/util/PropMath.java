@@ -94,83 +94,6 @@ public class PropMath {
   }
 
   /**
-   * Calculate a simple proportional response.
-   *
-   * @param inFB feedback
-   * @param prnt Print diagnostic info
-   * @return proportional outpput
-   */
-  public double calcProp(double inFB, boolean prnt) {
-    double err = inFB - kSP; // error
-    if (k180) err = normalizeTo180(err); // normalize if continuous around -180 to 180
-    if (prnt) System.out.println("FB: " + inFB + "  SP: " + kSP + "  err: " + err);
-    if (prnt) System.out.println("Mn: " + outMn + "  Mx: " + outMx);
-
-    if (Math.abs(err) < kDB || kPB == 0.0) return 0.0; // In deadband or PB is 0
-
-    err /= kPB; // else calc proportional, neg. else pos.
-    if (prnt) System.out.print("Prop err: " + err);
-
-    err =
-        err < 0
-            ? span(err, -1.0, 0.0, -outMx, -outMn, true, 0)
-            : // Neg.
-            span(err, 0.0, 1.0, outMn, outMx, true, 0); // else Pos.
-    if (prnt) System.out.println("  Span err: " + err);
-    return err;
-  }
-
-  // Set k's
-  public void setSP(double _kSP) {
-    kSP = _kSP;
-  }
-
-  public void setPB(double _kPB) {
-    kPB = _kPB;
-  }
-
-  public void setDB(double _kDB) {
-    kDB = _kDB;
-  }
-
-  public void setOutMn(double _outMn) {
-    outMn = _outMn;
-  }
-
-  public void setOutMx(double _outMx) {
-    outMx = _outMx;
-  }
-
-  public void set180(boolean _k180) {
-    k180 = _k180;
-  }
-
-  // Get k's
-  public double getSP() {
-    return kSP;
-  }
-
-  public double getPB() {
-    return kPB;
-  }
-
-  public double getDB() {
-    return kDB;
-  }
-
-  public double getOutMn() {
-    return outMn;
-  }
-
-  public double getOutMx() {
-    return outMx;
-  }
-
-  public boolean get180() {
-    return k180;
-  }
-
-  /**
    * Span between inLo & inHi to outLo & outHi
    *
    * @param inVal value to be spanned
@@ -338,5 +261,82 @@ public class PropMath {
         arInOut[1][x],
         true,
         0);
+  }
+
+  /**
+   * Calculate a simple proportional response.
+   *
+   * @param inFB feedback
+   * @param prnt Print diagnostic info
+   * @return proportional outpput
+   */
+  public double calcProp(double inFB, boolean prnt) {
+    double err = inFB - kSP; // error
+    if (k180) err = normalizeTo180(err); // normalize if continuous around -180 to 180
+    if (prnt) System.out.println("FB: " + inFB + "  SP: " + kSP + "  err: " + err);
+    if (prnt) System.out.println("Mn: " + outMn + "  Mx: " + outMx);
+
+    if (Math.abs(err) < kDB || kPB == 0.0) return 0.0; // In deadband or PB is 0
+
+    err /= kPB; // else calc proportional, neg. else pos.
+    if (prnt) System.out.print("Prop err: " + err);
+
+    err =
+        err < 0
+            ? span(err, -1.0, 0.0, -outMx, -outMn, true, 0)
+            : // Neg.
+            span(err, 0.0, 1.0, outMn, outMx, true, 0); // else Pos.
+    if (prnt) System.out.println("  Span err: " + err);
+    return err;
+  }
+
+  // Get k's
+  public double getSP() {
+    return kSP;
+  }
+
+  // Set k's
+  public void setSP(double _kSP) {
+    kSP = _kSP;
+  }
+
+  public double getPB() {
+    return kPB;
+  }
+
+  public void setPB(double _kPB) {
+    kPB = _kPB;
+  }
+
+  public double getDB() {
+    return kDB;
+  }
+
+  public void setDB(double _kDB) {
+    kDB = _kDB;
+  }
+
+  public double getOutMn() {
+    return outMn;
+  }
+
+  public void setOutMn(double _outMn) {
+    outMn = _outMn;
+  }
+
+  public double getOutMx() {
+    return outMx;
+  }
+
+  public void setOutMx(double _outMx) {
+    outMx = _outMx;
+  }
+
+  public boolean get180() {
+    return k180;
+  }
+
+  public void set180(boolean _k180) {
+    k180 = _k180;
   }
 }

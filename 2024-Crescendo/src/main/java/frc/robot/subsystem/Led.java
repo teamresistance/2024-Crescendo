@@ -219,7 +219,13 @@ public class Led {
     // Higher up in this list means higher priority light, if they try to shoot
     // It should prioritize that rather than anything else, right?
     if (Shooter.getState() == 1 || Shooter.getState() == 2) {
-      normalState = 3; // Set to speaker shot lights (rainbow)
+      // also when the shooter is active, and its distance away from speaker is from 5.5-7.0, make
+      // the LEDs turn red
+      if (Shooter.distToTarget > 5.5 && Shooter.distToTarget < 6.3) {
+        normalState = 5; // Set to reject (red)
+      } else {
+        normalState = 3; // Set to speaker shot lights (rainbow)
+      }
       return;
     }
     if (Shooter.getState() == 10) {

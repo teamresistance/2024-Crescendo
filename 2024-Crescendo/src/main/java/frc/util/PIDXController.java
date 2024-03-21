@@ -30,64 +30,6 @@ public class PIDXController extends PIDController {
     setTolerance(0.02); // There is no getTolerance, so I save local kInDB
   }
 
-  public double calculateX(double _fb, double _sp) {
-    kInFB = _fb; // for troubleshooting
-    kOut = super.calculate(_fb, _sp); // This sets setpoint to _sp
-    kAdj = (atSetpoint() ? 0 : calcX(kOut)) + kFF;
-    if (KClamp) {
-      kAdj = MathUtil.clamp(kAdj, -kOutMx, kOutMx);
-    }
-    return kAdj;
-  }
-
-  public double calculateX(double _fb) {
-    return calculateX(_fb, getSetpoint()); // This uses existing setpoint
-  }
-
-  private double calcX(double pidNum) {
-    double baseLin = (pidNum + Math.signum(pidNum) * kInDB * getP());
-    baseLin /= (1.0 - kInDB * Math.abs(getP()));
-    baseLin =
-        Math.signum(pidNum) * (kOutMn + Math.pow(Math.abs(baseLin), kOutExp) * (kOutMx - kOutMn));
-    return baseLin;
-  }
-
-  /** Set kOutMn value */
-  public void setOutMn(double mn) {
-    kOutMn = mn;
-  }
-
-  /** Set kOutMx value */
-  public void setOutMx(double mx) {
-    kOutMx = Math.abs(mx);
-  }
-
-  /** Set kOutExp value */
-  public void setOutExp(double exp) {
-    kOutExp = Math.abs(exp);
-  }
-
-  /** Set kOutFF value */
-  public void setOutFF(double ff) {
-    kFF = ff;
-  }
-
-  /** Set Tolerance & kDB value */
-  public void setTolerance(double _kDB) {
-    kInDB = Math.abs(_kDB);
-    super.setTolerance(kInDB);
-  }
-
-  /** Set Tolerance & kDB value */
-  public void setInDB(double _kDB) {
-    setTolerance(_kDB);
-  }
-
-  /** Set clamp, limit kAdj to +/- kOutMx */
-  public void setClamp(boolean clamp) {
-    KClamp = clamp;
-  }
-
   /**
    * Set extended values for a PIDXController
    *
@@ -132,76 +74,6 @@ public class PIDXController extends PIDController {
     aPidX.setClamp(clmp);
   }
 
-  /**
-   * @return kOutMn value
-   */
-  public double getOutMn() {
-    return kOutMn;
-  }
-
-  /**
-   * @return kOutMx value
-   */
-  public double getOutMx() {
-    return kOutMx;
-  }
-
-  /**
-   * @return kOutExp value
-   */
-  public double getOutExp() {
-    return kOutExp;
-  }
-
-  /**
-   * @return kOutFF value
-   */
-  public double getOutFF() {
-    return kFF;
-  }
-
-  /**
-   * @return Tolerance, kInDB, value
-   */
-  public double getTolerance() {
-    return kInDB;
-  }
-
-  /**
-   * @return kInDB, Tolerance, value
-   */
-  public double getInDB() {
-    return kInDB;
-  }
-
-  /**
-   * @return kOut, Output of the PID value
-   */
-  public double getOut() {
-    return kOut;
-  }
-
-  /**
-   * @return kAdj, Output of the adjusted PID value, PIDX
-   */
-  public double getAdj() {
-    return kAdj;
-  }
-
-  /**
-   * @return kClamp, Limit kAdj to +/- OutMx
-   */
-  public boolean getClamp() {
-    return KClamp;
-  }
-
-  /**
-   * @return kInFB, feedback for this pid controller
-   */
-  public double getInFB() {
-    return kInFB;
-  }
-
   /** Initialize SDB for a PIDXController. Note groups limited to 10 */
   public static void initSDBPid(PIDXController pidCtlr, String pidTag) {
     SmartDashboard.putNumber("Drv/" + pidTag + "/1_P", pidCtlr.getP());
@@ -228,5 +100,133 @@ public class PIDXController extends PIDController {
     pidCtlr.setOutMx(SmartDashboard.getNumber("Drv/" + pidTag + "/8_Mx", pidCtlr.getOutMx()));
     pidCtlr.setOutFF(SmartDashboard.getNumber("Drv/" + pidTag + "/9_FF", pidCtlr.getOutFF()));
     pidCtlr.setOutExp(SmartDashboard.getNumber("Drv/" + pidTag + "/A_Exp", pidCtlr.getOutExp()));
+  }
+
+  public double calculateX(double _fb, double _sp) {
+    kInFB = _fb; // for troubleshooting
+    kOut = super.calculate(_fb, _sp); // This sets setpoint to _sp
+    kAdj = (atSetpoint() ? 0 : calcX(kOut)) + kFF;
+    if (KClamp) {
+      kAdj = MathUtil.clamp(kAdj, -kOutMx, kOutMx);
+    }
+    return kAdj;
+  }
+
+  public double calculateX(double _fb) {
+    return calculateX(_fb, getSetpoint()); // This uses existing setpoint
+  }
+
+  private double calcX(double pidNum) {
+    double baseLin = (pidNum + Math.signum(pidNum) * kInDB * getP());
+    baseLin /= (1.0 - kInDB * Math.abs(getP()));
+    baseLin =
+        Math.signum(pidNum) * (kOutMn + Math.pow(Math.abs(baseLin), kOutExp) * (kOutMx - kOutMn));
+    return baseLin;
+  }
+
+  /**
+   * @return kOutMn value
+   */
+  public double getOutMn() {
+    return kOutMn;
+  }
+
+  /** Set kOutMn value */
+  public void setOutMn(double mn) {
+    kOutMn = mn;
+  }
+
+  /**
+   * @return kOutMx value
+   */
+  public double getOutMx() {
+    return kOutMx;
+  }
+
+  /** Set kOutMx value */
+  public void setOutMx(double mx) {
+    kOutMx = Math.abs(mx);
+  }
+
+  /**
+   * @return kOutExp value
+   */
+  public double getOutExp() {
+    return kOutExp;
+  }
+
+  /** Set kOutExp value */
+  public void setOutExp(double exp) {
+    kOutExp = Math.abs(exp);
+  }
+
+  /**
+   * @return kOutFF value
+   */
+  public double getOutFF() {
+    return kFF;
+  }
+
+  /** Set kOutFF value */
+  public void setOutFF(double ff) {
+    kFF = ff;
+  }
+
+  /**
+   * @return Tolerance, kInDB, value
+   */
+  public double getTolerance() {
+    return kInDB;
+  }
+
+  /** Set Tolerance & kDB value */
+  public void setTolerance(double _kDB) {
+    kInDB = Math.abs(_kDB);
+    super.setTolerance(kInDB);
+  }
+
+  /**
+   * @return kInDB, Tolerance, value
+   */
+  public double getInDB() {
+    return kInDB;
+  }
+
+  /** Set Tolerance & kDB value */
+  public void setInDB(double _kDB) {
+    setTolerance(_kDB);
+  }
+
+  /**
+   * @return kOut, Output of the PID value
+   */
+  public double getOut() {
+    return kOut;
+  }
+
+  /**
+   * @return kAdj, Output of the adjusted PID value, PIDX
+   */
+  public double getAdj() {
+    return kAdj;
+  }
+
+  /**
+   * @return kClamp, Limit kAdj to +/- OutMx
+   */
+  public boolean getClamp() {
+    return KClamp;
+  }
+
+  /** Set clamp, limit kAdj to +/- kOutMx */
+  public void setClamp(boolean clamp) {
+    KClamp = clamp;
+  }
+
+  /**
+   * @return kInFB, feedback for this pid controller
+   */
+  public double getInFB() {
+    return kInFB;
   }
 }
