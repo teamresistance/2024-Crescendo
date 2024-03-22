@@ -88,6 +88,9 @@ public class Trajectories {
         return FourNoteRed(pwr);
       case "Outside Field Note Blue":
         return OutsideFieldNoteBlue(pwr);
+      case "Outside Field Note Red":
+        return OutsideFieldNoteRed(pwr);
+
         //            case "Outside Field Note Red":
         //                return OutsideFieldNoteRed(pwr);
         // case "test":
