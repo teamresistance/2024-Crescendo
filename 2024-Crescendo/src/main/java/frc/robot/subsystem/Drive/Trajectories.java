@@ -412,6 +412,7 @@ public class Trajectories {
     pwr = 0.3;
     ATrajFunction traj[] = {
       // Shoot
+      new GoToTarget(15.2, 5.32, 0.0, 0.6, 0.8, 0.5),
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
 
@@ -449,6 +450,7 @@ public class Trajectories {
     pwr = 0.3;
     ATrajFunction traj[] = {
       // Shoot
+      new GoToTarget(1.3, 5.32, 0.0, 0.6, 0.8, 0.5),
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
 

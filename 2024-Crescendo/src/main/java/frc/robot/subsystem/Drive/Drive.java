@@ -892,6 +892,12 @@ public class Drive {
     Logger.recordOutput("SP/BackLeft RPM", drvEncFR.getSpeed());
     Logger.recordOutput("SP/BackRight RPM", drvEncBR.getSpeed());
     Logger.recordOutput("SP/heading", pigeon.getNormalizedTo180());
+
+    Logger.recordOutput("Drv/Motors/BR/Temp", drvMtrBR.getMotorTemperature());
+    Logger.recordOutput("Drv/Motors/BL/Temp", drvMtrBL.getMotorTemperature());
+    Logger.recordOutput("Drv/Motors/FR/Temp", drvMtrFR.getMotorTemperature());
+    Logger.recordOutput("Drv/Motors/FL/Temp", drvMtrFL.getMotorTemperature());
+
     Logger.recordOutput("PID-X/PB", pidControllerX.getP());
     Logger.recordOutput("PID-X/DB", pidControllerX.getInDB());
     Logger.recordOutput("PID-X/Mn", pidControllerX.getOutMn());
