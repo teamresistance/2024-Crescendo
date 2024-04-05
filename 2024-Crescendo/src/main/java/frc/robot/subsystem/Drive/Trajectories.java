@@ -341,7 +341,7 @@ public class Trajectories {
   public static ATrajFunction[] OneNote(double pwr) {
     pwr = 0.3;
     ATrajFunction traj[] = {
-      new ShooterRQ(RQShooter.kSpkrShot), new AimAtSpeaker(1.0), new ShooterRQ(RQShooter.kShoot),
+      new ShooterRQ(RQShooter.kSpkrShot), new TrajDelay(5.0), new ShooterRQ(RQShooter.kShoot),
     };
     return traj;
   }
@@ -423,19 +423,20 @@ public class Trajectories {
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
       new ShooterRQ(RQShooter.kShoot),
-
-      // Rotate towards left note
+      
+      // Rotate towards right note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
-      new MoveOnHdgRot(-40.0, 0.2),
+      new MoveOnHdgRot(40.0, 0.2),
       new GoToNote(0.2, 1.4),
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(15.0, 5.32, 0.0, 0.6, 0.4, 1.5),
+      new AimAtSpeaker(1.0),
       new ShooterRQ(RQShooter.kShoot),
 
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
-      new MoveOnHdgRot(36.0, 0.2),
+      new MoveOnHdgRot(-40.0, 0.2),
       new GoToNote(0.2, 1.4),
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),
@@ -469,11 +470,12 @@ public class Trajectories {
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),
       new GoToTarget(1.5, 5.32, 0.0, 1.0, 0.4, 1.5),
+      new AimAtSpeaker(1.0),
       new ShooterRQ(RQShooter.kShoot),
 
       // Rotate towards left note
       new SnorflerRQ(RQSnorf.kAutoSnorf),
-      new MoveOnHdgRot(36.0, 0.2),
+      new MoveOnHdgRot(40.0, 0.2),
       new GoToNote(0.2, 1.4),
       // Drive back
       new ShooterRQ(RQShooter.kSpkrShot),
@@ -489,14 +491,10 @@ public class Trajectories {
     ATrajFunction traj[] = {
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
-      new GoToTarget(3.97, 1.22, 0.0, 1.0, 1.0, 3.0), // Waypoint,
-      new GoToTarget(7.67, 0.73, 0.0, 1.0, 1.0, 3.0), // Note Point
-      new GoToNote(0.2, 1.0),
-      new GoToTarget(3.97, 1.22, 0.0, 1.0, 1.0, 3.0), // Waypoint,
-      new GoToTarget(0.85, 4.5, 45.0, 1.0, 0.5, 3.0),
-      new ShooterRQ(RQShooter.kSpkrShot),
-      new AimAtSpeaker(1.0),
-      new ShooterRQ(RQShooter.kShoot),
+      new GoToTarget(2.66, 1.57, -10.0, 0.6, 0.5, 3.0), // Waypoint,
+      new GoToTarget(7.37, 0.78, 0.0, 0.8, 1.0, 3.0), // Note Point
+      new GoToNote(0.2, 2.0),
+      new MoveTimed(5.0, 0.0, -0.4, 0.0, true),
     };
     return traj;
   }
@@ -506,14 +504,10 @@ public class Trajectories {
     ATrajFunction traj[] = {
       new ShooterRQ(RQShooter.kSpkrShot),
       new ShooterRQ(RQShooter.kShoot),
-      new GoToTarget(16.5 - 3.97, 8.2 - 1.22, 0.0, 1.0, 1.0, 3.0), // Waypoint,
-      new GoToTarget(16.5 - 7.67, 8.2 - 0.73, 0.0, 1.0, 1.0, 3.0), // Note Point
-      new GoToNote(0.2, 1.0),
-      new GoToTarget(16.5 - 3.97, 8.2 - 1.22, 0.0, 1.0, 1.0, 3.0), // Waypoint,
-      new GoToTarget(16.5 - 0.85, 8.2 - 4.5, 45.0, 1.0, 0.5, 3.0),
-      new ShooterRQ(RQShooter.kSpkrShot),
-      new AimAtSpeaker(1.0),
-      new ShooterRQ(RQShooter.kShoot),
+      new GoToTarget(14.76, 1.57, 10.0, 0.6, 0.5, 3.0), // Waypoint,
+      new GoToTarget(9.1, 0.78, 0.0, 0.8, 1.0, 3.0),
+      new GoToNote(0.2, 2.0),
+      new MoveTimed(5.0, 0.0, 0.4, 0.0, true),
     };
     return traj;
   }

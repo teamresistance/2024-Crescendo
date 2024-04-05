@@ -9,8 +9,6 @@
 
 package frc.robot.subsystem;
 
-import static frc.io.joysticks.JS_IO.btnShootMax;
-
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -26,6 +24,8 @@ import frc.robot.subsystem.Snorfler.RQSnorf;
 import frc.util.PropMath;
 import frc.util.Timer;
 import org.littletonrobotics.junction.Logger;
+
+import static frc.io.joysticks.JS_IO.btnShootMax;
 
 /**
  * The Shooter shoots Notes into the Speaker, Arm down or the Amp, Arm up.
@@ -268,7 +268,7 @@ public class Shooter {
         break;
       case 13: // wait to raise Arm on 2nd btn press (visual) or auto
         cmdUpdate(0.0, 0.0, false, false);
-        state++; // 2nd press raise arm
+        if (stateTmr.hasExpired(0.25, state)) state++; // 2nd press raise arm
         if (shtrRequest == RQShooter.kDblClutchSnorf) {
           shtrRequest = RQShooter.kNoReq;
           state = 0;

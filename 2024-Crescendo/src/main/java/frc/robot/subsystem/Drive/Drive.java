@@ -24,12 +24,13 @@ import frc.io.joysticks.JS_IO;
 import frc.util.MecanumDriveCalculator;
 import frc.util.PIDXController;
 import frc.util.Timer;
-import java.io.IOException;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import java.io.IOException;
 
 /** Super class for Drv_Auto & Drv_Teleop. Has basic control to move the robot. */
 public class Drive {
@@ -523,10 +524,11 @@ public class Drive {
    * This will return a new projectedPosition, which should be used for Speaker
    * angle calcuations
    */
-  public static Rotation2d getAngleFromSpeaker(Translation2d speakerPos) {
+  public static MecanumDriveWheelSpeeds wheelSpeeds = new MecanumDriveWheelSpeeds();
 
+  public static Rotation2d getAngleFromSpeaker(Translation2d speakerPos) {
     // Calculate Wheel Speeds
-    MecanumDriveWheelSpeeds wheelSpeeds =
+    wheelSpeeds =
         new MecanumDriveWheelSpeeds(
             IO.frontLeftEnc.getSpeed(),
             IO.frontRightEnc.getSpeed(),
@@ -897,6 +899,18 @@ public class Drive {
     Logger.recordOutput("Drv/Motors/BL/Temp", drvMtrBL.getMotorTemperature());
     Logger.recordOutput("Drv/Motors/FR/Temp", drvMtrFR.getMotorTemperature());
     Logger.recordOutput("Drv/Motors/FL/Temp", drvMtrFL.getMotorTemperature());
+    
+    Logger.recordOutput("Drv/Motors/FL/getAppliedOutput", drvMtrFL.getAppliedOutput());
+    Logger.recordOutput("Drv/Motors/FR/getAppliedOutput", drvMtrFR.getAppliedOutput());
+    Logger.recordOutput("Drv/Motors/BL/getAppliedOutput", drvMtrBL.getAppliedOutput());
+    Logger.recordOutput("Drv/Motors/BR/getAppliedOutput", drvMtrBR.getAppliedOutput());
+    
+    Logger.recordOutput("Drv/Motors/FL/getOutputCurrent", drvMtrFL.getOutputCurrent());
+    Logger.recordOutput("Drv/Motors/FR/getOutputCurrent", drvMtrFR.getOutputCurrent());
+    Logger.recordOutput("Drv/Motors/BL/getOutputCurrent", drvMtrBL.getOutputCurrent());
+    Logger.recordOutput("Drv/Motors/BR/getOutputCurrent", drvMtrBR.getOutputCurrent());
+    
+    Logger.recordOutput("Drv/Motors/inputs", inputs);
 
     Logger.recordOutput("PID-X/PB", pidControllerX.getP());
     Logger.recordOutput("PID-X/DB", pidControllerX.getInDB());
