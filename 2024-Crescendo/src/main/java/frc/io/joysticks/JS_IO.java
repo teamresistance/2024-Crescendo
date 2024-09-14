@@ -80,9 +80,10 @@ public class JS_IO {
   public static Button btnRightSP = new Button();
   public static Button btnMiddleSP = new Button();
   public static Button btnAmpLineup = new Button();
-
+  
+  public static Button fieldOrientSwitch = new Button(); // Switch between field and robot oriented
   public static Button btnAuto = new Button(); // Testing auto trajectories in teleop
-
+  
   // Constructor not needed, bc
   public JS_IO() {
     init();

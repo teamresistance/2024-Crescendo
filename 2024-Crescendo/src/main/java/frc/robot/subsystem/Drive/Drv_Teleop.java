@@ -24,6 +24,7 @@ public class Drv_Teleop extends Drive {
   private static Axis jsY = JS_IO.axLeftY;
   private static Axis jsRot = JS_IO.axRightX;
   private static Button btnGyroReset = JS_IO.btnGyroReset;
+  private static Button fieldOrientedBtn = JS_IO.fieldOrientSwitch;
   private static int state = 1; // Can be set by btn or sdb chooser
   private static String[] teleDrvType = {"Off", "Robot", "Field"}; // All drive type choices
   // Teleop Drive Chooser sdb chooser. Note can also choose state by btn
@@ -167,6 +168,11 @@ public class Drv_Teleop extends Drive {
     if (headingHoldBtn.isDown()) {
       rotSpd = pidHdg.calculateX(Drive.pigeon.getAngle(), 0.0);
     }
+    
+    if (fieldOrientedBtn.onButtonPressed()) {
+      setFieldOriented(!isFieldOriented);
+    }
+    
     // sdbUpdate();
   }
 
