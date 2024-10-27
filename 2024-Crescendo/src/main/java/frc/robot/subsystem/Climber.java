@@ -6,7 +6,6 @@ Nick - 2/21/2024 - Original Release
 JCH - 2/24/2024 - cleanup & simulator testing
 
 Desc: Controls lifting the climbing arm/hook.
-*/
 
 package frc.robot.subsystem;
 
@@ -26,11 +25,11 @@ import org.littletonrobotics.junction.Logger;
  * (hooks) up. The button can be press again to lower the Climber but will remain vertical. When the
  * Climber is up, the driver moves to the chain and presses the button to toggle and retract the
  * Climber, raising the robot.
- */
+ 
 public class Climber {
   // hdw defintions:
   /* 2 actuators are used to raise and lower the hooks.  1 low pressure to raise
-   * the hooks with 1 actuator.  Another to lower using both actuators. */
+   * the hooks with 1 actuator.  Another to lower using both actuators. 
   private static Solenoid climberExt1SV = IO.climberExt1SV; // low pressure to extend hooks
   private static Solenoid climberRet1SV = IO.climberRet1SV; // hi pressure to retract hooks
   private static Solenoid climberRet2SV = IO.climberRet2SV; // hi pressure to retract hooks
@@ -52,7 +51,7 @@ public class Climber {
       false; // time delayed feedback for if the hooks are up or dn
   private static boolean climberVert_FB = false; // feedback for if the arm has been cmd vert.
 
-  /** Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java */
+  /** Initialize Snorfler stuff. Called from auto/telopInit, maybe robotInit(?) in Robot.java 
   public static void init() {
     climberEna = false;
     cmdUpdate(false, false); // Climber is retracted, down
@@ -68,7 +67,7 @@ public class Climber {
    *
    * <p>Determine any state that needs to interupt the present state, usually by way of a JS button
    * but can be caused by other events.
-   */
+   
   public static void update() {
     // Add code here to start state machine or override the sm sequence
     if (btnClimberEna.onButtonPressed() && btnClimberEna2.isDown()) { // Toggle climber enable
@@ -88,7 +87,7 @@ public class Climber {
   /**
    * State machine update. Called from update 0 - SV retracted, down & horzital 1 - Shooter arm
    * down, check & request 2 - hooks retracted, dn & climber arm vertical 3 - hooks extended, up
-   */
+   
   private static void smUpdate() { // State Machine Update
 
     switch (state) {
@@ -127,7 +126,7 @@ public class Climber {
    *
    * @param climbExt extend/retract climber actuators to extend hooks
    * @param climbVert extend climber actuator to go vertical
-   */
+   
   private static void cmdUpdate(boolean climbExt, boolean climbVert) {
     // Check any safeties, mod passed cmds if needed.
     // Send commands to hardware
@@ -139,13 +138,13 @@ public class Climber {
   }
 
   /*-------------------------  SDB Stuff --------------------------------------
-  /**Initialize sdb */
+  /**Initialize sdb 
   private static void sdbInit() {
     // Put stuff here on the sdb to be retrieved from the sdb later
     // SmartDashboard.putBoolean("ZZ_Template/Sumpthin", sumpthin.get());
   }
 
-  /** Update the Smartdashboard. */
+  /** Update the Smartdashboard. 
   private static void sdbUpdate() {
     // Put stuff to retrieve from sdb here.  Must have been initialized in sdbInit().
     // sumpthin = SmartDashboard.getBoolean("ZZ_Template/Sumpthin", sumpthin.get());
@@ -176,14 +175,14 @@ public class Climber {
 
   /**
    * @return true if the climber has been command to raise vertical
-   */
+   
   public static boolean isClimberVert() {
     return climberVert_FB;
   }
 
   /**
    * @return true if the climber has been command to raise vertical
-   */
+   
   public static boolean climberIsUp() {
     return climberUp_FB;
   }
@@ -191,7 +190,7 @@ public class Climber {
   /**
    * A onPress is held by the hardware until read. If pressed before needed code executes
    * immediately. Clear the onPress until expected onPress.
-   */
+   
   private static void clearOnPresses() {
     btnClimberEna.clearOnPrsRel();
   }
@@ -200,15 +199,60 @@ public class Climber {
    * Probably shouldn't use this bc the states can change. Use statuses.
    *
    * @return - present state of Shooter state machine.
-   */
+   
   public static int getState() {
     return state;
   }
 
   /**
    * @return If the state machine is running, not idle.
-   */
+   
   public static boolean getStatus() {
     return state != 0; // This example says the sm is runing, not idle.
+  }
+}
+*/
+
+package frc.robot.subsystem;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class Climber extends SubsystemBase {
+  /** Creates a new Subsystem. */
+  public Climber() {}
+
+  /**
+   * Example command factory method.
+   *
+   * @return a command
+   */
+  public Command exampleMethodCommand() {
+    // Inline construction of command goes here.
+    // Subsystem::RunOnce implicitly requires `this` subsystem.
+    return runOnce(
+        () -> {
+          /* one-time action goes here */
+        });
+  }
+
+  /**
+   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   *
+   * @return value of some boolean subsystem state, such as a digital sensor.
+   */
+  public boolean exampleCondition() {
+    // Query some boolean state, such as a digital sensor.
+    return false;
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // This method will be called once per scheduler run during simulation
   }
 }
