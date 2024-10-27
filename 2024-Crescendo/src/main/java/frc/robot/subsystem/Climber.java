@@ -215,10 +215,20 @@ public class Climber {
 
 package frc.robot.subsystem;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public class Climber extends SubsystemBase {
+  private static PneumaticsModuleType modType = new PneumaticsModuleType.REVPH;
+  private static Solenoid climberVertSV = new Solenoid(2, modType, 13); // Raise tovertical
+  /* Climber (2) actuators. To save air volumn, only 1 is used to raise, extend, the hook
+   * but 2 to lower, retract, the hook with the weight of the robot also. */
+  private static Solenoid climberExt1SV = new Solenoid(2, modType, 12); // Raise hooks 1 only
+  private static Solenoid climberRet1SV = new Solenoid(2, modType, 11); // Lower hooks 1
+  private static Solenoid climberRet2SV = new Solenoid(2, modType, 10); // Lower hooks 2
+
   /** Creates a new Subsystem. */
   public Climber() {}
 
@@ -227,7 +237,7 @@ public class Climber extends SubsystemBase {
    *
    * @return a command
    */
-  public Command exampleMethodCommand() {
+  public Command printXCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
